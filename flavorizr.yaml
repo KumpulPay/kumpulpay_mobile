@@ -1,0 +1,28 @@
+app:
+  android:
+    flavorDimensions: "flavor-type"
+
+flavors:
+  prod:
+    app:
+      name: "KumpulPay"
+
+    android:
+      applicationId: "com.kumpulpay"
+    ios:
+      bundleId: "com.kumpulpay"
+    macos:
+      bundleId: "com.kumpulpay"
+
+  dev:
+    app:
+      name: "KumpulPay Dev"
+
+    android:
+      applicationId: "com.kumpulpay.dev"
+    ios:
+      bundleId: "com.kumpulpay.dev"
+    macos:
+      bundleId: "com.kumpulpay.dev"
+
+ide: idea
