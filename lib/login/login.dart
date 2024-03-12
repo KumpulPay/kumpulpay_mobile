@@ -1,8 +1,12 @@
+import 'dart:convert';
 import 'dart:developer';
 
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
+import 'package:kumpulpay/bottombar/bottombar.dart';
+import 'package:kumpulpay/data/shared_prefs.dart';
+import 'package:kumpulpay/home/home.dart';
 import 'package:kumpulpay/login/register.dart';
 import 'package:kumpulpay/login/verify.dart';
 import 'package:kumpulpay/profile/forgotpassword.dart';
@@ -27,6 +31,7 @@ class Login extends StatefulWidget {
 }
 
 class _LoginState extends State<Login> {
+  
   final _globalKey = GlobalKey();
   // final _globalKey = GlobalKey<State>();
   final _formKey = GlobalKey<FormBuilderState>();
@@ -34,7 +39,14 @@ class _LoginState extends State<Login> {
   final _controller = TextEditingController();
   bool _validate = false;
 
+  // SharedPref sharedPrefs = SharedPref();
+  // String? userName;
+
   getdarkmodepreviousstate() async {
+    
+    // await sharedPrefs.init();
+    // userName = sharedPrefs.username.;
+
     final prefs = await SharedPreferences.getInstance();
     bool? previusstate = prefs.getBool("setIsDark");
     if (previusstate == null) {
@@ -206,13 +218,10 @@ class _LoginState extends State<Login> {
                                         GestureDetector(
                                           onTap: () {
                                             // setState(() {
-                                            // _formKey.currentState?.save();
                                             if (_formKey.currentState!
                                                 .saveAndValidate()) {
-                                              // _buildBody(context);
                                               final formData =
                                                   _formKey.currentState?.value;
-                                              print('formData: $formData');
                                               _handleSubmit(context, formData);
                                               // ScaffoldMessenger.of(context).showSnackBar(
                                               //   const SnackBar(content: Text('Processing Data')),
@@ -412,12 +421,24 @@ class _LoginState extends State<Login> {
   Future<void> _handleSubmit(BuildContext context, dynamic formData) async {
     try {
       final client = ApiClient(Dio(BaseOptions(contentType: "application/json")));
+   
       AuthRes response;
-      print('formData: $formData');
       response = await client.postAuth(formData);
-      // response = await client.getTest();
-      // print('response: $response.status');
-      print(response.data);
+      if (response.status) {
+          SharedPrefs().username = "ajasas";
+          SharedPrefs().token = response.data['token'].toString();
+          SharedPrefs().userData = jsonEncode(response.data['user']);
+      
+          print(response.data['token']);
+
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => const Bottombar(),
+            ),
+          );
+      }
+      // print(response.data);
     } on DioException catch (e) {
       // The request was made and the server responded with a status code
       // that falls out of the range of 2xx and is also not 304.

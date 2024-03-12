@@ -24,13 +24,13 @@ class CustomStrings {
   static const String onbonding12 =
       'anywhere, your account is in your fingertips';
   static const String login = 'Log In';
-  static const String security = 'Security';
+  static const String security = 'Keamanan';
   static const String language = 'Language';
-  static const String forgotpasswords = 'Forgot password';
-  static const String changepassword = 'Change password';
-  static const String historytransaction = 'History Transaction';
-  static const String yourprofile = 'Your profile';
-  static const String personalinfo = 'Personal Info';
+  static const String forgotpasswords = 'Lupa password';
+  static const String changepassword = 'Ganti password';
+  static const String historytransaction = 'Histori transaksi';
+  static const String yourprofile = 'Profil';
+  static const String personalinfo = 'Data Personal';
   static const String broklyn = '@Broklyn';
   static const String general = 'General';
   static const String logout = 'Logout';
@@ -281,7 +281,7 @@ class CustomStrings {
   static const String netflixsubscription = 'Netflix Subscription';
   static const String fooddrink = 'Food & Drink';
   static const String entertaiment = 'Entertaiment';
-  static const String darkmode = 'Darkmode';
+  static const String darkmode = 'Mode gelap';
   static const String losangel = 'LosAngel 123456';
   static const String mcdonald = "McDonald's";
   static const String searchcontact = 'Search Contact';

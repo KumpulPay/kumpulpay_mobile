@@ -1,5 +1,8 @@
+import 'dart:convert';
+
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:kumpulpay/data/shared_prefs.dart';
 import 'package:kumpulpay/login/login.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -25,6 +28,7 @@ class Profile extends StatefulWidget {
 class _ProfileState extends State<Profile> {
   late ColorNotifire notifire;
   bool _switchValue = false;
+  Map<String, dynamic> userData = jsonDecode(SharedPrefs().userData);
 
   getdarkmodepreviousstate() async {
     final prefs = await SharedPreferences.getInstance();
@@ -94,21 +98,21 @@ class _ProfileState extends State<Profile> {
                       height: height / 30,
                     ),
                     Text(
-                      CustomStrings.brooklynsimmons,
+                      userData["name"],
                       style: TextStyle(
                           fontSize: height / 50,
                           fontFamily: 'Gilroy Bold',
                           color: notifire.getdarkscolor),
                     ),
-                    SizedBox(height: height / 100),
-                    Text(
-                      CustomStrings.broklyn,
-                      style: TextStyle(
-                        fontSize: height / 55,
-                        fontFamily: 'Gilroy Medium',
-                        color: Colors.grey,
-                      ),
-                    ),
+                    // SizedBox(height: height / 100),
+                    // Text(
+                    //   CustomStrings.broklyn,
+                    //   style: TextStyle(
+                    //     fontSize: height / 55,
+                    //     fontFamily: 'Gilroy Medium',
+                    //     color: Colors.grey,
+                    //   ),
+                    // ),
                     SizedBox(height: height / 50),
                     Row(
                       children: [
@@ -188,16 +192,21 @@ class _ProfileState extends State<Profile> {
                     SizedBox(
                       height: height / 50,
                     ),
-                    faceid("images/faceid.png", CustomStrings.search),
-                    Padding(
-                      padding: EdgeInsets.symmetric(horizontal: width / 20),
-                      child: Divider(
-                        thickness: 0.6,
-                        color: Colors.grey.withOpacity(0.4),
-                      ),
-                    ),
+
+                    // start menu search
+                    // faceid("images/faceid.png", CustomStrings.search),
+                    // Padding(
+                    //   padding: EdgeInsets.symmetric(horizontal: width / 20),
+                    //   child: Divider(
+                    //     thickness: 0.6,
+                    //     color: Colors.grey.withOpacity(0.4),
+                    //   ),
+                    // ),
+                    // end menu search
+
+                    // start dark mode
                     darkmode("images/darkmode.png", CustomStrings.darkmode),
-                    // SizedBox(height: height / 100,),
+                    SizedBox(height: height / 100,),
                     Padding(
                       padding: EdgeInsets.symmetric(horizontal: width / 20),
                       child: Divider(
@@ -206,6 +215,9 @@ class _ProfileState extends State<Profile> {
                       ),
                     ),
                     SizedBox(height: height / 80),
+                    // end dark mode
+
+                    // start change password
                     GestureDetector(
                       onTap: () {
                         Navigator.push(
@@ -227,6 +239,9 @@ class _ProfileState extends State<Profile> {
                       ),
                     ),
                     SizedBox(height: height / 80),
+                    // end change password
+
+                    // start forgot password
                     GestureDetector(
                       onTap: () {
                         Navigator.push(

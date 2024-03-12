@@ -48,8 +48,7 @@ class Customtextfilds {
 }
 
 class CustomtextFormfilds {
-  // static bool is_email = false;
-  static RegExp get _emailRegex => RegExp(r'^\S+@\S+$');
+  
   static Widget textField(textclr, hintclr, borderclr, img, hinttext, fillcolor,
   {is_email=false, is_password=false}) {
 
@@ -109,8 +108,6 @@ class CustomtextFormfilds {
 }
 
 class CustomtextFormBuilderfilds {
-  // static bool is_email = false;
-  static RegExp get _emailRegex => RegExp(r'^\S+@\S+$');
   static Widget textField(
     textclr, 
     hintclr, 
@@ -126,9 +123,8 @@ class CustomtextFormBuilderfilds {
         height: height / 15,
         child: FormBuilderTextField(
           name: name,
-          validator: (value) {
-            
-            if (value == '') {
+          validator: (value) {            
+            if (value == null || value.isEmpty) {
               return 'Wajib';
             }
             if (is_email) {
@@ -139,14 +135,12 @@ class CustomtextFormBuilderfilds {
               // return Helpers.validatePassword(value);
             }
           },
-          // controller: _controller,
           autofocus: false,
           style: TextStyle(
             fontSize: height / 50,
             color: textclr,
           ),
           decoration: InputDecoration(
-            // errorText: _validate ? "Value Can't Be Empty" : null,
             filled: true,
             fillColor: fillcolor,
             hintText: hinttext,

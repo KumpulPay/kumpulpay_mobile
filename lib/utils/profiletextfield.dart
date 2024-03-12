@@ -17,7 +17,7 @@ class Profiletextfilds {
           ),
           decoration: InputDecoration(
             filled: true,
-            fillColor: notifire.getprimerydarkcolor,
+            fillColor: fillcolor,
             hintText: hinttext,
             hintStyle: TextStyle(color: hintclr, fontSize: height / 60),
             focusedBorder: OutlineInputBorder(

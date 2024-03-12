@@ -1,5 +1,8 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:kumpulpay/card/mycard.dart';
+import 'package:kumpulpay/data/shared_prefs.dart';
 import 'package:kumpulpay/home/notifications.dart';
 import 'package:kumpulpay/home/request/request.dart';
 import 'package:kumpulpay/home/scanpay/scan.dart';
@@ -24,8 +27,17 @@ class Home extends StatefulWidget {
 }
 
 class _HomeState extends State<Home> {
-  late ColorNotifire notifire;
 
+  late ColorNotifire notifire;
+  
+  Map<String,dynamic> userData = jsonDecode(SharedPrefs().userData);
+  
+  @override
+  void initState() {
+    super.initState();
+   
+  }
+ 
   getdarkmodepreviousstate() async {
     final prefs = await SharedPreferences.getInstance();
     bool? previusstate = prefs.getBool("setIsDark");
@@ -124,7 +136,8 @@ class _HomeState extends State<Home> {
                   fontFamily: 'Gilroy Medium'),
             ),
             Text(
-              CustomStrings.hello,
+              // CustomStrings.hello,
+              userData["name"],
               style: TextStyle(
                   color: notifire.getdarkscolor,
                   fontSize: 20,
@@ -202,6 +215,8 @@ class _HomeState extends State<Home> {
                               ),
                             ),
                           ),
+
+                          // start card balance
                           Center(
                             child: Container(
                               height: height / 7,
@@ -310,6 +325,9 @@ class _HomeState extends State<Home> {
                               ),
                             ),
                           ),
+                          // end card balance
+
+                          // start card midle action
                           Center(
                             child: Padding(
                               padding:
@@ -519,6 +537,8 @@ class _HomeState extends State<Home> {
                               ),
                             ),
                           ),
+                          // end card midle action
+
                         ],
                       ),
                     ],
@@ -526,6 +546,8 @@ class _HomeState extends State<Home> {
                   SizedBox(
                     height: height / 30,
                   ),
+
+                  
                   Padding(
                     padding: EdgeInsets.symmetric(horizontal: width / 18),
                     child: Row(
