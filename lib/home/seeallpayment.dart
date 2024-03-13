@@ -113,9 +113,6 @@ class _SeeallpaymentState extends State<Seeallpayment> {
       body: SingleChildScrollView(
         child: Column(
           children: [
-            SizedBox(
-              height: height / 50,
-            ),
 
             _buildBody(context),
             // start prepaid
@@ -140,7 +137,7 @@ class _SeeallpaymentState extends State<Seeallpayment> {
               padding: EdgeInsets.symmetric(horizontal: width / 20),
               child: Container(
                 color: Colors.transparent,
-                height: height / 4,
+                // height: height / 4,
                 width: width,
                 child: GridView.builder(
                     physics: const NeverScrollableScrollPhysics(),
@@ -380,64 +377,30 @@ class _SeeallpaymentState extends State<Seeallpayment> {
     );
   }
 
-  // Future<void> _getProductCategory(BuildContext context) async {
-  //   try {
-  //     final client = ApiClient(Dio(BaseOptions(contentType: "application/json")));
-
-  //     AuthRes response;
-  //     response = await client.postAuth(formData);
-  //     if (response.status) {
-  //         SharedPrefs().username = "ajasas";
-  //         SharedPrefs().token = response.data['token'].toString();
-  //         SharedPrefs().userData = jsonEncode(response.data['user']);
-
-  //         print(response.data['token']);
-
-  //         Navigator.push(
-  //           context,
-  //           MaterialPageRoute(
-  //             builder: (context) => const Bottombar(),
-  //           ),
-  //         );
-  //     }
-  //     // print(response.data);
-  //   } on DioException catch (e) {
-  //     // The request was made and the server responded with a status code
-  //     // that falls out of the range of 2xx and is also not 304.
-  //     if (e.response != null) {
-  //       print(e.response?.data);
-  //       print(e.response?.headers);
-  //       print(e.response?.requestOptions);
-  //     } else {
-  //       // Something happened in setting up or sending the request that triggered an Error
-  //       print(e.requestOptions);
-  //       print(e.message);
-  //     }
-  //   }
-  // }
-
   FutureBuilder<dynamic> _buildBody(BuildContext context) {
     final client = ApiClient(Dio(BaseOptions(contentType: "application/json")));
     return FutureBuilder<dynamic>(
       future: client.getProductCategory('Bearer ${SharedPrefs().token}'),
       builder: (context, snapshot) {
         try {
-          // print(snapshot);
+      
           if (snapshot.connectionState == ConnectionState.done) {
-            // final Map<String,dynamic> parsed = snapshot;
-            // print(snapshot.data["data"]);
-            List<dynamic> list = snapshot.data["data"];
+         
+              List<dynamic> list = snapshot.data["data"];
 
-            return Column(
-              children: <Widget>[
+              return Column(
+              children: [
                 for (var item in list)... [
+                  // SizedBox(
+                  //   height: height / 50,
+                  // ),
                   Row(
                     children: [
                       SizedBox(
                         width: width / 20,
                       ),
                       Text(
-                        item['name'],
+                        item['name_mobile'],
                         style: TextStyle(
                             color: notifire.getdarkscolor,
                             fontSize: height / 50,
@@ -452,19 +415,17 @@ class _SeeallpaymentState extends State<Seeallpayment> {
                     padding: EdgeInsets.symmetric(horizontal: width / 20),
                     child: Container(
                       color: Colors.transparent,
-                      height: height / 4,
+                      height: height / 3.5,
                       width: width,
-                      child:Builder(
-                        builder: (context) {
-                          // any logic needed...
+                      child: Builder(builder: (context) {
+                          
                           List<dynamic> child2 = item["child"];
-                          print(child2);
                           return GridView.builder(
                             physics: const NeverScrollableScrollPhysics(),
                             padding: EdgeInsets.only(bottom: height / 15),
                             gridDelegate: SliverGridDelegateWithMaxCrossAxisExtent(
                               maxCrossAxisExtent: height / 10,
-                              mainAxisExtent: height / 9,
+                              mainAxisExtent: height / 7,
                               childAspectRatio: 3 / 2,
                               crossAxisSpacing: height / 50,
                               mainAxisSpacing: height / 50,
@@ -495,7 +456,7 @@ class _SeeallpaymentState extends State<Seeallpayment> {
                                         ),
                                         child: Center(
                                           child: Image.asset(
-                                            img[index],
+                                            child2[index]["image_mobile"],
                                             height: height / 30,
                                           ),
                                         ),
@@ -505,7 +466,8 @@ class _SeeallpaymentState extends State<Seeallpayment> {
                                       height: height / 60,
                                     ),
                                     Text(
-                                      child2[index]["name"],
+                                      child2[index]["name_mobile"],
+                                      textAlign: TextAlign.center,
                                       style: TextStyle(
                                           fontFamily: "Gilroy Bold",
                                           color: notifire.getdarkscolor,
@@ -520,25 +482,20 @@ class _SeeallpaymentState extends State<Seeallpayment> {
                       
                     ),
                   ),
+                  Padding(
+                    padding: EdgeInsets.symmetric(horizontal: width / 20),
+                    child: Divider(
+                      color: notifire.getdarkgreycolor.withOpacity(0.4),
+                    ),
+                  ),
                 ],  
               ],
             );
 
-            // list.forEach((obj) {//group1
-            //   print(obj);
-            //   return ListView.builder(
-            //       itemCount: ,
-            //       itemBuilder: (context, index) {
-            //         return Text("aa");
-            //       }
-            //   );
-            // });
-
-            // return Text("aa");
           } else {
-            return Text("bb");
+              return Text("Upst..",textAlign: TextAlign.center);
           }
-          // return Text("vv");
+         
         } on DioException catch (e) {
           if (e.response != null) {
             print(e.response?.data);

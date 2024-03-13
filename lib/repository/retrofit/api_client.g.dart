@@ -13,7 +13,7 @@ class _ApiClient implements ApiClient {
     this._dio, {
     this.baseUrl,
   }) {
-    baseUrl ??= 'http://192.168.102.18:1111';
+    baseUrl ??= 'https://kp-dev-api.harmonyliving.id';
   }
 
   final Dio _dio;
@@ -47,14 +47,10 @@ class _ApiClient implements ApiClient {
   }
 
   @override
-  Future<AuthRes> postAuth(
-    Map<String, dynamic> params, {
-    String contentType = 'application/json',
-  }) async {
+  Future<AuthRes> postAuth(Map<String, dynamic> params) async {
     final _extra = <String, dynamic>{};
     final queryParameters = <String, dynamic>{};
-    final _headers = <String, dynamic>{r'Content-Type': contentType};
-    _headers.removeWhere((k, v) => v == null);
+    final _headers = <String, dynamic>{};
     final _data = <String, dynamic>{};
     _data.addAll(params);
     final _result =
@@ -62,7 +58,6 @@ class _ApiClient implements ApiClient {
       method: 'POST',
       headers: _headers,
       extra: _extra,
-      contentType: contentType,
     )
             .compose(
               _dio.options,
