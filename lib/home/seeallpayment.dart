@@ -4,7 +4,6 @@ import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:kumpulpay/data/shared_prefs.dart';
 import 'package:kumpulpay/home/scanpay/scan.dart';
-import 'package:kumpulpay/repository/model/data.dart';
 import 'package:kumpulpay/repository/retrofit/api_client.dart';
 import 'package:kumpulpay/utils/media.dart';
 import 'package:provider/provider.dart';
@@ -32,56 +31,6 @@ class _SeeallpaymentState extends State<Seeallpayment> {
       notifire.setIsDark = previusstate;
     }
   }
-
-  List insuranceimg = [
-    "images/health.png",
-    "images/mobile.png",
-    "images/water.png",
-    "images/ticket.png",
-  ];
-
-  List insurancename = [
-    CustomStrings.health,
-    CustomStrings.mobile,
-    CustomStrings.motor,
-    CustomStrings.car,
-  ];
-
-  List optionimg = [
-    "images/assurance.png",
-    "images/shopping.png",
-    "images/deals.png",
-    "images/install.png",
-  ];
-
-  List optionname = [
-    CustomStrings.assurance,
-    CustomStrings.shopping,
-    CustomStrings.deals,
-    CustomStrings.install,
-  ];
-
-  List img = [
-    "images/bill.png",
-    "images/wifi.png",
-    "images/water.png",
-    "images/wallet1.png",
-    "images/game.png",
-    "images/television.png",
-    "images/merchant.png",
-    "images/install.png",
-  ];
-
-  List paymentname = [
-    CustomStrings.electricity,
-    CustomStrings.internet,
-    CustomStrings.water,
-    CustomStrings.wallet,
-    CustomStrings.games,
-    CustomStrings.television,
-    CustomStrings.merchant,
-    CustomStrings.install,
-  ];
 
   @override
   Widget build(BuildContext context) {
@@ -115,262 +64,7 @@ class _SeeallpaymentState extends State<Seeallpayment> {
           children: [
 
             _buildBody(context),
-            // start prepaid
-            Row(
-              children: [
-                SizedBox(
-                  width: width / 20,
-                ),
-                Text(
-                  CustomStrings.bill,
-                  style: TextStyle(
-                      color: notifire.getdarkscolor,
-                      fontSize: height / 50,
-                      fontFamily: 'Gilroy Bold'),
-                ),
-              ],
-            ),
-            SizedBox(
-              height: height / 60,
-            ),
-            Padding(
-              padding: EdgeInsets.symmetric(horizontal: width / 20),
-              child: Container(
-                color: Colors.transparent,
-                // height: height / 4,
-                width: width,
-                child: GridView.builder(
-                    physics: const NeverScrollableScrollPhysics(),
-                    padding: EdgeInsets.only(bottom: height / 15),
-                    gridDelegate: SliverGridDelegateWithMaxCrossAxisExtent(
-                      maxCrossAxisExtent: height / 10,
-                      mainAxisExtent: height / 9,
-                      childAspectRatio: 3 / 2,
-                      crossAxisSpacing: height / 50,
-                      mainAxisSpacing: height / 50,
-                    ),
-                    itemCount: img.length,
-                    itemBuilder: (BuildContext ctx, index) {
-                      return GestureDetector(
-                        onTap: () {},
-                        child: Column(
-                          children: [
-                            GestureDetector(
-                              onTap: () {
-                                Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                    builder: (context) => const Scan(),
-                                  ),
-                                );
-                              },
-                              child: Container(
-                                height: height / 15,
-                                width: width / 7,
-                                decoration: BoxDecoration(
-                                  color: notifire.gettabwhitecolor,
-                                  borderRadius: const BorderRadius.all(
-                                    Radius.circular(10),
-                                  ),
-                                ),
-                                child: Center(
-                                  child: Image.asset(
-                                    img[index],
-                                    height: height / 30,
-                                  ),
-                                ),
-                              ),
-                            ),
-                            SizedBox(
-                              height: height / 60,
-                            ),
-                            Text(
-                              paymentname[index],
-                              style: TextStyle(
-                                  fontFamily: "Gilroy Bold",
-                                  color: notifire.getdarkscolor,
-                                  fontSize: height / 60),
-                            ),
-                          ],
-                        ),
-                      );
-                    }),
-              ),
-            ),
-            // end prepaid
 
-            // start postpaid
-            Padding(
-              padding: EdgeInsets.symmetric(horizontal: width / 20),
-              child: Divider(
-                color: notifire.getdarkgreycolor.withOpacity(0.4),
-              ),
-            ),
-            SizedBox(
-              height: height / 100,
-            ),
-            Row(
-              children: [
-                SizedBox(
-                  width: width / 20,
-                ),
-                Text(
-                  CustomStrings.insurance,
-                  style: TextStyle(
-                      color: notifire.getdarkscolor,
-                      fontSize: height / 50,
-                      fontFamily: 'Gilroy Bold'),
-                ),
-              ],
-            ),
-            SizedBox(
-              height: height / 60,
-            ),
-            Padding(
-              padding: EdgeInsets.symmetric(horizontal: width / 20),
-              child: Container(
-                color: Colors.transparent,
-                height: height / 8,
-                width: width,
-                child: GridView.builder(
-                  physics: const NeverScrollableScrollPhysics(),
-                  padding: EdgeInsets.only(bottom: height / 15),
-                  gridDelegate: SliverGridDelegateWithMaxCrossAxisExtent(
-                    maxCrossAxisExtent: height / 10,
-                    mainAxisExtent: height / 9,
-                    childAspectRatio: 3 / 2,
-                    crossAxisSpacing: height / 50,
-                    mainAxisSpacing: height / 50,
-                  ),
-                  itemCount: insuranceimg.length,
-                  itemBuilder: (BuildContext ctx, index) {
-                    return GestureDetector(
-                      onTap: () {},
-                      child: Column(
-                        children: [
-                          Container(
-                            height: height / 15,
-                            width: width / 7,
-                            decoration: BoxDecoration(
-                              color: notifire.gettabwhitecolor,
-                              borderRadius: const BorderRadius.all(
-                                Radius.circular(10),
-                              ),
-                            ),
-                            child: Center(
-                              child: Image.asset(
-                                insuranceimg[index],
-                                height: height / 30,
-                              ),
-                            ),
-                          ),
-                          SizedBox(
-                            height: height / 60,
-                          ),
-                          Text(
-                            insurancename[index],
-                            style: TextStyle(
-                                fontFamily: "Gilroy Bold",
-                                color: notifire.getdarkscolor,
-                                fontSize: height / 55),
-                          ),
-                        ],
-                      ),
-                    );
-                  },
-                ),
-              ),
-            ),
-            // end postpaid
-
-            // start
-            Padding(
-              padding: EdgeInsets.symmetric(horizontal: width / 20),
-              child: Divider(
-                color: notifire.getdarkgreycolor.withOpacity(0.4),
-              ),
-            ),
-            SizedBox(
-              height: height / 100,
-            ),
-            Row(
-              children: [
-                SizedBox(
-                  width: width / 20,
-                ),
-                Text(
-                  CustomStrings.option,
-                  style: TextStyle(
-                      color: notifire.getdarkscolor,
-                      fontSize: height / 50,
-                      fontFamily: 'Gilroy Bold'),
-                ),
-              ],
-            ),
-            SizedBox(
-              height: height / 60,
-            ),
-            Padding(
-              padding: EdgeInsets.symmetric(horizontal: width / 20),
-              child: Container(
-                color: Colors.transparent,
-                height: height / 8,
-                width: width,
-                child: GridView.builder(
-                  physics: const NeverScrollableScrollPhysics(),
-                  padding: EdgeInsets.only(bottom: height / 15),
-                  gridDelegate: SliverGridDelegateWithMaxCrossAxisExtent(
-                    maxCrossAxisExtent: height / 10,
-                    mainAxisExtent: height / 9,
-                    childAspectRatio: 3 / 2,
-                    crossAxisSpacing: height / 50,
-                    mainAxisSpacing: height / 50,
-                  ),
-                  itemCount: insuranceimg.length,
-                  itemBuilder: (BuildContext ctx, index) {
-                    return GestureDetector(
-                      onTap: () {},
-                      child: Column(
-                        children: [
-                          Container(
-                            height: height / 15,
-                            width: width / 7,
-                            decoration: BoxDecoration(
-                              color: notifire.gettabwhitecolor,
-                              borderRadius: const BorderRadius.all(
-                                Radius.circular(10),
-                              ),
-                            ),
-                            child: Center(
-                              child: Image.asset(
-                                optionimg[index],
-                                height: height / 30,
-                              ),
-                            ),
-                          ),
-                          SizedBox(
-                            height: height / 60,
-                          ),
-                          Text(
-                            optionname[index],
-                            style: TextStyle(
-                                fontFamily: "Gilroy Bold",
-                                color: notifire.getdarkscolor,
-                                fontSize: height / 55),
-                          ),
-                        ],
-                      ),
-                    );
-                  },
-                ),
-              ),
-            ),
-            Padding(
-              padding: EdgeInsets.symmetric(horizontal: width / 20),
-              child: Divider(
-                color: notifire.getdarkgreycolor.withOpacity(0.4),
-              ),
-            ),
           ],
         ),
       ),
@@ -378,6 +72,7 @@ class _SeeallpaymentState extends State<Seeallpayment> {
   }
 
   FutureBuilder<dynamic> _buildBody(BuildContext context) {
+    final Orientation orientation = MediaQuery.of(context).orientation;
     final client = ApiClient(Dio(BaseOptions(contentType: "application/json")));
     return FutureBuilder<dynamic>(
       future: client.getProductCategory('Bearer ${SharedPrefs().token}'),
@@ -391,9 +86,9 @@ class _SeeallpaymentState extends State<Seeallpayment> {
               return Column(
               children: [
                 for (var item in list)... [
-                  // SizedBox(
-                  //   height: height / 50,
-                  // ),
+                  SizedBox(
+                    height: height / 50,
+                  ),
                   Row(
                     children: [
                       SizedBox(
@@ -416,6 +111,7 @@ class _SeeallpaymentState extends State<Seeallpayment> {
                     child: Container(
                       color: Colors.transparent,
                       height: height / 3.5,
+                      // height: heig,
                       width: width,
                       child: Builder(builder: (context) {
                           
@@ -423,12 +119,25 @@ class _SeeallpaymentState extends State<Seeallpayment> {
                           return GridView.builder(
                             physics: const NeverScrollableScrollPhysics(),
                             padding: EdgeInsets.only(bottom: height / 15),
+                            // gridDelegate:
+                            //     SliverGridDelegateWithFixedCrossAxisCount(
+                            //         crossAxisCount:
+                            //             (orientation == Orientation.portrait)
+                            //                 ? 2
+                            //                 : 3,
+                            //         childAspectRatio: (MediaQuery.of(context)
+                            //                 .size
+                            //                 .height *
+                            //             0.006)),
                             gridDelegate: SliverGridDelegateWithMaxCrossAxisExtent(
                               maxCrossAxisExtent: height / 10,
-                              mainAxisExtent: height / 7,
-                              childAspectRatio: 3 / 2,
+                              mainAxisExtent: height / 7.5,
+                              childAspectRatio:(MediaQuery.of(context)
+                                            .size
+                                            .height *
+                                        0.006),
                               crossAxisSpacing: height / 50,
-                              mainAxisSpacing: height / 50,
+                              mainAxisSpacing: height / 40,
                             ),
                             itemCount: child2.length,
                             itemBuilder: (BuildContext ctx, index) {
@@ -463,7 +172,7 @@ class _SeeallpaymentState extends State<Seeallpayment> {
                                       ),
                                     ),
                                     SizedBox(
-                                      height: height / 60,
+                                      height: height / 120,
                                     ),
                                     Text(
                                       child2[index]["name_mobile"],
@@ -471,7 +180,7 @@ class _SeeallpaymentState extends State<Seeallpayment> {
                                       style: TextStyle(
                                           fontFamily: "Gilroy Bold",
                                           color: notifire.getdarkscolor,
-                                          fontSize: height / 60),
+                                          fontSize: height / 50),
                                     ),
                                   ],
                                 ),
@@ -493,7 +202,7 @@ class _SeeallpaymentState extends State<Seeallpayment> {
             );
 
           } else {
-              return Text("Upst..",textAlign: TextAlign.center);
+              return Text("Loading..",textAlign: TextAlign.center);
           }
          
         } on DioException catch (e) {
@@ -508,7 +217,7 @@ class _SeeallpaymentState extends State<Seeallpayment> {
           }
         }
 
-        return Text("aa");
+        return Text("Loading..", textAlign: TextAlign.center);
       },
     );
   }

@@ -1,10 +1,13 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
+import 'package:kumpulpay/data/shared_prefs.dart';
 import 'package:kumpulpay/profile/editprofile.dart';
 import 'package:kumpulpay/utils/media.dart';
+import 'package:kumpulpay/utils/textfeilds.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../utils/colornotifire.dart';
-import '../utils/profiletextfield.dart';
 import '../utils/string.dart';
 
 class MyProfile extends StatefulWidget {
@@ -16,6 +19,10 @@ class MyProfile extends StatefulWidget {
 
 class _MyProfileState extends State<MyProfile> {
   late ColorNotifire notifire;
+  Map<String, dynamic> userData = {};
+  final TextEditingController _ctrFullName = TextEditingController();
+  final TextEditingController _ctrPhone = TextEditingController();
+  final TextEditingController _ctrEmail = TextEditingController();
 
   getdarkmodepreviousstate() async {
     final prefs = await SharedPreferences.getInstance();
@@ -35,6 +42,11 @@ class _MyProfileState extends State<MyProfile> {
 
   @override
   Widget build(BuildContext context) {
+    userData = json.decode(SharedPrefs().userData);
+    _ctrFullName.text = userData["name"];
+    _ctrPhone.text = userData["phone"];
+    _ctrEmail.text = userData["email"];
+
     notifire = Provider.of<ColorNotifire>(context, listen: true);
     return Scaffold(
       appBar: AppBar(
@@ -94,8 +106,9 @@ class _MyProfileState extends State<MyProfile> {
                     color: Colors.transparent,
                     shape: BoxShape.circle,
                   ),
-                  child: Image.asset("images/man4.png"),
+                  child: Image.asset("images/profile.png"),
                 ),
+
                 SizedBox(
                   height: height / 30,
                 ),
@@ -105,7 +118,7 @@ class _MyProfileState extends State<MyProfile> {
                       width: width / 20,
                     ),
                     Text(
-                      CustomStrings.fullnamee,
+                      "Nama Lengkap",
                       style: TextStyle(
                           color: Colors.grey,
                           fontSize: height / 50,
@@ -116,12 +129,14 @@ class _MyProfileState extends State<MyProfile> {
                 SizedBox(
                   height: height / 50,
                 ),
-                Profiletextfilds.textField(
-                    notifire.getdarkscolor,
-                    notifire.getdarkgreycolor,
-                    notifire.getbluecolor,
-                    CustomStrings.fullnames,
-                    notifire.getdarkwhitecolor),
+                Dinamistextfilds.textField(
+                    controller: _ctrFullName,
+                    txtClr: notifire.getdarkscolor,
+                    histClr: notifire.getdarkgreycolor,
+                    hintTxt: "Nama Lengkap",
+                    borderClr: notifire.getbluecolor,
+                    fillClr: notifire.getdarkwhitecolor),
+              
                 SizedBox(
                   height: height / 50,
                 ),
@@ -142,12 +157,14 @@ class _MyProfileState extends State<MyProfile> {
                 SizedBox(
                   height: height / 50,
                 ),
-                Profiletextfilds.textField(
-                    notifire.getdarkscolor,
-                    notifire.getdarkgreycolor,
-                    notifire.getbluecolor,
-                    CustomStrings.email,
-                    notifire.getdarkwhitecolor),
+                Dinamistextfilds.textField(
+                    controller: _ctrEmail,
+                    txtClr: notifire.getdarkscolor,
+                    histClr: notifire.getdarkgreycolor,
+                    hintTxt: CustomStrings.email,
+                    borderClr: notifire.getbluecolor,
+                    fillClr: notifire.getdarkwhitecolor, enabled: false),
+      
                 SizedBox(
                   height: height / 50,
                 ),
@@ -157,7 +174,7 @@ class _MyProfileState extends State<MyProfile> {
                       width: width / 20,
                     ),
                     Text(
-                      CustomStrings.phonenumber,
+                      "Telepon",
                       style: TextStyle(
                           color: Colors.grey,
                           fontSize: height / 50,
@@ -168,12 +185,15 @@ class _MyProfileState extends State<MyProfile> {
                 SizedBox(
                   height: height / 50,
                 ),
-                Profiletextfilds.textField(
-                    notifire.getdarkscolor,
-                    notifire.getdarkgreycolor,
-                    notifire.getbluecolor,
-                    CustomStrings.phonenumbers,
-                    notifire.getdarkwhitecolor),
+                Dinamistextfilds.textField(
+                  controller: _ctrPhone,
+                  txtClr: notifire.getdarkscolor,
+                  histClr: notifire.getdarkgreycolor,
+                  hintTxt: "Telepon",
+                  borderClr: notifire.getbluecolor,
+                  fillClr: notifire.getdarkwhitecolor,
+                  enabled: false
+                ),
                 SizedBox(
                   height: height / 50,
                 ),
@@ -183,7 +203,7 @@ class _MyProfileState extends State<MyProfile> {
                       width: width / 20,
                     ),
                     Text(
-                      CustomStrings.address,
+                      "Alamat",
                       style: TextStyle(
                           color: Colors.grey,
                           fontSize: height / 50,
@@ -210,7 +230,7 @@ class _MyProfileState extends State<MyProfile> {
                         contentPadding: EdgeInsets.all(height / 100),
                         filled: true,
                         fillColor: notifire.getprimerydarkcolor,
-                        hintText: CustomStrings.address,
+                        hintText: "Alamat",
                         hintStyle: TextStyle(
                             color: notifire.getdarkgreycolor,
                             fontSize: height / 60),

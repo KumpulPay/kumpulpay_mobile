@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:kumpulpay/home/home.dart';
 import 'package:kumpulpay/home/scanpay/scan.dart';
+import 'package:kumpulpay/test.dart';
 import 'package:kumpulpay/utils/colornotifire.dart';
 import 'package:kumpulpay/utils/media.dart';
 import 'package:provider/provider.dart';
@@ -73,7 +74,8 @@ class _BottombarState extends State<Bottombar> {
             Navigator.push(
               context,
               MaterialPageRoute(
-                builder: (context) => const Scan(),
+                // builder: (context) => const Scan(),
+                builder: (context) => const Test(),
               ),
             );
           },

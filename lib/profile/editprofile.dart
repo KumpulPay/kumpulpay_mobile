@@ -1,5 +1,9 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:kumpulpay/bottombar/bottombar.dart';
+import 'package:kumpulpay/data/shared_prefs.dart';
+import 'package:kumpulpay/utils/textfeilds.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -17,6 +21,10 @@ class EditProfile extends StatefulWidget {
 
 class _EditProfileState extends State<EditProfile> {
   late ColorNotifire notifire;
+  Map<String, dynamic> userData = {};
+  final TextEditingController _ctrFullName = TextEditingController();
+  final TextEditingController _ctrPhone = TextEditingController();
+  final TextEditingController _ctrEmail = TextEditingController();
 
   getdarkmodepreviousstate() async {
     final prefs = await SharedPreferences.getInstance();
@@ -31,6 +39,11 @@ class _EditProfileState extends State<EditProfile> {
   @override
   Widget build(BuildContext context) {
     notifire = Provider.of<ColorNotifire>(context, listen: true);
+    userData = json.decode(SharedPrefs().userData);
+    _ctrFullName.text = userData["name"];
+    _ctrPhone.text = userData["phone"];
+    _ctrEmail.text = userData["email"];
+
     return Scaffold(
       appBar: AppBar(
         backgroundColor: notifire.getprimerycolor,
@@ -73,7 +86,7 @@ class _EditProfileState extends State<EditProfile> {
                           color: Colors.transparent,
                           shape: BoxShape.circle,
                         ),
-                        child: Image.asset("images/man4.png"),
+                        child: Image.asset("images/profile.png"),
                       ),
                     ),
                     Column(
@@ -109,7 +122,7 @@ class _EditProfileState extends State<EditProfile> {
                       width: width / 20,
                     ),
                     Text(
-                      CustomStrings.fullnamee,
+                       "Nama Lengkap",
                       style: TextStyle(
                           color: Colors.grey,
                           fontSize: height / 50,
@@ -120,15 +133,17 @@ class _EditProfileState extends State<EditProfile> {
                 SizedBox(
                   height: height / 50,
                 ),
-                Profiletextfilds.textField(
-                    notifire.getdarkscolor,
-                    notifire.getdarkgreycolor,
-                    notifire.getbluecolor,
-                    CustomStrings.fullnames,
-                    notifire.getdarkwhitecolor),
+                Dinamistextfilds.textField(
+                    controller: _ctrFullName,
+                    txtClr: notifire.getdarkscolor,
+                    histClr: notifire.getdarkgreycolor,
+                    hintTxt: "Nama Lengkap",
+                    borderClr: notifire.getbluecolor,
+                    fillClr: notifire.getdarkwhitecolor),
                 SizedBox(
                   height: height / 50,
                 ),
+
                 Row(
                   children: [
                     SizedBox(
@@ -146,12 +161,15 @@ class _EditProfileState extends State<EditProfile> {
                 SizedBox(
                   height: height / 50,
                 ),
-                Profiletextfilds.textField(
-                    notifire.getdarkscolor,
-                    notifire.getdarkgreycolor,
-                    notifire.getbluecolor,
-                    CustomStrings.email,
-                    notifire.getdarkwhitecolor),
+                 Dinamistextfilds.textField(
+                    controller: _ctrEmail,
+                    txtClr: notifire.getdarkscolor,
+                    histClr: notifire.getdarkgreycolor,
+                    hintTxt: CustomStrings.email,
+                    borderClr: notifire.getbluecolor,
+                    fillClr: notifire.getdarkwhitecolor,
+                    enabled: false),
+
                 SizedBox(
                   height: height / 50,
                 ),
@@ -161,7 +179,7 @@ class _EditProfileState extends State<EditProfile> {
                       width: width / 20,
                     ),
                     Text(
-                      CustomStrings.phonenumber,
+                      "Telepon",
                       style: TextStyle(
                           color: Colors.grey,
                           fontSize: height / 50,
@@ -172,12 +190,15 @@ class _EditProfileState extends State<EditProfile> {
                 SizedBox(
                   height: height / 50,
                 ),
-                Profiletextfilds.textField(
-                    notifire.getdarkscolor,
-                    notifire.getdarkgreycolor,
-                    notifire.getbluecolor,
-                    CustomStrings.phonenumbers,
-                    notifire.getdarkwhitecolor),
+                Dinamistextfilds.textField(
+                    controller: _ctrPhone,
+                    txtClr: notifire.getdarkscolor,
+                    histClr: notifire.getdarkgreycolor,
+                    hintTxt: "Telepon",
+                    borderClr: notifire.getbluecolor,
+                    fillClr: notifire.getdarkwhitecolor,
+                    enabled: false),
+                    
                 SizedBox(
                   height: height / 50,
                 ),

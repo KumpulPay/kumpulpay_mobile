@@ -357,6 +357,8 @@ class _ScanState extends State<Scan> {
                                               ),
                                             ),
                                           ),
+
+                                          
                                           SizedBox(
                                             height: height / 5,
                                           ),

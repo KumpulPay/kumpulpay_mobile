@@ -4,15 +4,13 @@ class SharedPrefs {
   late final SharedPreferences _sharedPrefs;
 
   static final SharedPrefs _instance = SharedPrefs._internal();
-
   factory SharedPrefs() => _instance;
-
   SharedPrefs._internal();
 
   Future<void> init() async {
     _sharedPrefs = await SharedPreferences.getInstance();
   }
-
+  
   String get username => _sharedPrefs.getString("user_name") ?? "";
   set username(String value) {
     _sharedPrefs.setString("user_name", value);
@@ -26,6 +24,11 @@ class SharedPrefs {
   String get userData => _sharedPrefs.getString("user_data") ?? "";
   set userData(String value) {
     _sharedPrefs.setString("user_data", value);
+  }
+
+  double get limitsAvailable => _sharedPrefs.getDouble("limits_available") ?? 0;
+  set limitsAvailable(double value) {
+    _sharedPrefs.setDouble("limits_available", value);
   }
 
   // static setFcmRegId(String value) async {

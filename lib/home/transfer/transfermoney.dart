@@ -696,6 +696,8 @@ class _TransferMoneyState extends State<TransferMoney> {
                     ),
                   ],
                 ),
+
+                // info detail
                 SizedBox(
                   height: height / 60,
                 ),
@@ -864,6 +866,8 @@ class _TransferMoneyState extends State<TransferMoney> {
                     ],
                   ),
                 ),
+
+                // action button
                 SizedBox(
                   height: height / 30,
                 ),

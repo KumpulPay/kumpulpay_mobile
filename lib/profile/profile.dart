@@ -4,9 +4,10 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:kumpulpay/data/shared_prefs.dart';
 import 'package:kumpulpay/login/login.dart';
+import 'package:kumpulpay/profile/editprofile.dart';
+import 'package:kumpulpay/transaction/history.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import '../card/inoutpayment.dart';
 import '../utils/colornotifire.dart';
 import '../utils/media.dart';
 import '../utils/string.dart';
@@ -92,7 +93,7 @@ class _ProfileState extends State<Profile> {
                         color: Colors.transparent,
                         shape: BoxShape.circle,
                       ),
-                      child: Image.asset("images/man4.png"),
+                      child: Image.asset("images/profile.png"),
                     ),
                     SizedBox(
                       height: height / 30,
@@ -135,7 +136,7 @@ class _ProfileState extends State<Profile> {
                         Navigator.push(
                           context,
                           MaterialPageRoute(
-                            builder: (context) => const MyProfile(),
+                            builder: (context) => const EditProfile(),
                           ),
                         );
                       },
@@ -158,7 +159,7 @@ class _ProfileState extends State<Profile> {
                         Navigator.push(
                           context,
                           MaterialPageRoute(
-                            builder: (context) => const InOutPayment(),
+                            builder: (context) => const History(),
                           ),
                         );
                       },

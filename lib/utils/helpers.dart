@@ -1,4 +1,6 @@
 
+import 'package:intl/intl.dart';
+
 class Helpers {
 
   static String? validateEmail(String? value) {
@@ -21,6 +23,17 @@ class Helpers {
     final regex = RegExp(pattern);
     return value!.isNotEmpty && !regex.hasMatch(value) 
       ? 'Password tidak valid' : null;
+  }
+
+  static String dateTimeToFormat(String data, {String format="dd-MM-yyyy"}){
+    final DateFormat formatter = DateFormat(format);
+    final String formatted = formatter.format(DateTime.parse(data));
+    return formatted;
+  }
+
+  static String currencyFormatter(double value, {locale="id_ID", symbol="Rp", decimalDigits=0}){
+    NumberFormat currencyFormatter = NumberFormat.currency(locale: locale, symbol: symbol, decimalDigits: decimalDigits);
+    return currencyFormatter.format(value);
   }
 
 }

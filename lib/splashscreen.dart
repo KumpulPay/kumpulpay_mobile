@@ -31,7 +31,7 @@ class _SplashscreenState extends State<Splashscreen> {
   @override
   void initState() {
     super.initState();
-    getdarkmodepreviousstate();
+    // getdarkmodepreviousstate();
     Timer(
       const Duration(seconds: 3),
       () => Navigator.pushReplacement(
@@ -70,7 +70,7 @@ class _SplashscreenState extends State<Splashscreen> {
                   ),
                   Center(
                     child: Image.asset(
-                      "images/logos.png",
+                      "images/logo_app/ic_launcher_round.webp",
                       height: height / 7,
                     ),
                   ),

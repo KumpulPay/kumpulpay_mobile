@@ -3,6 +3,42 @@ import 'package:flutter_form_builder/flutter_form_builder.dart';
 import 'package:kumpulpay/utils/helpers.dart';
 import 'media.dart';
 
+
+class Dinamistextfilds {
+  static Widget textField({txtClr, histClr, hintTxt, borderClr, fillClr, enabled=true, controller}) {
+    return Padding(
+      padding: EdgeInsets.symmetric(horizontal: width / 18),
+      child: Container(
+        color: Colors.transparent,
+        height: height / 15,
+        child: TextField(
+          controller: controller,
+          enabled: enabled,
+          autofocus: false,
+          style: TextStyle(
+            fontSize: height / 50,
+            color: txtClr,
+          ),
+          decoration: InputDecoration(
+            filled: true,
+            fillColor: fillClr,
+            hintText: hintTxt,
+            hintStyle: TextStyle(color: histClr, fontSize: height / 60),
+            focusedBorder: OutlineInputBorder(
+              borderSide: BorderSide(color: borderClr),
+              borderRadius: BorderRadius.circular(10),
+            ),
+            enabledBorder: OutlineInputBorder(
+              borderSide: const BorderSide(color: Color(0xffd3d3d3)),
+              borderRadius: BorderRadius.circular(10),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
 class Customtextfilds {
   static Widget textField(
       textclr, hintclr, borderclr, img, hinttext, fillcolor) {
@@ -115,25 +151,26 @@ class CustomtextFormBuilderfilds {
     img, 
     hinttext, 
     fillcolor,
-    {name, is_email = false, is_password = false}) {
+    {name, isEmail = false, isPassword = false, initialValue}) {
     return Padding(
       padding: EdgeInsets.symmetric(horizontal: width / 18),
       child: Container(
         color: Colors.transparent,
         height: height / 15,
         child: FormBuilderTextField(
+          initialValue: initialValue,
           name: name,
           validator: (value) {            
             if (value == null || value.isEmpty) {
               return 'Wajib';
             }
-            if (is_email) {
-              print('value: $value');
+            if (isEmail) {
               return Helpers.validateEmail(value);
             }
-            if (is_password) {
+            if (isPassword) {
               // return Helpers.validatePassword(value);
             }
+            return null;
           },
           autofocus: false,
           style: TextStyle(

@@ -1,7 +1,16 @@
 class CustomStrings {
+  static const String paylater = 'Paylater';
   static const String algorithm = 'Happiness';
   static const String skip = 'SKIP';
   static const String setupprofile = 'Set Up Profile';
+
+  static const String intro1Title = 'Kumpul Pembayaran Digital';
+  static const String intro1Description = 'Beli pulsa dan banyak produk digital lainnya kami kumpulkan disini';
+  static const String intro2Title = 'Transaksi Mudah';
+  static const String intro2Description = 'Lebih mudah pakai KumpulPay transaksi cepat pembayaran anti ribet';
+  static const String intro3Title = 'Pendaftaran gratis';
+  static const String intro3Description = 'Gratis biaya pendaftaran dan tanpa syarat';
+
   static const String onbonding1 = 'Easily Accessible';
   static const String onbonding2 =
       'Access your account anytime anywhere, no hassele';
@@ -56,7 +65,7 @@ class CustomStrings {
   static const String aileen = 'Aileen Fullbright';
   static const String jaydon = 'Jaydon Botosh';
   static const String bca1 = 'BCA • 2468 3545 ****';
-  static const String profile = 'Profile';
+  static const String profile = 'Profil';
   static const String sendrequest = 'Send Request';
   static const String code = 'I didn’t get the Code.';
   static const String resendcode = ' Resend Code';
@@ -103,7 +112,7 @@ class CustomStrings {
   static const String netflix = "Netflix Subscription";
   static const String hannah = "Hannah Burress";
   static const String download = 'Download';
-  static const String showinghistory = 'Showing 25 of 849';
+  static const String showinghistory = 'Showing 25 of 859';
   static const String showingscheduled = 'Showing 25 of 57';
   static const String balance = 'Balance:\$12.689';
   static const String actives = 'Active';
@@ -174,8 +183,8 @@ class CustomStrings {
   static const String onlineshopping = 'Online Shopping';
   static const String water = 'Water Bill';
   static const String more = 'More';
-  static const String transfersent = 'Payment transfer successfully sent!';
-  static const String transfersuccessful = 'Transfer Successful!';
+  static const String transfersent = 'Transfer pembayaran berhasil dikirim!';
+  static const String transfersuccessful = 'Transfer Berhasil!';
   static const String cancel = 'Cancel';
   static const String confirm = 'Confirm';
   static const String free = 'Free';
@@ -229,7 +238,7 @@ class CustomStrings {
   static const String wallet = 'E-Wallet';
   static const String shopping = 'Shopping';
   static const String deals = 'Deals';
-  static const String lasttransaction = 'Last Transaction';
+  static const String lasttransaction = 'Transaksi Terakhir';
   static const String skips = 'Skip';
   static const String option = 'Option';
   static const String alltransaction = 'All Transaction';
@@ -237,9 +246,10 @@ class CustomStrings {
   static const String transfer = 'Transfer';
   static const String request = 'Request';
   static const String topup = 'Top Up';
-  static const String seeall = 'See all';
-  static const String discoverservices = 'Discover Services';
+  static const String seeall = 'Semua';
+  static const String discoverservices = 'Layanan Favorit';
   static const String totalwalletbalance = 'Total Wallet Balance';
+  static const String limitPaylater = 'Limit Paylater';
   static const String scanpay = 'Scan';
   static const String hello = 'Hello Johan shaikh';
   static const String goodmorning = 'Good Morning,';
@@ -269,7 +279,7 @@ class CustomStrings {
   static const String dateofbirth = 'Date of birth';
   static const String gender = 'Gender';
   static const String male = 'Male';
-  static const String savechange = 'Save Change';
+  static const String savechange = 'Simpan Perubahan';
   static const String confirmtransfer = 'Confirm Transfer';
   static const String continuepayment = 'to continue the payment process';
   static const String inputyourpin = 'Input your PIN';
