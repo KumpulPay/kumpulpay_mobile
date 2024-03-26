@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:kumpulpay/topup/topup_transfer_manual.dart';
 import 'package:kumpulpay/utils/string.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -371,12 +372,12 @@ class _TopupState extends State<Topup> {
                     ),
                     child: GestureDetector(
                         onTap: () {
-                          // Navigator.push(
-                          //   context,
-                          //   MaterialPageRoute(
-                          //     builder: (context) => const ConfirmPayment(),
-                          //   ),
-                          // );
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => const TopupTransferManual(),
+                            ),
+                          );
                         },
                         child: scannerbutton(
                           notifire.getbluecolor,

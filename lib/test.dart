@@ -53,28 +53,55 @@ class _TestState extends State<Test> {
       ),
       backgroundColor: notifire.getprimerycolor,
       body: Center(
-          child: InkWell(
-            onTap: () {
-              // Handle onTap action here
-              print('Widget clicked!');
-            },
-            child: Container(
-              width: 200,
-              height: 50,
-              decoration: BoxDecoration(
-                color: Colors.blue,
-                borderRadius: BorderRadius.circular(8),
-                boxShadow: [BoxShadow(color: Colors.grey, blurRadius: 5)], // Add shadow effect here
-              ),
-              child: Center(
-                child: Text(
-                  'Click Me',
-                  style: TextStyle(color: Colors.white, fontSize: 18),
+        child: Container(
+          width: width,
+          height: 200,
+          color: Colors.grey,
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Align(
+                      alignment: Alignment.topLeft,
+                      child: Text(
+                        'Top Aligned Text',
+                        style: TextStyle(
+                          fontSize: 20,
+                          color: Colors.white,
+                        ),
+                      ),
+                    ),
+                    // Add additional widgets if needed
+                  ],
                 ),
               ),
-            ),
-          )
-      )
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Align(
+                      alignment: Alignment.topLeft,
+                      child: Text(
+                        'Apabila saldo gagal terisi dan pelanggan tidak memberitahu terhitung 3 bulan setelah transfer, maka tidak ada kewajiban bagi Topindoku untuk validasi dan input manual saldo',
+                        style: TextStyle(
+                          fontSize: 20,
+                          color: Colors.white,
+                        ),
+                      ),
+                    ),
+                    // Add additional widgets if needed
+                  ],
+                ),
+              ),
+              // Add other widgets here
+            ],
+          ),
+        ),
+      ),
+      
     );
 
   }
