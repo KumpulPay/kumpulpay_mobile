@@ -262,12 +262,14 @@ class _EditProfileState extends State<EditProfile> {
                   padding: EdgeInsets.symmetric(horizontal: width / 20),
                   child: GestureDetector(
                     onTap: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => const Bottombar(),
-                        ),
-                      );
+                      ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(content: Text("Dalam pengembangan")));
+                      // Navigator.push(
+                      //   context,
+                      //   MaterialPageRoute(
+                      //     builder: (context) => const Bottombar(),
+                      //   ),
+                      // );
                     },
                     child: Container(
                       height: height / 15,

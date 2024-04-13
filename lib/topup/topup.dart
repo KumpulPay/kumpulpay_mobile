@@ -1,5 +1,13 @@
+import 'dart:async';
+import 'dart:convert';
+
+import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
+import 'package:kumpulpay/data/shared_prefs.dart';
+import 'package:kumpulpay/repository/retrofit/api_client.dart';
 import 'package:kumpulpay/topup/topup_transfer_manual.dart';
+import 'package:kumpulpay/utils/helpers.dart';
+import 'package:kumpulpay/utils/loading.dart';
 import 'package:kumpulpay/utils/string.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -15,6 +23,7 @@ class Topup extends StatefulWidget {
 }
 
 class _TopupState extends State<Topup> {
+  final _globalKey = GlobalKey<State>();
   late ColorNotifire notifire;
   int _selectedIndex = 1;
   TextEditingController _ctrAmount = TextEditingController();
@@ -123,9 +132,9 @@ class _TopupState extends State<Topup> {
                     fit: BoxFit.cover,
                   ),
                 ),
+                
                 Column(
                   children: [
-                    
                     SizedBox(
                       height: height / 50,
                     ),
@@ -165,31 +174,32 @@ class _TopupState extends State<Topup> {
                               });
                             },
                             child: Container(
-                              height: height / 15,
-                              // width: width / 3,
-                              width: width / 3,
-                              decoration: BoxDecoration(
-                                boxShadow: [
-                                  BoxShadow(
-                                    color:
-                                        notifire.getbluecolor.withOpacity(0.4),
-                                    blurRadius:
-                                        _selectedIndex == index ? 5.0 : 0.0,
+                                height: height / 15,
+                                // width: width / 3,
+                                width: width / 3,
+                                decoration: BoxDecoration(
+                                  boxShadow: [
+                                    BoxShadow(
+                                      color: notifire.getbluecolor
+                                          .withOpacity(0.4),
+                                      blurRadius:
+                                          _selectedIndex == index ? 5.0 : 0.0,
+                                    ),
+                                  ],
+                                  color: notifire.gettabwhitecolor,
+                                  borderRadius: const BorderRadius.all(
+                                    Radius.circular(10),
                                   ),
-                                ],
-                                color: notifire.gettabwhitecolor,
-                                borderRadius: const BorderRadius.all(
-                                  Radius.circular(10),
+                                  border: Border.all(
+                                    color: _selectedIndex == index
+                                        ? Colors.transparent
+                                        : notifire.getbluecolor
+                                            .withOpacity(0.1),
+                                  ),
                                 ),
-                                border: Border.all(
-                                  color: _selectedIndex == index
-                                      ? Colors.transparent
-                                      : notifire.getbluecolor.withOpacity(0.1),
-                                ),
-                              ),
-                              child: Row(
-                                children: [
-                                   Container(
+                                child: Row(
+                                  children: [
+                                    Container(
                                       height: height / 15,
                                       width: width / 7,
                                       decoration: BoxDecoration(
@@ -206,17 +216,15 @@ class _TopupState extends State<Topup> {
                                       ),
                                     ),
                                     Text(
-                                        paymentMethod[index],
-                                        textAlign: TextAlign.left,
-                                        style: TextStyle(
-                                            color: notifire.getdarkscolor,
-                                            fontSize: height / 50,
-                                            fontFamily: 'Gilroy Bold'),
-                                      ),
-                                    
-                                ],
-                              )
-                            ),
+                                      paymentMethod[index],
+                                      textAlign: TextAlign.left,
+                                      style: TextStyle(
+                                          color: notifire.getdarkscolor,
+                                          fontSize: height / 50,
+                                          fontFamily: 'Gilroy Medium'),
+                                    ),
+                                  ],
+                                )),
                           );
                         },
                       ),
@@ -320,82 +328,126 @@ class _TopupState extends State<Topup> {
                           scrollDirection: Axis.horizontal,
                           itemCount: amount.length,
                           itemBuilder: (context, index) => Padding(
-                            padding: EdgeInsets.only(right: width / 30),
-                            child: GestureDetector(
-                              onTap: () {
-                                _ctrAmount.text = amount[index];
-                              },
-                              child: Container(
-                                // height: height / 20,
-                                // width: width / 5,
-                                decoration: BoxDecoration(
-                                  borderRadius: const BorderRadius.all(
-                                    Radius.circular(10),
+                              padding: EdgeInsets.only(right: width / 30),
+                              child: GestureDetector(
+                                onTap: () {
+                                  _ctrAmount.text = amount[index];
+                                },
+                                child: Container(
+                                  // height: height / 20,
+                                  // width: width / 5,
+                                  decoration: BoxDecoration(
+                                    borderRadius: const BorderRadius.all(
+                                      Radius.circular(10),
+                                    ),
+                                    color:
+                                        notifire.getbluecolor.withOpacity(0.3),
                                   ),
-                                  color: notifire.getbluecolor.withOpacity(0.3),
+                                  child: Center(
+                                    child: Padding(
+                                        padding: EdgeInsets.symmetric(
+                                            horizontal: width / 40),
+                                        child: Text(
+                                          amount[index],
+                                          style: TextStyle(
+                                              color: notifire.getbluecolor,
+                                              fontFamily: 'Gilroy Bold',
+                                              fontSize: height / 60),
+                                        )),
+                                  ),
                                 ),
-                                child: Center(
-                                  child: Padding(
-                                      padding: EdgeInsets.symmetric(
-                                          horizontal: width / 40),
-                                      child: Text(
-                                        amount[index],
-                                        style: TextStyle(
-                                            color: notifire.getbluecolor,
-                                            fontFamily: 'Gilroy Bold',
-                                            fontSize: height / 60),
-                                      )),
-                                ),
-                              ),
-                            )
-                          ),
+                              )),
                         ),
                       ),
                     ),
-                    // end list amount                    
+                    // end list amount
                   ],
                 ),
 
                 // start action
                 Positioned(
-                  left: 0, // Align to the left side
-                  right: 0,
-                  bottom: height / 40,
-                  child: Padding(padding: EdgeInsets.symmetric(horizontal: width / 30),
-                    child:  Container(
-                    width: width,
-                    alignment: Alignment.bottomCenter,
-                    decoration: const BoxDecoration(
-                      borderRadius: BorderRadius.all(
-                        Radius.circular(20),
+                    left: 0, // Align to the left side
+                    right: 0,
+                    bottom: height / 40,
+                    child: Padding(
+                      padding: EdgeInsets.symmetric(horizontal: width / 30),
+                      child: Container(
+                        width: width,
+                        alignment: Alignment.bottomCenter,
+                        decoration: const BoxDecoration(
+                          borderRadius: BorderRadius.all(
+                            Radius.circular(20),
+                          ),
+                        ),
+                        child: GestureDetector(
+                            onTap: () {
+                              if (_ctrAmount.text.isEmpty) {
+                                  ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text("Masukkan nilai!")));
+                                  return;
+                              }
+                              _handleSubmit();
+                            },
+                            child: scannerbutton(
+                              notifire.getbluecolor,
+                              "Konfirmasi",
+                              Colors.white,
+                            )),
                       ),
-                    ),
-                    child: GestureDetector(
-                        onTap: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => const TopupTransferManual(),
-                            ),
-                          );
-                        },
-                        child: scannerbutton(
-                          notifire.getbluecolor,
-                          "Konfirmasi",
-                          Colors.white,
-                        )),
-                  ),
-                  )
-                )
+                    ))
                 // end action
-
-                
               ],
             ),
           ],
         ),
       ),
     );
+  }
+
+  Future<void> _handleSubmit() async {
+    try {
+        // Loading.showLoadingDialog(context, _globalKey);
+
+        Map<String, dynamic> body = {
+          "amount": Helpers.removeCurrencyFormatter(_ctrAmount.text)
+        };
+        String jsonString = json.encode(body);
+
+        final client =
+          ApiClient(Dio(BaseOptions(contentType: "application/json")));
+        final dynamic post = await client.postWalletDeposit('Bearer ${SharedPrefs().token}', jsonString);
+        print('print: ${post}');
+        if (post["status"]) {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => TopupTransferManual(data: post['data']),
+              ),
+            );
+        } else {
+          // Navigator.pop(context);
+          ScaffoldMessenger.of(context)
+              .showSnackBar(SnackBar(content: Text(post["message"])));
+        }
+    } on DioException catch (e) {
+        // Navigator.pop(context);
+        ScaffoldMessenger.of(context)
+          .showSnackBar(SnackBar(content: Text(e.message.toString())));
+        // print("error: ${e}");
+        if (e.response != null) {
+          // print(e.response?.data);
+          // print(e.response?.headers);
+          // print(e.response?.requestOptions);
+          bool status = e.response?.data["status"];
+          if (status) {
+            // return Center(child: Text('Upst...'));
+            // return e.response;
+          }
+        } else {
+          // print(e.requestOptions);
+          // print(e.message);
+        }
+        // rethrow;
+    }
   }
 
   Widget scannerbutton(clr, txt, clr2) {

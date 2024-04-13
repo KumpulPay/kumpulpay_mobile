@@ -4,6 +4,7 @@ import 'package:kumpulpay/home/scanpay/scan.dart';
 import 'package:kumpulpay/test.dart';
 import 'package:kumpulpay/utils/colornotifire.dart';
 import 'package:kumpulpay/utils/media.dart';
+import 'package:kumpulpay/wallet/wallets.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -158,7 +159,7 @@ class _BottombarState extends State<Bottombar> {
                     onTap: () {
                       setState(
                         () {
-                          currentScreen = const MyCard();
+                          currentScreen = const Wallets();
                           currentTab = 3;
                         },
                       );

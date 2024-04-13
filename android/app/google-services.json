@@ -1,0 +1,236 @@
+{
+  "project_info": {
+    "project_number": "498627715273",
+    "firebase_url": "https://harmoni-living.firebaseio.com",
+    "project_id": "harmoni-living",
+    "storage_bucket": "harmoni-living.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:498627715273:android:bf56648a882b179c02ed18",
+        "android_client_info": {
+          "package_name": "com.kumpul.fg"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "498627715273-qabptpe71nu9p7jqctpgun73fs9e0r23.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDMBndK3qWj1bg7M6Bbxqu7lRXHEcxZI-0"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "498627715273-qabptpe71nu9p7jqctpgun73fs9e0r23.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:498627715273:android:189d1182c0c00de902ed18",
+        "android_client_info": {
+          "package_name": "com.kumpul.harmonyliving"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "498627715273-01s451i38k6taisb4mr6ph82rp70onmb.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.kumpul.harmonyliving",
+            "certificate_hash": "14f3b81a75edecbe0c67ad85fe64ade03c4901b3"
+          }
+        },
+        {
+          "client_id": "498627715273-57ai1458mvvg26t4lbufti62e92jnap9.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.kumpul.harmonyliving",
+            "certificate_hash": "afd7ec7beeb22d87704bb4138834da9063a37d83"
+          }
+        },
+        {
+          "client_id": "498627715273-hb9av3ppb85sqc8iv7polrjglj8eet81.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.kumpul.harmonyliving",
+            "certificate_hash": "cd50ec3d9d18103f9acb9031520d1ea152d6c0a5"
+          }
+        },
+        {
+          "client_id": "498627715273-olbl38utlsr67kocd976mh03vir4ioko.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.kumpul.harmonyliving",
+            "certificate_hash": "258a8260feebae6d265ac2c3e201a484ce0dc4f3"
+          }
+        },
+        {
+          "client_id": "498627715273-t9ebjmb45n9bjljp3u54tpr45mk4m5ug.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.kumpul.harmonyliving",
+            "certificate_hash": "6a101a886a02322d348dd6096625fbc3d8179de0"
+          }
+        },
+        {
+          "client_id": "498627715273-qabptpe71nu9p7jqctpgun73fs9e0r23.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDMBndK3qWj1bg7M6Bbxqu7lRXHEcxZI-0"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "498627715273-qabptpe71nu9p7jqctpgun73fs9e0r23.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:498627715273:android:9f13e24453bdd83a02ed18",
+        "android_client_info": {
+          "package_name": "com.kumpul.harmonyliving.sandbox"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "498627715273-ghe4ssn7oli75k5amoevegqgpe00vaoj.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.kumpul.harmonyliving.sandbox",
+            "certificate_hash": "258a8260feebae6d265ac2c3e201a484ce0dc4f3"
+          }
+        },
+        {
+          "client_id": "498627715273-lk9hiuqraibutbl439nc0amghmt50evr.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.kumpul.harmonyliving.sandbox",
+            "certificate_hash": "cd50ec3d9d18103f9acb9031520d1ea152d6c0a5"
+          }
+        },
+        {
+          "client_id": "498627715273-ooo1ujgradd5m13tfnmtcnrj3eo79qv4.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.kumpul.harmonyliving.sandbox",
+            "certificate_hash": "52debc87b29dd6fc66574e9651e6edf6aa268f53"
+          }
+        },
+        {
+          "client_id": "498627715273-rc7ft7p89gegahiagvasrtuo2tpi7n87.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.kumpul.harmonyliving.sandbox",
+            "certificate_hash": "14f3b81a75edecbe0c67ad85fe64ade03c4901b3"
+          }
+        },
+        {
+          "client_id": "498627715273-qabptpe71nu9p7jqctpgun73fs9e0r23.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDMBndK3qWj1bg7M6Bbxqu7lRXHEcxZI-0"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "498627715273-qabptpe71nu9p7jqctpgun73fs9e0r23.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:498627715273:android:9b60a046fc91fbdc02ed18",
+        "android_client_info": {
+          "package_name": "com.kumpul.youtubeapi"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "498627715273-a3iarr3lil8ibvr10tujmqcocafk038v.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.kumpul.youtubeapi",
+            "certificate_hash": "14f3b81a75edecbe0c67ad85fe64ade03c4901b3"
+          }
+        },
+        {
+          "client_id": "498627715273-qabptpe71nu9p7jqctpgun73fs9e0r23.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDMBndK3qWj1bg7M6Bbxqu7lRXHEcxZI-0"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "498627715273-qabptpe71nu9p7jqctpgun73fs9e0r23.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:498627715273:android:ce935378e415049202ed18",
+        "android_client_info": {
+          "package_name": "com.kumpulpay"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "498627715273-qabptpe71nu9p7jqctpgun73fs9e0r23.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDMBndK3qWj1bg7M6Bbxqu7lRXHEcxZI-0"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "498627715273-qabptpe71nu9p7jqctpgun73fs9e0r23.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

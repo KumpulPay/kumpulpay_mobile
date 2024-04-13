@@ -35,5 +35,15 @@ class Helpers {
     NumberFormat currencyFormatter = NumberFormat.currency(locale: locale, symbol: symbol, decimalDigits: decimalDigits);
     return currencyFormatter.format(value);
   }
+  static double removeCurrencyFormatter(String value,   {locale="id_ID", symbol="Rp", decimalDigits=0}){
+    NumberFormat formatter = NumberFormat('#,##0', locale);
+    double number = formatter.parse(value).toDouble(); 
+    return number;
+  }
+
+  // static String titlePpobProduct(String value) {
+    
+  //   return currencyFormatter.format(value);
+  // }
 
 }

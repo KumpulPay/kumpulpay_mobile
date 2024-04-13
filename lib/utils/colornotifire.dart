@@ -17,6 +17,8 @@ class ColorNotifire with ChangeNotifier {
 
   get getprimerydarkcolor => isDark ? primerydarkColor : primerylightColor;
 
+  get getTitleColor => isDark ? titleLightColor : titleDarkColor;
+
   get getdarkscolor => isDark ? lightColor : darkColor;
 
   get getdarkgreycolor => isDark ? darkgreyColor : greyColor;

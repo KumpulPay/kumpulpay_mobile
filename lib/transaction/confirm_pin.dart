@@ -244,13 +244,16 @@ class _ConfirmPinState extends State<ConfirmPin> {
       };
       body.addAll(widget.formData);
       String jsonString = json.encode(body);
-
+      // print(jsonString);
       Loading.showLoadingDialog(context, _globalKey);
       final client = ApiClient(Dio(BaseOptions(contentType: "application/json")));
       final dynamic post = await client.postPpobTransaction('Bearer ${SharedPrefs().token}', jsonString);
       if (post["status"]) {
            Navigator.pop(context);
           _showMyDialog();
+      } else {
+          Navigator.pop(context);
+          ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(post["message"])));
       }
      
 

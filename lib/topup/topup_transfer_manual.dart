@@ -1,6 +1,10 @@
+
+import 'package:accordion/accordion.dart';
+import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
-import 'package:kumpulpay/utils/color.dart';
-import 'package:kumpulpay/utils/string.dart';
+import 'package:kumpulpay/data/shared_prefs.dart';
+import 'package:kumpulpay/repository/retrofit/api_client.dart';
+import 'package:kumpulpay/utils/helpers.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:dotted_line/dotted_line.dart';
@@ -8,7 +12,9 @@ import '../../../utils/colornotifire.dart';
 import '../../../utils/media.dart';
 
 class TopupTransferManual extends StatefulWidget {
-  const TopupTransferManual({Key? key}) : super(key: key);
+  final double? amount;
+  final dynamic data;
+  const TopupTransferManual({Key? key, this.amount, this.data}) : super(key: key);
 
   @override
   State<TopupTransferManual> createState() => _TopupTransferManualState();
@@ -16,8 +22,6 @@ class TopupTransferManual extends StatefulWidget {
 
 class _TopupTransferManualState extends State<TopupTransferManual> {
   late ColorNotifire notifire;
-  int _selectedIndex = 1;
-  TextEditingController _ctrAmount = TextEditingController();
 
   getdarkmodepreviousstate() async {
     final prefs = await SharedPreferences.getInstance();
@@ -28,18 +32,6 @@ class _TopupTransferManualState extends State<TopupTransferManual> {
       notifire.setIsDark = previusstate;
     }
   }
-
-  List paymentMethod = [
-    "Transfer Bank",
-  ];
-  List amount = [
-    "50.000",
-    "100.000",
-    "250.000",
-    "500.000",
-    "750.000",
-    "1.000.000",
-  ];
 
   final List<Map<String, dynamic>> _listPaymentInstructions = [
     {
@@ -69,22 +61,13 @@ class _TopupTransferManualState extends State<TopupTransferManual> {
     }
   ];
 
-  final List<Map<String,dynamic>> _listBank = [
-    {
-      "image": "",
-      "bank_name": "aa",
-      "account_number": "aaa"
-    },
-    {
-      "image": "",
-      "bank_name": "aa",
-      "account_number": "aaa"
-    }
-  ];
 
   @override
   Widget build(BuildContext context) {
+    // double amount =  widget.amount??0;
+    dynamic data =  widget.data;
     notifire = Provider.of<ColorNotifire>(context, listen: true);
+    // return Text(Helpers.currencyFormatter(data['amount'].toDouble()));
     return Scaffold(
       appBar: AppBar(
         backgroundColor: notifire.getprimerycolor,
@@ -131,24 +114,21 @@ class _TopupTransferManualState extends State<TopupTransferManual> {
                   ),
                 ),
                 Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     SizedBox(
                       height: height / 50,
                     ),
-                    Row(
-                      children: [
-                        Padding(
-                          padding: EdgeInsets.symmetric(horizontal: width / 20),
-                          child: Text(
-                            "Metode Pembayaran",
-                            style: TextStyle(
-                              color: Colors.grey.shade700,
-                              fontFamily: 'Gilroy Bold',
-                              fontSize: height / 50,
-                            ),
-                          ),
+                    Padding(
+                      padding: EdgeInsets.symmetric(horizontal: width / 20),
+                      child: Text(
+                        "Metode Pembayaran",
+                        style: TextStyle(
+                          color: Colors.grey.shade700,
+                          fontFamily: 'Gilroy Bold',
+                          fontSize: height / 50,
                         ),
-                      ],
+                      ),
                     ),
                     SizedBox(
                       height: height / 70,
@@ -168,7 +148,28 @@ class _TopupTransferManualState extends State<TopupTransferManual> {
                           Expanded(
                               flex: 2,
                               child: Text(
-                                "Rp0",
+                                Helpers.currencyFormatter(data['amount'].toDouble()),
+                                textAlign: TextAlign.end,
+                              )),
+                        ],
+                      ),
+                    ),
+                    Padding(
+                      padding: EdgeInsets.symmetric(horizontal: width / 20),
+                      child: Row(
+                        children: [
+                          Expanded(
+                              flex: 1,
+                              child: Text("Kode Unik",
+                                  style: TextStyle(
+                                    color: Colors.grey,
+                                    fontFamily: 'Gilroy Medium',
+                                    fontSize: height / 60,
+                                  ))),
+                          Expanded(
+                              flex: 2,
+                              child: Text(
+                                data['unique'].toString(),
                                 textAlign: TextAlign.end,
                               )),
                         ],
@@ -189,7 +190,7 @@ class _TopupTransferManualState extends State<TopupTransferManual> {
                           Expanded(
                               flex: 2,
                               child: Text(
-                                "Rp0",
+                                Helpers.currencyFormatter(data['total'].toDouble()),
                                 textAlign: TextAlign.end,
                               )),
                         ],
@@ -213,31 +214,27 @@ class _TopupTransferManualState extends State<TopupTransferManual> {
                     SizedBox(
                       height: height / 70,
                     ),
-                    Row(
-                      children: [
-                        Padding(
-                          padding: EdgeInsets.symmetric(horizontal: width / 20),
-                          child: Text(
-                            "Instruksi Pembayaran",
-                            style: TextStyle(
-                              color: Colors.grey.shade700,
-                              fontFamily: 'Gilroy Bold',
-                              fontSize: height / 50,
-                            ),
-                          ),
+                    Padding(
+                      padding: EdgeInsets.symmetric(horizontal: width / 20),
+                      child: Text(
+                        "Instruksi Pembayaran",
+                        style: TextStyle(
+                          color: Colors.grey.shade700,
+                          fontFamily: 'Gilroy Bold',
+                          fontSize: height / 50,
                         ),
-                      ],
+                      ),
                     ),
                     SizedBox(
                       height: height / 70,
                     ),
 
                     ListView.builder(
+                      physics: NeverScrollableScrollPhysics(),
                       shrinkWrap: true,
                       itemCount: _listPaymentInstructions.length,
                       itemBuilder: (context, index) {
                         return Column(
-                          // crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Padding(
                                 padding: EdgeInsets.symmetric(
@@ -289,20 +286,33 @@ class _TopupTransferManualState extends State<TopupTransferManual> {
                     SizedBox(
                       height: height / 70,
                     ),
-                    Row(
-                      children: [
-                        Padding(
-                          padding: EdgeInsets.symmetric(horizontal: width / 20),
-                          child: Text(
-                            "Pilih Bank",
-                            style: TextStyle(
-                              color: Colors.grey.shade700,
-                              fontFamily: 'Gilroy Bold',
-                              fontSize: height / 50,
-                            ),
-                          ),
+                    Padding(
+                      padding: EdgeInsets.symmetric(horizontal: width / 20),
+                      child: Text(
+                        "Pilihan Bank",
+                        style: TextStyle(
+                          color: Colors.grey.shade700,
+                          fontFamily: 'Gilroy Bold',
+                          fontSize: height / 50,
                         ),
-                      ],
+                      ),
+                    ),
+
+                    FutureBuilder(
+                      future: ApiClient(Dio(BaseOptions(contentType: "application/json"))).getCompanyBank('Bearer ${SharedPrefs().token}'),
+                      builder: (context, dynamic snapshot) {
+                        print('print: ${snapshot}');
+                        if (snapshot.connectionState == ConnectionState.waiting) {
+                          return const Center(
+                              child: Text('Please wait its loading...'));
+                        } else if (snapshot.connectionState == ConnectionState.done) {  
+                          return _buildAccordion(snapshot.data['data']);
+                        } else if (snapshot.hasError) {
+                          return Text('Error: ${snapshot.error}');
+                        } else {
+                          return const Center(child: Text('Upst...'));
+                        }
+                      },
                     ),
                   ],
                 ),
@@ -314,9 +324,81 @@ class _TopupTransferManualState extends State<TopupTransferManual> {
     );
   }
 
-  // Widget paymentInstructions(){
-  //   return Html
-  // }
+  Widget _buildAccordion(dynamic snapshot){
+    dynamic data = widget.data;
+    return Padding(
+      padding: EdgeInsets.symmetric(horizontal: width / 40),
+      child: Accordion(
+        contentBorderColor: notifire.getgreycolor,
+        rightIcon: Transform.rotate(
+              angle: 45 * 3.14159 / 90,
+              child: Icon(Icons.arrow_forward_ios,
+                  color: notifire.getdarkscolor, size: height / 50)),
+        children: [
+        for (var item in snapshot) ...[
+          AccordionSection(
+            headerBackgroundColor: notifire.gettabwhitecolor,
+            contentBackgroundColor: notifire.gettabwhitecolor,
+            header: Text(
+              item['bank_datas']['name'],
+              style: TextStyle(
+                  fontFamily: "Gilroy Bold",
+                  color: notifire.getdarkscolor,
+                  fontSize: height / 55),
+            ),
+            content: Builder(builder: (context) {
+              return Container(
+                child: Column(
+                  children: [
+                    Text(
+                      "Transfer pembayaran ke Nomor Rekening",
+                      style: TextStyle(
+                          fontFamily: "Gilroy Light",
+                          color: notifire.getdarkscolor,
+                          fontSize: height / 55),
+                    ),
+                    SizedBox(
+                      height: height / 60,
+                    ),
+                    Text(
+                      item['account_number'],
+                      style: TextStyle(
+                          fontFamily: "Gilroy Bold",
+                          color: notifire.getbluecolor,
+                          fontSize: height / 40),
+                    ),
+                    Text(
+                      'a/n:  ${item['account_name']}',
+                      style: TextStyle(
+                          fontFamily: "Gilroy Light",
+                          color: notifire.getdarkscolor,
+                          fontSize: height / 55),
+                    ),
+                    SizedBox(
+                      height: height / 60,
+                    ),
+                    Text(
+                      'Total Transfer',
+                      style: TextStyle(
+                          fontFamily: "Gilroy Light",
+                          color: notifire.getdarkscolor,
+                          fontSize: height / 55),
+                    ),
+                    Text(
+                      Helpers.currencyFormatter(data['total'].toDouble()),
+                      style: TextStyle(
+                          fontFamily: "Gilroy Bold",
+                          color: notifire.getbluecolor,
+                          fontSize: height / 40),
+                    ),
+                  ],
+                ),
+              );
+            })),
+        ]
+      ]),
+    );
+  }
 
   Widget scannerbutton(clr, txt, clr2) {
     return Container(

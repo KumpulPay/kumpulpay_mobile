@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:shared_preferences/shared_preferences.dart';
 
 class SharedPrefs {
@@ -21,10 +23,23 @@ class SharedPrefs {
     _sharedPrefs.setString("token_api", value);
   }
 
+  String get fcmTokenMobile => _sharedPrefs.getString("fcm_token_mobile") ?? "";
+  set fcmTokenMobile(String value) {
+    _sharedPrefs.setString("fcm_token_mobile", value);
+  }
+
   String get userData => _sharedPrefs.getString("user_data") ?? "";
   set userData(String value) {
     _sharedPrefs.setString("user_data", value);
   }
+
+  String get pinTransaction {
+    Map<String, dynamic> _userData = jsonDecode(userData);
+    return _userData['pin_transaction'];
+  }
+  // set userData(String value) {
+  //   _sharedPrefs.setString("user_data", value);
+  // }
 
   double get limitsAvailable => _sharedPrefs.getDouble("limits_available") ?? 0;
   set limitsAvailable(double value) {

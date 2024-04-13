@@ -259,7 +259,7 @@ class CustomStrings {
   static const String verification2 =
       'Please enter the code below to verify it’s you!';
   static const String verification = 'Verification';
-  static const String retypepassword = 'Re-type password';
+  static const String retypepassword = 'Ulangi password';
   static const String confirmpassword = 'Confirm Password';
   static const String createpassword = 'Create a password';
   static const String registeraccount = 'Register Account';
@@ -267,8 +267,8 @@ class CustomStrings {
   static const String totaltransfer = 'Total transfer';
   static const String forgotpassword = 'Lupa password?';
   static const String passwordhint = 'Password';
-  static const String emailhint = 'Email / phone';
-  static const String register = 'Register New Account';
+  static const String emailhint = 'Email';
+  static const String register = 'Daftar Baru';
   static const String fullname = 'Your Full Name';
   static const String fullnamehere = 'Enter your full name here';
   static const String accounts = 'Already have an account? ';

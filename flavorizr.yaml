@@ -9,6 +9,8 @@ flavors:
 
     android:
       applicationId: "com.kumpulpay"
+      firebase:
+        config: "android/app/google-services.json"
     ios:
       bundleId: "com.kumpulpay"
     macos:

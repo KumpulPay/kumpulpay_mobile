@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:kumpulpay/bottombar/bottombar.dart';
 import 'package:kumpulpay/data/shared_prefs.dart';
+import 'package:kumpulpay/login/register.dart';
 import 'package:kumpulpay/repository/model/data.dart';
 import 'package:kumpulpay/repository/retrofit/api_client.dart';
 import 'package:kumpulpay/utils/button.dart';
@@ -122,11 +123,11 @@ class _LoginState extends State<Login> {
                                             notifire.getdarkscolor,
                                             notifire.getdarkgreycolor,
                                             notifire.getbluecolor,
-                                            "images/email.png",
-                                            CustomStrings.emailhint,
                                             notifire.getdarkwhitecolor,
+                                            CustomStrings.emailhint,
                                             name: "email",
-                                            isEmail: true, initialValue: "bestie@mail.com"),
+                                            img:  "images/email.png",
+                                            isEmail: true, initialValue: "client@mail.com"),
                                         SizedBox(
                                           height: height / 35,
                                         ),
@@ -151,9 +152,9 @@ class _LoginState extends State<Login> {
                                             notifire.getdarkscolor,
                                             notifire.getdarkgreycolor,
                                             notifire.getbluecolor,
-                                            "images/password.png",
-                                            CustomStrings.passwordhint,
                                             notifire.getdarkwhitecolor,
+                                            CustomStrings.passwordhint,
+                                            img: "images/password.png",
                                             name: "password",
                                             isPassword: true, initialValue: "secret"),
                                         SizedBox(
@@ -328,7 +329,7 @@ class _LoginState extends State<Login> {
                                   mainAxisAlignment: MainAxisAlignment.center,
                                   children: [
                                     Text(
-                                      CustomStrings.account,
+                                      "Belum punya akun?",
                                       style: TextStyle(
                                         color: notifire.getdarkgreycolor
                                             .withOpacity(0.6),
@@ -340,20 +341,16 @@ class _LoginState extends State<Login> {
                                     ),
                                     GestureDetector(
                                       onTap: () {
-                                        ScaffoldMessenger.of(context)
-                                            .showSnackBar(const SnackBar(
-                                                content: Text(CustomStrings
-                                                    .commingsoon)));
-                                        // Navigator.push(
-                                        //   context,
-                                        //   MaterialPageRoute(
-                                        //     builder: (context) =>
-                                        //         const Register(),
-                                        //   ),
-                                        // );
+                                        Navigator.push(
+                                          context,
+                                          MaterialPageRoute(
+                                            builder: (context) =>
+                                                const Register(),
+                                          ),
+                                        );
                                       },
                                       child: Text(
-                                        CustomStrings.registerhere,
+                                        "Daftar disini",
                                         style: TextStyle(
                                           color: notifire.getdarkscolor,
                                           fontSize: height / 50,

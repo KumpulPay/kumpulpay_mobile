@@ -6,6 +6,12 @@ Color darkPrimeryColor = const Color(0xff2D2D3A);
 Color darkColor = Colors.black;
 Color lightColor = Colors.white;
 
+Color titleDarkColor = Colors.black;
+Color titleLightColor = Colors.white;
+
+Color darkSubTitleColor = Colors.grey;
+Color lightSubTitleColor = Colors.white;
+
 Color lightbackColor = const Color(0xffD6E4FF);
 Color darkbackColor = const Color(0xff3d3d4e);
 

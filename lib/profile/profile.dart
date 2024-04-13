@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:kumpulpay/data/shared_prefs.dart';
 import 'package:kumpulpay/login/login.dart';
 import 'package:kumpulpay/profile/editprofile.dart';
+import 'package:kumpulpay/security/pin/pin.dart';
 import 'package:kumpulpay/transaction/history.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -217,6 +218,30 @@ class _ProfileState extends State<Profile> {
                     ),
                     SizedBox(height: height / 80),
                     // end dark mode
+
+                    // start setting pin
+                    GestureDetector(
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => const Pin(),
+                          ),
+                        );
+                      },
+                      child: settingtype("images/profilepassword.png",
+                          "Pin Transaksi"),
+                    ),
+                    SizedBox(height: height / 80),
+                    Padding(
+                      padding: EdgeInsets.symmetric(horizontal: width / 20),
+                      child: Divider(
+                        thickness: 0.6,
+                        color: Colors.grey.withOpacity(0.4),
+                      ),
+                    ),
+                    SizedBox(height: height / 80),
+                    // end setting pin
 
                     // start change password
                     GestureDetector(

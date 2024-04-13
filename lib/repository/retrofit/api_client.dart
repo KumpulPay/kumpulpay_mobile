@@ -17,6 +17,13 @@ abstract class ApiClient {
   @POST(Apis.auth)
   Future<AuthRes> postAuth(@Body() Map<String, dynamic> params);
 
+  @POST(Apis.register)
+  Future<dynamic> postRegister(
+      // @Header('Authorization') String authorization,
+      @Body() String body,
+      {@Header('Content-Type') String contentType = 'application/json',
+      @Queries() Map<String, dynamic>? queries});
+
   @GET(Apis.home)
   Future<dynamic> getHome(@Header('Authorization') String authorization);
 
@@ -30,18 +37,53 @@ abstract class ApiClient {
   Future<dynamic> getProductProvider(
       @Header('Authorization') String authorization,
       {@Header('Content-Type') String contentType = 'application/json',
-      @Queries() Map<String, dynamic>? queries});    
+      @Queries() Map<String, dynamic>? queries});
 
   @GET(Apis.historyTransaction)
   Future<dynamic> getHistoryTransaction(
       @Header('Authorization') String authorization,
       {@Header('Content-Type') String contentType = 'application/json',
-      @Queries() Map<String, dynamic>? queries});  
-
+      @Queries() Map<String, dynamic>? queries});
 
   @POST(Apis.ppobTransaction)
   Future<dynamic> postPpobTransaction(
-      @Header('Authorization') String authorization,@Body() String body,
+      @Header('Authorization') String authorization, @Body() String body,
       {@Header('Content-Type') String contentType = 'application/json',
-      @Queries() Map<String, dynamic>? queries});     
+      @Queries() Map<String, dynamic>? queries});
+
+  // paylater
+  @GET(Apis.paylaterPeriod)
+  Future<dynamic> getPaylaterPeriod(
+      @Header('Authorization') String authorization,
+      {@Header('Content-Type') String contentType = 'application/json',
+      @Queries() Map<String, dynamic>? queries});    
+
+  @GET(Apis.paylaterInvoice)
+  Future<dynamic> getPaylaterInvoice(
+      @Header('Authorization') String authorization,
+      {@Header('Content-Type') String contentType = 'application/json',
+      @Queries() Map<String, dynamic>? queries});
+
+  // pin transaction
+  @POST(Apis.pinCreate)
+  Future<dynamic> postPinCreate(
+      @Header('Authorization') String authorization, @Body() String body,
+      {@Header('Content-Type') String contentType = 'application/json',
+      @Queries() Map<String, dynamic>? queries});
+
+  // start master
+  @GET(Apis.companyBank)
+  Future<dynamic> getCompanyBank(
+      @Header('Authorization') String authorization,
+      {@Header('Content-Type') String contentType = 'application/json',
+      @Queries() Map<String, dynamic>? queries});  
+  // end master
+
+  // start wallet
+  @POST(Apis.walletDeposit)
+  Future<dynamic> postWalletDeposit(
+      @Header('Authorization') String authorization, @Body() String body,
+      {@Header('Content-Type') String contentType = 'application/json',
+      @Queries() Map<String, dynamic>? queries});
+  // end wallet
 }
