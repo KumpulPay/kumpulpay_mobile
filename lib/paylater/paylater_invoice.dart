@@ -19,10 +19,10 @@ class PaylaterInvoice extends StatefulWidget {
 class _PaylaterInvoiceState extends State<PaylaterInvoice> {
   late ColorNotifire notifire;
   final ScrollController _scrollController = ScrollController();
-  List<dynamic> _data = [];
+  final List<dynamic> _data = [];
   bool _isLoading = false;
   int _page = 1;
-  int _perPage = 10;
+  final int _perPage = 10;
 
   @override
   void initState() {

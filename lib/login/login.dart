@@ -2,7 +2,7 @@ import 'dart:convert';
 
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:kumpulpay/bottombar/bottombar.dart';
 import 'package:kumpulpay/data/shared_prefs.dart';
 import 'package:kumpulpay/login/register.dart';
@@ -26,7 +26,6 @@ class Login extends StatefulWidget {
 }
 
 class _LoginState extends State<Login> {
-  // final _globalKey = GlobalKey();
   final _globalKey = GlobalKey<State>();
   final _formKey = GlobalKey<FormBuilderState>();
   late ColorNotifire notifire;
@@ -202,18 +201,10 @@ class _LoginState extends State<Login> {
                                         ),
                                         GestureDetector(
                                           onTap: () {
-                                            // setState(() {
                                             if (_formKey.currentState!.saveAndValidate()) {
                                               final formData = _formKey.currentState?.value;
                                               _handleSubmit(context, formData);
                                             }
-                                            // });
-                                            // Navigator.push(
-                                            //   context,
-                                            //   MaterialPageRoute(
-                                            //     builder: (context) => const Verify(),
-                                            //   ),
-                                            // );
                                           },
                                           child: Custombutton.button(
                                               notifire.getbluecolor,
@@ -403,15 +394,12 @@ class _LoginState extends State<Login> {
       AuthRes response;
       response = await client.postAuth(formData);
       if (response.status) {
-        SharedPrefs().token = response.data['token'].toString();
+        String token = response.data['token'].toString();
+        SharedPrefs().token = token;
         SharedPrefs().userData = jsonEncode(response.data['user']);
 
-        Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (context) => const Bottombar(),
-          ),
-        );
+        sendTokenFcmToServer(token);
+        
       } else {
         Navigator.pop(context);
       }
@@ -429,6 +417,52 @@ class _LoginState extends State<Login> {
         // print(e.requestOptions);
         // print(e.message);
       }
+    }
+  }
+
+  Future<void> sendTokenFcmToServer(String token) async {
+    try {
+     
+      Map<String, dynamic> body = {
+        "fcm_token_mobile": SharedPrefs().fcmTokenMobile
+      };
+      String jsonString = json.encode(body);
+
+      final client =
+          ApiClient(Dio(BaseOptions(contentType: "application/json")));
+      final dynamic post = await client.postUpdateFcm(
+          'Bearer ${SharedPrefs().token}', jsonString);
+      // print('sendTokenFcmToServer: $post');
+      if (post["status"]) {
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => const Bottombar(),
+            ),
+          );
+      } else {
+          Fluttertoast.showToast(
+              msg: 'Fcm token gagal di update!',
+              backgroundColor: Colors.red,
+              textColor: Colors.white,
+              fontSize: 16);
+      }
+    } on DioException catch (e) {
+      // print("error: ${e}");
+      if (e.response != null) {
+        // print(e.response?.data);
+        // print(e.response?.headers);
+        // print(e.response?.requestOptions);
+        bool status = e.response?.data["status"];
+        if (status) {
+          // return Center(child: Text('Upst...'));
+          // return e.response;
+        }
+      } else {
+        // print(e.requestOptions);
+        // print(e.message);
+      }
+      rethrow;
     }
   }
 }

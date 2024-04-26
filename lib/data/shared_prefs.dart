@@ -34,51 +34,14 @@ class SharedPrefs {
   }
 
   String get pinTransaction {
-    Map<String, dynamic> _userData = jsonDecode(userData);
-    return _userData['pin_transaction'];
+    Map<String, dynamic> userData = jsonDecode(SharedPrefs().userData);
+    return userData['pin_transaction'];
   }
-  // set userData(String value) {
-  //   _sharedPrefs.setString("user_data", value);
-  // }
+
 
   double get limitsAvailable => _sharedPrefs.getDouble("limits_available") ?? 0;
   set limitsAvailable(double value) {
     _sharedPrefs.setDouble("limits_available", value);
   }
 
-  // static setFcmRegId(String value) async {
-  //   SharedPreferences prefs = await SharedPreferences.getInstance();
-  //   prefs.setString("FCM_REG_ID", value);
-  // }
-
-  // static Future<String?> getFcmRegId() async {
-  //   SharedPreferences prefs = await SharedPreferences.getInstance();
-  //   return prefs.getString("FCM_REG_ID") ?? null;
-  // }
-
-  // setToken(String value) async {
-  //   // SharedPreferences prefs = await SharedPreferences.getInstance();
-  //   _sharedPrefs = await SharedPreferences.getInstance();
-  //   _sharedPrefs.setString("api_token", value);
-  // }
-
-  // Future<String?> getToken() async {
-  //   _sharedPrefs = await SharedPreferences.getInstance();
-  //   return _sharedPrefs.getString("api_token") ?? null;
-  // }
-  // static getToken() async {
-  //   final SharedPreferences pref = await SharedPreferences.getInstance();
-  //   String? value = pref.getString("api_token");
-  //   return value;
-  // }
-
-  // static setUser(String value) async {
-  //   SharedPreferences prefs = await SharedPreferences.getInstance();
-  //   prefs.setString("user", value);
-  // }
-
-  // static Future<String?> getUser() async {
-  //   SharedPreferences prefs = await SharedPreferences.getInstance();
-  //   return prefs.getString("user") ?? null;
-  // }
 }

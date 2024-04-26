@@ -2,7 +2,6 @@
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:kumpulpay/data/shared_prefs.dart';
-import 'package:kumpulpay/home/scanpay/scan.dart';
 import 'package:kumpulpay/ppob/ppob_product.dart';
 import 'package:kumpulpay/repository/retrofit/api_client.dart';
 import 'package:kumpulpay/utils/media.dart';
@@ -192,7 +191,7 @@ class _CategoryState extends State<Category> {
             );
 
           } else {
-              return Text("Loading..",textAlign: TextAlign.center);
+              return const Text("Loading..",textAlign: TextAlign.center);
           }
          
         } on DioException catch (e) {
@@ -207,7 +206,7 @@ class _CategoryState extends State<Category> {
           }
         }
 
-        return Text("Loading..", textAlign: TextAlign.center);
+        return const Text("Loading..", textAlign: TextAlign.center);
       },
     );
   }

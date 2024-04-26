@@ -5,9 +5,6 @@ import 'package:kumpulpay/utils/colornotifire.dart';
 import 'package:kumpulpay/utils/media.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:kumpulpay/data/shared_prefs.dart';
-import 'package:awesome_notifications/awesome_notifications.dart';
-import 'package:kumpulpay/repository/notification/notification_controller.dart';
 
 
 import 'onbonding.dart';
@@ -34,14 +31,6 @@ class _SplashscreenState extends State<Splashscreen> {
   }
 
   getInit() async {
-    WidgetsFlutterBinding.ensureInitialized();
-    await SharedPrefs().init();
-    // await AwesomeNotifications().requestPermissionToSendNotifications();
-    await NotificationController.initializeLocalNotifications();
-    await NotificationController.initializeRemoteNotifications(debug: true);
-    await NotificationController.initializeIsolateReceivePort();
-    await NotificationController.startListeningNotificationEvents();
-
     Timer(
       const Duration(seconds: 3),
       () => Navigator.pushReplacement(
@@ -77,7 +66,7 @@ class _SplashscreenState extends State<Splashscreen> {
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: <Widget>[
-              Container(
+              SizedBox(
                 width: 100, height: 100,
                 child: Image.asset('images/kumpulpay_logo.webp', fit: BoxFit.cover),
               ),
@@ -87,7 +76,7 @@ class _SplashscreenState extends State<Splashscreen> {
                         fontFamily: 'Gilroy Bold',
                         color: notifire.getdarkscolor)),
               const SizedBox(height: 20),
-              Container(
+              SizedBox(
                 height: 5,
                 width: 80,
                 child: LinearProgressIndicator(

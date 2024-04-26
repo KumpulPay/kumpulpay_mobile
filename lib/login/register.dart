@@ -2,12 +2,9 @@ import 'dart:convert';
 
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
 import 'package:flutter_form_builder/flutter_form_builder.dart';
 import 'package:form_builder_validators/form_builder_validators.dart';
-import 'package:kumpulpay/data/shared_prefs.dart';
 import 'package:kumpulpay/login/login.dart';
-import 'package:kumpulpay/login/verify.dart';
 import 'package:kumpulpay/repository/retrofit/api_client.dart';
 import 'package:kumpulpay/utils/loading.dart';
 import 'package:provider/provider.dart';
@@ -134,19 +131,11 @@ class _RegisterState extends State<Register> {
                                     ),
                                     GestureDetector(
                                       onTap: () {
-                                        // print('print: ${_formKey.currentState?.value}');
-                                         if (_formKey.currentState!.saveAndValidate()) {
-                                              final formData = _formKey.currentState?.value;
-                                              print(formData);
-                                              _submitForm(formData);
-                                              // _handleSubmit(context, formData);
-                                            }
-                                        // Navigator.push(
-                                        //   context,
-                                        //   MaterialPageRoute(
-                                        //     builder: (context) => const Verify(),
-                                        //   ),
-                                        // );
+                                          if (_formKey.currentState!.saveAndValidate()) {
+                                            final formData = _formKey.currentState?.value;
+                                            print(formData);
+                                            _submitForm(formData);
+                                          }
                                       },
                                       child: Custombutton.button(
                                           notifire.getbluecolor,

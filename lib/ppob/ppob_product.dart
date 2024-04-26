@@ -1,15 +1,12 @@
 import 'dart:convert';
 
 import 'package:accordion/accordion.dart';
-import 'package:accordion/accordion_section.dart';
 import 'package:accordion/controllers.dart';
 import 'package:dio/dio.dart';
 import 'package:dotted_line/dotted_line.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_form_builder/flutter_form_builder.dart';
-import 'package:flutter_html/flutter_html.dart';
 import 'package:form_builder_validators/form_builder_validators.dart';
-import 'package:get/get.dart';
 import 'package:kumpulpay/data/phone_provider.dart';
 import 'package:kumpulpay/data/shared_prefs.dart';
 import 'package:kumpulpay/repository/retrofit/api_client.dart';
@@ -58,10 +55,6 @@ class _PpobProductState extends State<PpobProduct>
     super.initState();
   }
 
-  @override
-  void dispose() {
-    super.dispose();
-  }
 
   void handleFormSubmission(String value) {
     // print('Text submitted: $value');
@@ -101,7 +94,7 @@ class _PpobProductState extends State<PpobProduct>
           ),
           bottom: PreferredSize(
             preferredSize:
-                Size.fromHeight(70), // Set preferred height of the TextField
+                const Size.fromHeight(70), // Set preferred height of the TextField
             child: Padding(
               padding: const EdgeInsets.all(8.0),
               child: //start input destination
@@ -636,7 +629,6 @@ class _PpobProductState extends State<PpobProduct>
                                         child: GestureDetector(
                                           onTap: () {
                                             // _toggle();
-                                            print('akuuuu');
                                             showModalBottomSheet(
                                                 isScrollControlled: true,
                                                 shape:
@@ -712,8 +704,8 @@ class _PpobProductState extends State<PpobProduct>
                                                                   .getdarkscolor,
                                                               fontSize:
                                                                   height / 50)),
-                                                      Spacer(),
-                                                      Text(
+                                                      const Spacer(),
+                                                      const Text(
                                                         "Detail",
                                                         style: TextStyle(
                                                           decoration:
