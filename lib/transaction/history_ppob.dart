@@ -10,20 +10,20 @@ import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../utils/colornotifire.dart';
 
-class HistoryAll extends StatefulWidget {
-  const HistoryAll({Key? key}) : super(key: key);
+class HistoryPpob extends StatefulWidget {
+  const HistoryPpob({Key? key}) : super(key: key);
 
   @override
-  State<HistoryAll> createState() => _HistoryAllState();
+  State<HistoryPpob> createState() => _HistoryPpobState();
 }
 
-class _HistoryAllState extends State<HistoryAll> {
+class _HistoryPpobState extends State<HistoryPpob> {
   late ColorNotifire notifire;
   final ScrollController _scrollController = ScrollController();
-  List<dynamic> _data = [];
+  final List<dynamic> _data = [];
   bool _isLoading = false;
   int _page = 1;
-  int _perPage = 10;
+  final int _perPage = 10;
 
   @override
   void initState() {
@@ -117,6 +117,7 @@ class _HistoryAllState extends State<HistoryAll> {
                 itemCount: _data.length + (_isLoading ? 1 : 0),
                 padding: EdgeInsets.zero,
                 itemBuilder: (context, index) {
+                  
                   if (index < _data.length) {
                       return Column(
                           children: [
@@ -170,7 +171,7 @@ class _HistoryAllState extends State<HistoryAll> {
                                         style: TextStyle(
                                             color: Colors.grey,
                                             fontSize: height / 60,
-                                            fontFamily: 'Gilroy Medium'),
+                                            fontFamily: 'Gilroy Bold'),
                                       ),
                                     ],
                                   ),
@@ -182,31 +183,15 @@ class _HistoryAllState extends State<HistoryAll> {
                                         Helpers.currencyFormatter(_data[index]
                                                 ["product_price_fixed"]
                                             .toDouble()),
-                                        // style: TextStyle(
-                                        //     color: colorname[index],
-                                        //     fontSize: height / 50,
-                                        //     fontFamily: 'Gilroy Bold'),
+                                        style: TextStyle(
+                                            color: notifire.getdarkscolor,
+                                            fontSize: height / 50,
+                                            fontFamily: 'Gilroy Bold'),
                                       ),
-                                      // SizedBox(
-                                      //   height: height / 150,
-                                      // ),
-                                      // Row(
-                                      //   children: [
-                                      //     Icon(iconname[index],
-                                      //         color: colorname[index],
-                                      //         size: height / 40),
-                                      //     SizedBox(
-                                      //       width: width / 100,
-                                      //     ),
-                                      //     Text(
-                                      //       historyname[index],
-                                      //       style: TextStyle(
-                                      //           color: Colors.grey,
-                                      //           fontSize: height / 60,
-                                      //           fontFamily: 'Gilroy Medium'),
-                                      //     ),
-                                      //   ],
-                                      // ),
+                                      SizedBox(
+                                        height: height / 150,
+                                      ),
+                                      statusTransaction(_data[index]['status_text'])
                                     ],
                                   ),
                                 ],
@@ -278,6 +263,23 @@ class _HistoryAllState extends State<HistoryAll> {
     }
   }
 
+  Widget statusTransaction(String statusText){
+    List<String> words = statusText.split('! ');
+    Color statusColor = notifire.getdarkscolor;
+    if (words[0] == 'Proses sukses') {
+        statusColor = const Color(0xff6C56F9);
+    } else if(words[0] == 'Proses gagal') {
+        statusColor = Colors.red;
+    }
+    return Text(
+      words[0],
+      style: TextStyle(
+          color: statusColor,
+          fontSize: height / 60,
+          fontFamily: 'Gilroy Bold'),
+    );
+  }
+  
   void _onScroll() {
     if (_scrollController.position.pixels ==
         _scrollController.position.maxScrollExtent) {

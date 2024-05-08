@@ -71,6 +71,13 @@ abstract class ApiClient {
       {@Header('Content-Type') String contentType = 'application/json',
       @Queries() Map<String, dynamic>? queries});
 
+  // password change
+  @POST(Apis.passwordChange)
+  Future<dynamic> postPasswordChange(
+      @Header('Authorization') String authorization, @Body() String body,
+      {@Header('Content-Type') String contentType = 'application/json',
+      @Queries() Map<String, dynamic>? queries});    
+
   // start master
   @GET(Apis.companyBank)
   Future<dynamic> getCompanyBank(
@@ -85,5 +92,61 @@ abstract class ApiClient {
       @Header('Authorization') String authorization, @Body() String body,
       {@Header('Content-Type') String contentType = 'application/json',
       @Queries() Map<String, dynamic>? queries});
+
+  @GET(Apis.walletTransaction)
+  Future<dynamic> getWalletTransaction(
+      @Header('Authorization') String authorization,
+      {@Header('Content-Type') String contentType = 'application/json',
+      @Queries() Map<String, dynamic>? queries});    
   // end wallet
+
+
+  // start user
+  @POST(Apis.updateFcm)
+  Future<dynamic> postUpdateFcm(
+      @Header('Authorization') String authorization, @Body() String body,
+      {@Header('Content-Type') String contentType = 'application/json',
+      @Queries() Map<String, dynamic>? queries});
+  // end user
 }
+
+
+
+// class AuthInterceptor extends Interceptor {
+
+//   final AuthService authService;
+//   final Dio dio;
+
+//   AuthInterceptor(this.authService, this.dio);
+
+//   @override
+//   Future onRequest(RequestOptions options) async {
+//     // Add the authorization token to the request
+//     // Here, you should retrieve the token from wherever it is stored
+//     String authToken = SharedPrefs().token;
+//     options.headers["Authorization"] = "Bearer $authToken";
+//     return options;
+//   }
+
+//   @override
+//   Future onError(DioError err) async {
+//     if (err.response?.statusCode == 401) {
+//       // Token expired, refresh the token
+//       String refreshToken = await getRefreshToken();
+//       try {
+//         // Call the refresh token endpoint
+//         Response<String> response =
+//             await authService.refreshToken({"refreshToken": refreshToken});
+//         // If refresh token is successful, retry the original request
+//         if (response.statusCode == 200) {
+//           RequestOptions options = err.response!.requestOptions;
+//           options.headers["Authorization"] = "Bearer ${response.data}";
+//           return dio.request(options.path!, options: options);
+//         }
+//       } catch (e) {
+//         // Handle refresh token error
+//       }
+//     }
+//     return err;
+//   }
+// }

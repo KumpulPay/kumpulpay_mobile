@@ -21,21 +21,26 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:string_capitalize/string_capitalize.dart';
 
 class PpobProduct extends StatefulWidget {
+  static String routeName = '/ppob_product';
+  final dynamic categoryData;
   final String? type;
-  const PpobProduct({Key? key, this.type}) : super(key: key);
-
+  const PpobProduct({Key? key, this.type, this.categoryData}) : super(key: key);
+  
   @override
   State<PpobProduct> createState() => _PpobProductState();
+
 }
 
 class _PpobProductState extends State<PpobProduct>
     with SingleTickerProviderStateMixin, ChangeNotifier {
+
+  PpobProduct? args;    
   late ColorNotifire notifire;
-  final _globalKey = GlobalKey<State>();
   final _formKey = GlobalKey<FormBuilderState>();
   Map<String, dynamic> phoneProvider = {};
+  dynamic _categoryData;
+  String? _type;
 
-  final TextEditingController _ctrDestination = TextEditingController();
   String _txtDestination = "";
   String _txtProvider = "";
   String _txtLabelPriceList = "";
@@ -53,6 +58,7 @@ class _PpobProductState extends State<PpobProduct>
   @override
   void initState() {
     super.initState();
+    // _categoryData = widget.categoryData;
   }
 
 
@@ -60,10 +66,10 @@ class _PpobProductState extends State<PpobProduct>
     // print('Text submitted: $value');
     setState(() {
       _txtDestination = value;
-      if (widget.type == 'pulsa' ||
-          widget.type == 'data' ||
-          widget.type == 'paket_sms' ||
-          widget.type == 'paket_telepon') {
+      if (_type == 'pulsa' ||
+          _type == 'data' ||
+          _type == 'paket_sms' ||
+          _type == 'paket_telepon') {
         phoneProvider = PhoneProvider.getProvide(value);
       }
     });
@@ -77,8 +83,12 @@ class _PpobProductState extends State<PpobProduct>
 
   @override
   Widget build(BuildContext context) {
+    args = ModalRoute.of(context)!.settings.arguments as PpobProduct?;
+    _categoryData = args!.categoryData;
+    _type = args!.type;
     notifire = Provider.of<ColorNotifire>(context, listen: true);
-    String? title = widget.type;
+    // String? title = _categoryData['name_mobile'];
+    String? title = args!.categoryData['name_mobile'];
 
     return Scaffold(
         appBar: AppBar(
@@ -240,12 +250,12 @@ class _PpobProductState extends State<PpobProduct>
     final client = ApiClient(Dio(BaseOptions(contentType: "application/json")));
     final Map<String, dynamic> queries = {
       "type": "prepaid",
-      "category": widget.type
+      "category": _type
     };
-    if (widget.type == 'pulsa' ||
-        widget.type == 'data' ||
-        widget.type == 'paket_sms' ||
-        widget.type == 'paket_telepon') {
+    if (_type == 'pulsa' ||
+        _type == 'data' ||
+        _type == 'paket_sms' ||
+        _type == 'paket_telepon') {
       if (phoneProvider.containsKey("provider")) {
         phoneProvider.remove("icon");
         phoneProvider.remove("prefix");
@@ -254,7 +264,7 @@ class _PpobProductState extends State<PpobProduct>
     } else {
       queries.addAll({"provider": _txtProvider});
     }
-    // print('print: ${queries}');
+    // print('printX: ${queries}');
     return FutureBuilder<dynamic>(
         future: client.getProductProvider('Bearer ${SharedPrefs().token}',
             queries: queries),
@@ -263,7 +273,7 @@ class _PpobProductState extends State<PpobProduct>
             if (snapshot.connectionState == ConnectionState.done) {
               List<dynamic> list = snapshot.data["data"];
 
-              if (widget.type == 'pulsa') {
+              if (_type == 'pulsa') {
                 if (list.length == 1) {
                   _txtLabelPriceList = list[0]["name_mobile"];
                   List<dynamic> listDetail = list[0]["child"];
@@ -280,7 +290,7 @@ class _PpobProductState extends State<PpobProduct>
                 }
               }
 
-              if (widget.type == 'emoney') {
+              if (_type == 'e_money') {
                 if (list.length == 1) {
                   _txtLabelPriceList = list[0]["name_mobile"];
                   List<dynamic> listDetail = list[0]["child"];
@@ -297,9 +307,9 @@ class _PpobProductState extends State<PpobProduct>
                 }
               }
 
-              if (widget.type == 'data' ||
-                  widget.type == 'paket_sms' ||
-                  widget.type == 'paket_telepon') {
+              if (_type == 'data' ||
+                  _type == 'paket_sms' ||
+                  _type == 'paket_telepon') {
                 if (list.length == 1) {
                   _txtLabelPriceList = list[0]["name_mobile"];
                   List<dynamic> listDetail = list[0]["child"];
@@ -310,7 +320,7 @@ class _PpobProductState extends State<PpobProduct>
                 }
               }
 
-              if (widget.type == 'token_listrik') {
+              if (_type == 'token_listrik') {
                 _txtLabelPriceList = list[0]["name_mobile"];
                 List<dynamic> listDetail = list[0]["child"];
                 return Container(
@@ -491,12 +501,12 @@ class _PpobProductState extends State<PpobProduct>
                         content: Builder(builder: (context) {
                           List<dynamic> group2 = item["child"];
 
-                          if (widget.type == 'pulsa') {
+                          if (_type == 'pulsa') {
                             return _buildItemAccordionSub(group2);
                           }
-                          if (widget.type == 'data' ||
-                              widget.type == 'paket_sms' ||
-                              widget.type == 'paket_telepon') {
+                          if (_type == 'data' ||
+                              _type == 'paket_sms' ||
+                              _type == 'paket_telepon') {
                             List<dynamic> group3 = [];
                             for (var i = 0; i < group2.length; i++) {
                               group3.addAll(group2[i]['child']);
@@ -834,7 +844,7 @@ class _PpobProductState extends State<PpobProduct>
   }
 
   Widget _bottomSheetContent(List<dynamic> listDetail, int index) {
-    String? title = widget.type?.capitalizeEach();
+    String? title = _type?.capitalizeEach();
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
@@ -1222,11 +1232,10 @@ class _PpobProductState extends State<PpobProduct>
       BuildContext context, dynamic productSelected) async {
     Map<String, dynamic> formData = await _generateFormData(productSelected);
 
-    Navigator.push(
+    Navigator.pushNamed(
       context,
-      MaterialPageRoute(
-        builder: (context) => ConfirmPin(formData: formData),
-      ),
+      ConfirmPin.routeName,
+      arguments: ConfirmPin(formData: formData)
     );
   }
 }

@@ -17,6 +17,7 @@ import 'package:provider/provider.dart';
 import '../../utils/button.dart';
 
 class ConfirmPin extends StatefulWidget {
+  static String routeName = '/confirm_pin';
   final dynamic formData;
   const ConfirmPin({Key? key, this.formData}) : super(key: key);
 
@@ -25,6 +26,8 @@ class ConfirmPin extends StatefulWidget {
 }
 
 class _ConfirmPinState extends State<ConfirmPin> {
+  ConfirmPin?  _args;
+  dynamic _formData;
   final _globalKey = GlobalKey<State>();
   late ColorNotifire notifire;
   final OtpFieldController _ctrPinTransaction = OtpFieldController();
@@ -32,7 +35,9 @@ class _ConfirmPinState extends State<ConfirmPin> {
 
   @override
   Widget build(BuildContext context) {
-    notifire = Provider.of<ColorNotifire>(context, listen: true);
+    _args         = ModalRoute.of(context)!.settings.arguments as ConfirmPin?;
+    _formData     = _args!.formData;
+    notifire      = Provider.of<ColorNotifire>(context, listen: true);
     return Scaffold(
       appBar: AppBar(
         elevation: 0,
@@ -150,12 +155,7 @@ class _ConfirmPinState extends State<ConfirmPin> {
                 ),
                 GestureDetector(
                   onTap: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => const History(),
-                      ),
-                    );
+                    Navigator.pushReplacementNamed(context, History.routeName);
                   },
                   child: buttons(notifire.getbluecolor,
                       "Lihat Transaksi", Colors.white),
@@ -165,12 +165,7 @@ class _ConfirmPinState extends State<ConfirmPin> {
                 ),
                 GestureDetector(
                   onTap: () {
-                    Navigator.pushReplacement(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => const Bottombar(),
-                      ),
-                    );
+                    Navigator.pushReplacementNamed(context, Bottombar.routeName);
                   },
                   child: buttons(const Color(0xffd3d3d3), CustomStrings.home,
                       notifire.getbluecolor),
@@ -242,9 +237,9 @@ class _ConfirmPinState extends State<ConfirmPin> {
       Map<String, dynamic> body = {
         "pin_transaction": txtPinTransaction
       };
-      body.addAll(widget.formData);
+      body.addAll(_formData);
       String jsonString = json.encode(body);
-      // print(jsonString);
+      print(jsonString);
       Loading.showLoadingDialog(context, _globalKey);
       final client = ApiClient(Dio(BaseOptions(contentType: "application/json")));
       final dynamic post = await client.postPpobTransaction('Bearer ${SharedPrefs().token}', jsonString);
@@ -259,7 +254,7 @@ class _ConfirmPinState extends State<ConfirmPin> {
 
     } on DioException catch (e) {
       Navigator.pop(context);
-      // print("error: ${e}");
+      print("error: ${e}");
       if (e.response != null) {
         // print(e.response?.data);
         // print(e.response?.headers);

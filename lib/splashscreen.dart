@@ -10,6 +10,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'onbonding.dart';
 
 class Splashscreen extends StatefulWidget {
+  static String routeName = '/main';
   const Splashscreen({Key? key}) : super(key: key);
 
   @override
@@ -33,12 +34,8 @@ class _SplashscreenState extends State<Splashscreen> {
   getInit() async {
     Timer(
       const Duration(seconds: 3),
-      () => Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(
-          builder: (context) => const Onbonding(),
-        ),
-      ),
+      () => Navigator.pushNamedAndRemoveUntil(
+                          context, Onbonding.routeName, (route) => false),
     );
   }
 

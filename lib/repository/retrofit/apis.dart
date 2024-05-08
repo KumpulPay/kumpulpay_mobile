@@ -22,11 +22,19 @@ class Apis {
   static const String pinCreate = '/api/v1/security/pin/create';
   static const String pinReset = '/api/v1/security/pin/reset';
 
+  // password
+  static const String passwordChange = '/api/v1/security/password/change';
+  static const String passwordForgot = '/api/v1/security/password/forgot';
+
   // master
   static const String companyBank = '/api/v1/company/bank';
 
 
   // wallet
   static const String walletDeposit = '/api/v1/wallet/deposit';
+  static const String walletTransaction = '/api/v1/wallet/transaction';
+
+  // user
+  static const String updateFcm = '/api/v1/user/fcm';
 
 }

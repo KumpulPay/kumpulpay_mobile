@@ -16,6 +16,7 @@ import '../utils/string.dart';
 import '../utils/textfeilds.dart';
 
 class Register extends StatefulWidget {
+  static String routeName = '/register';
   const Register({Key? key}) : super(key: key);
 
   @override
@@ -164,13 +165,7 @@ class _RegisterState extends State<Register> {
                                         ),
                                         GestureDetector(
                                           onTap: () {
-                                            Navigator.push(
-                                              context,
-                                              MaterialPageRoute(
-                                                builder: (context) =>
-                                                    const Login(),
-                                              ),
-                                            );
+                                            Navigator.pop(context);
                                           },
                                           child: Text(
                                             "Login disini",

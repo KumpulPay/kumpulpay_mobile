@@ -1,9 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_form_builder/flutter_form_builder.dart';
-import 'package:kumpulpay/utils/colornotifire.dart';
 import 'package:kumpulpay/utils/helpers.dart';
 import 'media.dart';
-import 'package:form_builder_validators/form_builder_validators.dart';
 
 class Dinamistextfilds {
   static Widget textField(
@@ -110,6 +108,7 @@ class CustomtextFormfilds {
             if (is_password) {
               return Helpers.validatePassword(value);
             }
+            return null;
           },
           // controller: _controller,
           autofocus: false,
@@ -192,7 +191,7 @@ class FormBuilderTextFieldCustom {
                 ),
               )
             : null,
-        suffixIcon: suffixIconInteractive != null ? suffixIconInteractive : suffixIcon != null
+        suffixIcon: suffixIconInteractive ?? (suffixIcon != null
             ? Padding(
                 padding: EdgeInsets.symmetric(
                     vertical: height / 50, horizontal: height / 70),
@@ -201,7 +200,7 @@ class FormBuilderTextFieldCustom {
                   height: height / 50,
                 ),
               )
-            : suffixIcon,
+            : suffixIcon),
         hintStyle: TextStyle(color: hintclr, fontSize: height / 60),    
         border: OutlineInputBorder(
             borderSide: BorderSide(

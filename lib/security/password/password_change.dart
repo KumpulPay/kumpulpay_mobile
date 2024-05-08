@@ -14,15 +14,15 @@ import 'package:kumpulpay/utils/textfeilds.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-class PinCreate extends StatefulWidget {
-  static String routeName = '/security/pin/create';
-  const PinCreate({Key? key}) : super(key: key);
+class PasswordChange extends StatefulWidget {
+  static String routeName = '/security/password/change';
+  const PasswordChange({Key? key}) : super(key: key);
 
   @override
-  State<PinCreate> createState() => _PinCreateState();
+  State<PasswordChange> createState() => _PasswordChangeState();
 }
 
-class _PinCreateState extends State<PinCreate> {
+class _PasswordChangeState extends State<PasswordChange> {
   late ColorNotifire notifire;
   final _globalKey = GlobalKey<State>();
   final _formKey = GlobalKey<FormBuilderState>();
@@ -61,7 +61,7 @@ class _PinCreateState extends State<PinCreate> {
           iconTheme: IconThemeData(color: notifire.getdarkscolor),
           centerTitle: false,
           title: Text(
-            "Buat / Ganti PIN",
+            "Ganti Password",
             style: TextStyle(
               color: notifire.getdarkscolor,
               fontFamily: 'Gilroy Bold',
@@ -96,7 +96,7 @@ class _PinCreateState extends State<PinCreate> {
                     Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 20),
                       child: Text(
-                        "Masukkan pin baru kamu untuk melakukan transaksi",
+                        "Jangan lupa untuk selalu menjaga kerahasiaan password kamu.",
                         style: TextStyle(
                           color: Colors.grey,
                           fontFamily: 'Gilroy Bold',
@@ -108,14 +108,14 @@ class _PinCreateState extends State<PinCreate> {
                     SizedBox(
                       height: height / 50,
                     ),
-                    textfeildC("pin_transaction_current", "PIN Lama",
-                        hintText: "Masukkan PIN lama",
+                    textfeildC("password_current", "Password Lama",
+                        hintText: "Masukkan Password lama",
                         prefixIcon: "images/password.png",
-                        keyboardType: TextInputType.number,
-                        maxLength: 4,
+                        keyboardType: TextInputType.text,
+                        maxLength: 20,
                         validator: FormBuilderValidators.compose([
                           FormBuilderValidators.required(),
-                          FormBuilderValidators.minLength(4),
+                          FormBuilderValidators.minLength(6),
                         ]),
                         suffixIconInteractive: GestureDetector(
                             onTap: () {
@@ -136,14 +136,14 @@ class _PinCreateState extends State<PinCreate> {
                                     color: Colors.grey,
                                   ))),
 
-                    textfeildC("pin_transaction_new", "PIN Baru",
-                        hintText: "Masukkan PIN baru",
+                    textfeildC("password_new", "Password Baru",
+                        hintText: "Masukkan password baru",
                         prefixIcon: "images/password.png",
-                        keyboardType: TextInputType.number,
-                        maxLength: 4,
+                        keyboardType: TextInputType.text,
+                        maxLength: 20,
                         validator: FormBuilderValidators.compose([
                           FormBuilderValidators.required(),
-                          FormBuilderValidators.minLength(4)
+                          FormBuilderValidators.minLength(6)
                         ]),
                         suffixIconInteractive: GestureDetector(
                             onTap: () {
@@ -164,14 +164,14 @@ class _PinCreateState extends State<PinCreate> {
                                     color: Colors.grey,
                                   ))),
                     textfeildC(
-                        "pin_transaction_confirm_new", "Konfirmasi PIN baru",
-                        hintText: "Masukkan konfirmasi PIN baru",
+                        "password_new_confirm", "Konfirmasi password baru",
+                        hintText: "Masukkan konfirmasi password baru",
                         prefixIcon: "images/password.png",
-                        keyboardType: TextInputType.number,
-                        maxLength: 4,
+                        keyboardType: TextInputType.text,
+                        maxLength: 20,
                         validator: FormBuilderValidators.compose([
                           FormBuilderValidators.required(),
-                          FormBuilderValidators.minLength(4)
+                          FormBuilderValidators.minLength(6)
                         ]),
                         suffixIconInteractive: GestureDetector(
                             onTap: () {
@@ -217,7 +217,6 @@ class _PinCreateState extends State<PinCreate> {
                         ),
                       ],
                     ),
-
                   ],
                 ),
               ),
@@ -246,7 +245,7 @@ class _PinCreateState extends State<PinCreate> {
                         ),
                         child: Center(
                           child: Text(
-                            "Simpan PIN",
+                            "Simpan Password",
                             style: TextStyle(
                                 color: Colors.white,
                                 fontFamily: 'Gilroy Medium',
@@ -318,22 +317,30 @@ class _PinCreateState extends State<PinCreate> {
       Map<String, dynamic> body = {};
       body.addAll(formData);
       String jsonString = json.encode(body);
-      // print("print: ${jsonString}");
 
       Loading.showLoadingDialog(context, _globalKey);
       final client =
           ApiClient(Dio(BaseOptions(contentType: "application/json")));
-      final dynamic post = await client.postPinCreate('Bearer ${SharedPrefs().token}', jsonString);
+      final dynamic post = await client.postPasswordChange('Bearer ${SharedPrefs().token}', jsonString);
       // print(post);
       if (post["status"]) {
-
-          ScaffoldMessenger.of(context)
-            .showSnackBar(SnackBar(content: Text(post["message"])));
+        // Navigator.push(
+        //   context,
+        //   MaterialPageRoute(
+        //     builder: (context) => const Login(),
+        //   ),
+        // );
+         
       } else {
-          ScaffoldMessenger.of(context)
-            .showSnackBar(SnackBar(content: Text(post["message"])));
+        // Navigator.pop(context);
+       
       }
+
+      ScaffoldMessenger.of(context)
+          .showSnackBar(SnackBar(content: Text(post["message"])));
+
       Navigator.pop(context);
+
     } on DioException catch (e) {
       Navigator.pop(context);
       // print("error: ${e}");

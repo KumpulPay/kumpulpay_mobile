@@ -9,6 +9,7 @@ import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class NotificationList extends StatefulWidget {
+  static String routeName = '/notification';
   const NotificationList({Key? key}) : super(key: key);
 
   @override
@@ -53,13 +54,13 @@ class _NotificationListState extends State<NotificationList> {
       _isLoading = true;
     });
     final NotificationDao dao = GetIt.instance.get<NotificationDao>();
-    final offset = currentPage * itemsPerPage;
+    // final offset = currentPage * itemsPerPage;
 
-    final results = await dao.findAll(itemsPerPage, offset);
+    final results = await dao.findAll(itemsPerPage, currentPage);
 
     setState(() {
       notifList.addAll(results);
-      currentPage++;
+      currentPage += itemsPerPage;
       _isLoading = false;
     });
   }

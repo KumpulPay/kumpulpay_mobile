@@ -1,13 +1,14 @@
 import 'package:flutter/material.dart';
-import 'package:kumpulpay/transaction/history_all.dart';
+import 'package:kumpulpay/transaction/history_ppob.dart';
+import 'package:kumpulpay/transaction/history_topup.dart';
 import 'package:kumpulpay/utils/media.dart';
-import 'package:kumpulpay/utils/string.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../utils/colornotifire.dart';
 
 
 class History extends StatefulWidget {
+  static String routeName = '/ppob_history';
   const History ({Key? key}) : super(key: key);
 
   @override
@@ -30,11 +31,9 @@ class _HistoryState extends State<History>
 
   TabController? controller;
   List<Widget> tabs = [
-    const HistoryAll(),
-    const HistoryAll(),
-    const HistoryAll(),
-    // const InOutScheduled(),
-    // const InOutrequested(),
+    const HistoryPpob(),
+    const HistoryTopup(),
+    const HistoryPpob(),
   ];
 
   @override
@@ -125,9 +124,9 @@ class _HistoryState extends State<History>
                               labelColor: notifire.getdarkscolor,
                               unselectedLabelColor: Colors.grey,
                               tabs: const [
-                                Tab(text: "Histori"),
-                                Tab(text: "Gagal"),
-                                Tab(text: "Proses"),
+                                Tab(text: "Produk"),
+                                Tab(text: "Topup"),
+                                Tab(text: "Paylater"),
                               ],
                             ),
                           ),

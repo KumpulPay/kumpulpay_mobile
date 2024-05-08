@@ -1,20 +1,26 @@
 import 'dart:async';
+import 'dart:convert';
 import 'dart:isolate';
 import 'dart:ui';
 import 'package:awesome_notifications/awesome_notifications.dart';
 import 'package:awesome_notifications_fcm/awesome_notifications_fcm.dart';
+import 'package:dio/dio.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
-import 'package:http/http.dart' as http;
+import 'package:get_it/get_it.dart';
 import 'package:kumpulpay/data/shared_prefs.dart';
 import 'package:kumpulpay/firebase_options.dart';
+import 'package:kumpulpay/repository/retrofit/api_client.dart';
+import 'package:kumpulpay/repository/sqlite/notification_dao.dart';
+import 'package:kumpulpay/repository/sqlite/notification_entity.dart';
+import 'package:kumpulpay/main.dart';
 
 ///  *********************************************
 ///     NOTIFICATION CONTROLLER
 ///  *********************************************
-///
+
 class NotificationController extends ChangeNotifier {
   /// *********************************************
   ///   SINGLETON PATTERN
@@ -29,6 +35,13 @@ class NotificationController extends ChangeNotifier {
 
   NotificationController._internal();
 
+  Future<void> init() async {
+    await initializeLocalNotifications();
+    await initializeRemoteNotifications(debug: true);
+    await initializeIsolateReceivePort();
+    await startListeningNotificationEvents();
+  }
+
   /// *********************************************
   ///  OBSERVER PATTERN
   /// *********************************************
@@ -38,7 +51,7 @@ class NotificationController extends ChangeNotifier {
 
   String _nativeToken = '';
   String get nativeToken => _nativeToken;
-  
+
   ReceivedAction? initialAction;
   static ReceivePort? receivePort;
 
@@ -47,7 +60,7 @@ class NotificationController extends ChangeNotifier {
   ///  *********************************************
   ///
   static Future<void> initializeLocalNotifications() async {
-    print('print initializeLocalNotifications');
+    // print('print initializeLocalNotifications');
     await AwesomeNotifications().initialize(
         null, //'resource://drawable/res_app_icon',//
         [
@@ -72,12 +85,12 @@ class NotificationController extends ChangeNotifier {
 
   static Future<void> initializeRemoteNotifications(
       {required bool debug}) async {
-    print('print initializeRemoteNotifications');    
+    // print('print initializeRemoteNotifications');
     await Firebase.initializeApp(
         options: DefaultFirebaseOptions.currentPlatform);
-    final FirebaseMessaging _firebaseMessaging =
-        await FirebaseMessaging.instance;
-    _firebaseMessaging.requestPermission(
+    final FirebaseMessaging firebaseMessaging =
+        FirebaseMessaging.instance;
+    firebaseMessaging.requestPermission(
       alert: true,
       announcement: false,
       badge: true,
@@ -86,11 +99,11 @@ class NotificationController extends ChangeNotifier {
       provisional: true,
       sound: true,
     );
-    _firebaseMessaging.getToken().then((token) {
+    firebaseMessaging.getToken().then((token) {
       SharedPrefs().fcmTokenMobile = token.toString();
-      print("Firebase Messaging Token: $token");
+      // print("Firebase Messaging Token: $token");
     });
-    // await Firebase.initializeApp();
+  
     await AwesomeNotificationsFcm().initialize(
         onFcmTokenHandle: NotificationController.myFcmTokenHandle,
         onNativeTokenHandle: NotificationController.myNativeTokenHandle,
@@ -99,9 +112,8 @@ class NotificationController extends ChangeNotifier {
         debug: debug);
   }
 
-  
   static Future<void> initializeIsolateReceivePort() async {
-    print('print initializeIsolateReceivePort');  
+    print('print initializeIsolateReceivePort');
     receivePort = ReceivePort('Notification action port in main isolate')
       ..listen(
           (silentData) => onActionReceivedImplementationMethod(silentData));
@@ -116,49 +128,55 @@ class NotificationController extends ChangeNotifier {
   ///  *********************************************
   ///  Notifications events are only delivered after call this method
   static Future<void> startListeningNotificationEvents() async {
-    print('print startListeningNotificationEvents');  
-    AwesomeNotifications().setListeners(onActionReceivedMethod: onActionReceivedMethod);
+    print('print startListeningNotificationEvents');
+    AwesomeNotifications()
+        .setListeners(
+          onActionReceivedMethod: onActionReceivedMethod,
+          onNotificationCreatedMethod: onNotificationCreatedMethod,
+          onNotificationDisplayedMethod: onNotificationDisplayedMethod,
+          onDismissActionReceivedMethod: onDismissActionReceivedMethod
+        );
   }
 
   ///  *********************************************
   ///     NOTIFICATION EVENTS
   ///  *********************************************
-  
+
   static Future<void> getInitialNotificationAction() async {
     print('print getInitialNotificationAction');
     ReceivedAction? receivedAction = await AwesomeNotifications()
         .getInitialNotificationAction(removeFromActionEvents: true);
     if (receivedAction == null) return;
 
-    // Fluttertoast.showToast(
-    //     msg: 'Notification action launched app: $receivedAction',
-    //   backgroundColor: Colors.deepPurple
-    // );
-    print('App launched by a notification action: $receivedAction');
+    Fluttertoast.showToast(
+        msg: 'Notification action launched app: $receivedAction',
+      backgroundColor: Colors.deepPurple
+    );
+    // print('App launched by a notification action: $receivedAction');
   }
 
   @pragma('vm:entry-point')
   static Future<void> onActionReceivedMethod(
       ReceivedAction receivedAction) async {
-    print('print onActionReceivedMethod');
+
+    Map<String, String?>? payload = receivedAction.payload;    
+    print('print onActionReceivedMethod $payload');
     if (receivedAction.actionType == ActionType.SilentAction ||
         receivedAction.actionType == ActionType.SilentBackgroundAction) {
       // For background actions, you must hold the execution until the end
-      print(
-          'Message sent via notification input: "${receivedAction.buttonKeyInput}"');
+      // print('Message sent via notification input: "${receivedAction.buttonKeyInput}"');
       await executeLongTaskInBackground();
     } else {
       // this process is only necessary when you need to redirect the user
       // to a new page or use a valid context, since parallel isolates do not
       // have valid context, so you need redirect the execution to main isolate
       if (receivePort == null) {
-        print(
-            'onActionReceivedMethod was called inside a parallel dart isolate.');
+        // print('onActionReceivedMethod was called inside a parallel dart isolate.');
         SendPort? sendPort =
             IsolateNameServer.lookupPortByName('notification_action_port');
 
         if (sendPort != null) {
-          print('Redirecting the execution to main isolate process.');
+          // print('Redirecting the execution to main isolate process.');
           sendPort.send(receivedAction);
           return;
         }
@@ -168,17 +186,34 @@ class NotificationController extends ChangeNotifier {
     }
   }
 
-  static Future<void> onActionReceivedImplementationMethod(
-      ReceivedAction receivedAction) async {
-      print('print onActionReceivedImplementationMethod');
-    // MyApp.navigatorKey.currentState?.pushNamedAndRemoveUntil(
-    //     '/notification-page',
-    //     (route) =>
-    //         (route.settings.name != '/notification-page') || route.isFirst,
-    //     arguments: receivedAction);
+  @pragma('vm:entry-point')
+  static Future<void> onNotificationCreatedMethod(ReceivedNotification receivedNotification) async {
+      print('onNotificationCreatedMethod ${receivedNotification.toString()}');
+      await _storeNotification(receivedNotification);
+  }
+  @pragma('vm:entry-point')
+  static Future<void> onNotificationDisplayedMethod(
+      ReceivedNotification receivedNotification) async {
+        print('onNotificationDisplayedMethod ${receivedNotification.toString()}');
+  }
+  @pragma('vm:entry-point')
+  static Future<void> onDismissActionReceivedMethod(
+      ReceivedNotification receivedNotification) async {
+        print('onDismissActionReceivedMethod ${receivedNotification.toString()}');
   }
 
-///  *********************************************
+  static Future<void> onActionReceivedImplementationMethod(
+      ReceivedAction receivedAction) async {
+    print('print onActionReceivedImplementationMethod $receivedAction');
+   
+    navigatorKey.currentState?.pushNamedAndRemoveUntil(
+        '/notification',
+        (route) =>
+            (route.settings.name != '/notification') || route.isFirst,
+        arguments: receivedAction);
+  }
+
+  ///  *********************************************
   ///     REMOTE NOTIFICATION EVENTS
   ///  *********************************************
 
@@ -186,14 +221,15 @@ class NotificationController extends ChangeNotifier {
   /// (even while terminated)
   @pragma("vm:entry-point")
   static Future<void> mySilentDataHandle(FcmSilentData silentData) async {
+    print('print mySilentDataHandle  ${silentData.toString()}');
     Fluttertoast.showToast(
         msg: 'Silent data received',
         backgroundColor: Colors.blueAccent,
         textColor: Colors.white,
         fontSize: 16);
 
-    print('print mySilentDataHandle');
-    print('"SilentData": ${silentData.toString()}');
+    // print('print mySilentDataHandle');
+    // print('"SilentData": ${silentData.toString()}');
 
     if (silentData.createdLifeCycle != NotificationLifeCycle.Foreground) {
       print("bg");
@@ -201,7 +237,7 @@ class NotificationController extends ChangeNotifier {
       print("FOREGROUND");
     }
 
-    print('mySilentDataHandle received a FcmSilentData execution');
+    // print('mySilentDataHandle received a FcmSilentData execution');
     await executeLongTaskInBackground();
   }
 
@@ -210,6 +246,8 @@ class NotificationController extends ChangeNotifier {
   static Future<void> myFcmTokenHandle(String token) async {
     print('print myFcmTokenHandle');
     if (token.isNotEmpty) {
+      sendTokenFcmToServer(token);
+
       Fluttertoast.showToast(
           msg: 'Fcm token received',
           backgroundColor: Colors.blueAccent,
@@ -315,12 +353,12 @@ class NotificationController extends ChangeNotifier {
   ///  *********************************************
   static Future<void> executeLongTaskInBackground() async {
     print("print executeLongTaskInBackground");
-    print("starting long task");
-    await Future.delayed(const Duration(seconds: 4));
-    final url = Uri.parse("http://google.com");
-    final re = await http.get(url);
-    print(re.body);
-    print("long task done");
+    // print("starting long task");
+    // await Future.delayed(const Duration(seconds: 4));
+    // final url = Uri.parse("http://google.com");
+    // final re = await http.get(url);
+    // print(re.body);
+    // print("long task done");
   }
 
   ///  *********************************************
@@ -328,7 +366,7 @@ class NotificationController extends ChangeNotifier {
   ///  *********************************************
   ///
   static Future<void> createNewNotification(BuildContext context) async {
-    print('print createNewNotification');
+    // print('print createNewNotification');
     bool isAllowed = await AwesomeNotifications().isNotificationAllowed();
     if (!isAllowed) isAllowed = await displayNotificationRationale(context);
     if (!isAllowed) return;
@@ -399,6 +437,26 @@ class NotificationController extends ChangeNotifier {
     }
     return '';
   }
+  
+
+  static Future<void> _storeNotification(ReceivedNotification received) async {
+    Map<String, dynamic> payload = received.payload??{};
+    // print('xx: ${payload['type']}');
+    print('simpan notid');
+    final notificationEntity = NotificationEntity.optional(
+      type: payload['type'],
+      title: received.title,
+      subtitle: received.body,
+      image: received.bigPicture,
+      data: received.payload.toString(),
+    );
+    try {
+      final NotificationDao dao = GetIt.instance.get<NotificationDao>();
+      await dao.insertData(notificationEntity);
+    } catch (e) {
+      print('Error _storeNotification: $e');
+    }
+  }
 }
 
 Future<void> myNotifyScheduleInHours({
@@ -445,4 +503,44 @@ Future<void> myNotifyScheduleInHours({
       ),
     ],
   );
+}
+
+Future<void> sendTokenFcmToServer(String token) async {
+  try {
+
+    if (SharedPrefs().token == '') {
+        return;
+    }
+    Map<String, dynamic> body = {"fcm_token_mobile": token};
+    String jsonString = json.encode(body);
+
+    final client = ApiClient(Dio(BaseOptions(contentType: "application/json")));
+    final dynamic post = await client.postUpdateFcm(
+        'Bearer ${SharedPrefs().token}', jsonString);
+    print('sendTokenFcmToServer: $post');
+    if (!post["status"]) {
+        Fluttertoast.showToast(
+            msg: 'Fcm token gagal di update!',
+            backgroundColor: Colors.red,
+            textColor: Colors.white,
+            fontSize: 16);
+    }
+
+  } on DioException catch (e) {
+    // print("error: ${e}");
+    if (e.response != null) {
+      // print(e.response?.data);
+      // print(e.response?.headers);
+      // print(e.response?.requestOptions);
+      bool status = e.response?.data["status"];
+      if (status) {
+        // return Center(child: Text('Upst...'));
+        // return e.response;
+      }
+    } else {
+      // print(e.requestOptions);
+      // print(e.message);
+    }
+    rethrow;
+  }
 }

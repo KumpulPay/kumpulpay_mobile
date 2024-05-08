@@ -67,6 +67,9 @@ dependencies:
   flutter_form_builder: ^9.2.1
   form_builder_validators: ^9.1.0
   card_slider: ^1.0.5
+  floor: ^1.4.2
+  get_it: ^7.7.0
+  sqflite: ^2.3.3
 
 
 #  flutter_localizations:
@@ -88,6 +91,8 @@ dev_dependencies:
   build_runner: ^2.4.8
   json_serializable: ^6.7.1
   built_value_generator: ^8.9.1
+
+  floor_generator: ^1.4.2
 
 
 # For information on the generic Dart part of this file, see the

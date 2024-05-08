@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:kumpulpay/data/shared_prefs.dart';
 import 'package:kumpulpay/login/login.dart';
 import 'package:kumpulpay/profile/editprofile.dart';
+import 'package:kumpulpay/security/password/password.dart';
 import 'package:kumpulpay/security/pin/pin.dart';
 import 'package:kumpulpay/transaction/history.dart';
 import 'package:provider/provider.dart';
@@ -17,7 +18,6 @@ import 'forgotpassword.dart';
 import 'helpsupport.dart';
 import 'language.dart';
 import 'legalandpolicy.dart';
-import 'myprofile.dart';
 import 'notification.dart';
 
 class Profile extends StatefulWidget {
@@ -134,12 +134,7 @@ class _ProfileState extends State<Profile> {
                     ),
                     GestureDetector(
                       onTap: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => const EditProfile(),
-                          ),
-                        );
+                        Navigator.pushNamed(context, EditProfile.routeName);
                       },
                       child: settingtype(
                           "images/profile.png", CustomStrings.yourprofile),
@@ -157,12 +152,7 @@ class _ProfileState extends State<Profile> {
                     SizedBox(height: height / 80),
                     GestureDetector(
                       onTap: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => const History(),
-                          ),
-                        );
+                        Navigator.pushNamed(context, History.routeName);
                       },
                       child: settingtype("images/history.png",
                           CustomStrings.historytransaction),
@@ -222,12 +212,7 @@ class _ProfileState extends State<Profile> {
                     // start setting pin
                     GestureDetector(
                       onTap: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => const Pin(),
-                          ),
-                        );
+                        Navigator.pushNamed(context, Pin.routeName);
                       },
                       child: settingtype("images/profilepassword.png",
                           "Pin Transaksi"),
@@ -243,18 +228,13 @@ class _ProfileState extends State<Profile> {
                     SizedBox(height: height / 80),
                     // end setting pin
 
-                    // start change password
+                     // start setting password
                     GestureDetector(
                       onTap: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => const ChangePassword(),
-                          ),
-                        );
+                        Navigator.pushNamed(context, Password.routeName);
                       },
                       child: settingtype("images/profilepassword.png",
-                          CustomStrings.changepassword),
+                          "Password"),
                     ),
                     SizedBox(height: height / 80),
                     Padding(
@@ -265,32 +245,58 @@ class _ProfileState extends State<Profile> {
                       ),
                     ),
                     SizedBox(height: height / 80),
-                    // end change password
+                    // end setting password
 
-                    // start forgot password
-                    GestureDetector(
-                      onTap: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => const ForgotPassword(),
-                          ),
-                        );
-                      },
-                      child: settingtype("images/forgotpassword.png",
-                          CustomStrings.forgotpasswords),
-                    ),
-                    SizedBox(
-                      height: height / 80,
-                    ),
-                    Padding(
-                      padding: EdgeInsets.symmetric(horizontal: width / 20),
-                      child: Divider(
-                        thickness: 0.6,
-                        color: Colors.grey.withOpacity(0.4),
-                      ),
-                    ),
-                    SizedBox(height: height / 50),
+                    // // start change password
+                    // GestureDetector(
+                    //   onTap: () {
+                    //     Navigator.push(
+                    //       context,
+                    //       MaterialPageRoute(
+                    //         builder: (context) => const ChangePassword(),
+                    //       ),
+                    //     );
+                    //   },
+                    //   child: settingtype("images/profilepassword.png",
+                    //       CustomStrings.changepassword),
+                    // ),
+                    // SizedBox(height: height / 80),
+                    // Padding(
+                    //   padding: EdgeInsets.symmetric(horizontal: width / 20),
+                    //   child: Divider(
+                    //     thickness: 0.6,
+                    //     color: Colors.grey.withOpacity(0.4),
+                    //   ),
+                    // ),
+                    // SizedBox(height: height / 80),
+                    // // end change password
+
+                    // // start forgot password
+                    // GestureDetector(
+                    //   onTap: () {
+                    //     Navigator.push(
+                    //       context,
+                    //       MaterialPageRoute(
+                    //         builder: (context) => const ForgotPassword(),
+                    //       ),
+                    //     );
+                    //   },
+                    //   child: settingtype("images/forgotpassword.png",
+                    //       CustomStrings.forgotpasswords),
+                    // ),
+                    // SizedBox(
+                    //   height: height / 80,
+                    // ),
+                    // Padding(
+                    //   padding: EdgeInsets.symmetric(horizontal: width / 20),
+                    //   child: Divider(
+                    //     thickness: 0.6,
+                    //     color: Colors.grey.withOpacity(0.4),
+                    //   ),
+                    // ),
+                    // SizedBox(height: height / 50),
+                    // // end forgot password
+
                     Row(
                       children: [
                         SizedBox(
@@ -520,12 +526,7 @@ class _ProfileState extends State<Profile> {
                 ),
                 GestureDetector(
                   onTap: () {
-                    Navigator.pushReplacement(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => const Login(),
-                      ),
-                    );
+                    Navigator.pushNamedAndRemoveUntil(context, Login.routeName, (route) => false);
                   },
                   child: Container(
                     height: height / 18,

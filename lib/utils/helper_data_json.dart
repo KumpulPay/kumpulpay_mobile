@@ -5,7 +5,7 @@ class HelpersDataJson
   static String product(dynamic data, param){
     String output = "";
     if (param == "product_name") {
-        if (data["category"] == "PULSA") {            
+        if (data["category"] == "pulsa") {            
             output = "${data["category"]} ${data["name_unique"]}";
             output = output.toLowerCase();
             output = output.capitalizeEach();

@@ -8,6 +8,7 @@ import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class Pin extends StatefulWidget {
+  static String routeName = '/security/pin';
   const Pin({Key? key}) : super(key: key);
 
   @override
@@ -66,12 +67,7 @@ class _PinState extends State<Pin> {
                 ),
                 GestureDetector(
                   onTap: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => const PinCreate(),
-                      ),
-                    );
+                    Navigator.pushNamed(context, PinCreate.routeName);
                   },
                   child: menuType(
                       "images/arrow-down.png", "Buat / Ganti PIN"),
@@ -88,12 +84,7 @@ class _PinState extends State<Pin> {
 
                 GestureDetector(
                   onTap: () {
-                    // Navigator.push(
-                    //   context,
-                    //   MaterialPageRoute(
-                    //     builder: (context) => const ChangePassword(),
-                    //   ),
-                    // );
+                    
                   },
                   child: menuType(
                       "images/arrow-down.png", "Reset PIN"),

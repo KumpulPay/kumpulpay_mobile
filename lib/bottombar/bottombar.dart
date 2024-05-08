@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:kumpulpay/home/home.dart';
 import 'package:kumpulpay/test.dart';
 import 'package:kumpulpay/utils/colornotifire.dart';
@@ -12,6 +13,7 @@ import '../card/mycard.dart';
 import '../profile/profile.dart';
 
 class Bottombar extends StatefulWidget {
+  static String routeName = '/bottom_bar';
   const Bottombar({Key? key}) : super(key: key);
 
   @override
@@ -22,13 +24,6 @@ class _BottombarState extends State<Bottombar> {
   late ColorNotifire notifire;
   int currentTab = 0;
   bool keyboardOpen = false;
-
-  final List screens = [
-    const Home(),
-    const Analytics(),
-    const MyCard(),
-    const Profile(),
-  ];
 
   final PageStorageBucket bucket = PageStorageBucket();
   Widget currentScreen = const Home();
@@ -51,11 +46,9 @@ class _BottombarState extends State<Bottombar> {
   @override
   Widget build(BuildContext context) {
     notifire = Provider.of<ColorNotifire>(context, listen: true);
-    // ignore: deprecated_member_use
-    return WillPopScope(
-      onWillPop: () async {
-        return false;
-      },
+    return PopScope(
+      canPop: false,
+      onPopInvoked: (didPop) => _onWillPop(),
       child: Scaffold(
         backgroundColor: notifire.getprimerycolor,
         body: PageStorage(
@@ -215,5 +208,26 @@ class _BottombarState extends State<Bottombar> {
         ),
       ),
     );
+  }
+
+  Future<bool> _onWillPop() async {
+    return (await showDialog(
+          context: context,
+          builder: (context) => AlertDialog(
+            title: const Text('Konfirmasi'),
+            content: const Text('Apakah Anda ingin keluar dari halaman ini?'),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.of(context).pop(false),
+                child: const Text('Tidak'),
+              ),
+              TextButton(
+                onPressed: () => SystemNavigator.pop(),
+                child: const Text('Ya'),
+              ),
+            ],
+          ),
+        )) ??
+        false;
   }
 }

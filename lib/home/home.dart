@@ -7,19 +7,20 @@ import 'package:kumpulpay/card/mycard.dart';
 import 'package:kumpulpay/category/category.dart';
 import 'package:kumpulpay/data/shared_prefs.dart';
 import 'package:kumpulpay/home/notifications.dart';
+import 'package:kumpulpay/notification/notification_list.dart';
 import 'package:kumpulpay/ppob/ppob_product.dart';
 import 'package:kumpulpay/home/request/request.dart';
 import 'package:kumpulpay/home/scanpay/scan.dart';
 import 'package:kumpulpay/home/seealltransaction.dart';
 import 'package:kumpulpay/repository/retrofit/api_client.dart';
 import 'package:kumpulpay/topup/topup.dart';
+import 'package:kumpulpay/transaction/history.dart';
 import 'package:kumpulpay/utils/color.dart';
 import 'package:kumpulpay/utils/colornotifire.dart';
 import 'package:kumpulpay/utils/helper_data_json.dart';
 import 'package:kumpulpay/utils/helpers.dart';
 import 'package:kumpulpay/utils/media.dart';
 import 'package:kumpulpay/utils/string.dart';
-import 'package:kumpulpay/wallet/wallets.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -28,6 +29,7 @@ import '../profile/legalandpolicy.dart';
 import 'transfer/sendmoney.dart';
 
 class Home extends StatefulWidget {
+  static String routeName = '/home';
   const Home({Key? key}) : super(key: key);
 
   @override
@@ -112,7 +114,7 @@ class _HomeState extends State<Home> {
           return const Center(child: Text('Please wait its loading...'));
         } else if (snapshot.connectionState == ConnectionState.done) {
           if (snapshot.data == null) {
-            return Center(child: Text('Upst...'));
+            return const Center(child: Text('Upst...'));
           }
 
           if (snapshot.data["data"]["paylater"] != null) {
@@ -285,13 +287,7 @@ class _HomeState extends State<Home> {
                 ),
                 GestureDetector(
                   onTap: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) =>
-                            const Notificationindex(CustomStrings.notification),
-                      ),
-                    );
+                    Navigator.pushNamed(context, NotificationList.routeName);
                   },
                   child: Image.asset(
                     "images/notification.png",
@@ -327,7 +323,7 @@ class _HomeState extends State<Home> {
                                   top: height / 40,
                                   left: width / 50,
                                   right: width / 50),
-                              child: Container(
+                              child: SizedBox(
                                 height: height / 3.1,
                                 child: CardSlider(
                                   // containerHeight: 320,
@@ -515,13 +511,7 @@ class _HomeState extends State<Home> {
                                             children: [
                                               GestureDetector(
                                                 onTap: () {
-                                                  Navigator.push(
-                                                    context,
-                                                    MaterialPageRoute(
-                                                      builder: (context) =>
-                                                          const Topup(),
-                                                    ),
-                                                  );
+                                                  Navigator.pushNamed(context, Topup.routeName);
                                                 },
                                                 child: Container(
                                                   height: height / 15,
@@ -584,12 +574,7 @@ class _HomeState extends State<Home> {
                               const Spacer(),
                               GestureDetector(
                                 onTap: () {
-                                  Navigator.push(
-                                    context,
-                                    MaterialPageRoute(
-                                      builder: (context) => const Category(),
-                                    ),
-                                  );
+                                  Navigator.pushNamed(context, Category.routeName);
                                 },
                                 child: Container(
                                   color: Colors.transparent,
@@ -620,26 +605,29 @@ class _HomeState extends State<Home> {
                               return GridView.builder(
                                   physics: const NeverScrollableScrollPhysics(),
                                   shrinkWrap: true,
-                                  padding: EdgeInsets.only(bottom: height / 15),
+                                  padding: EdgeInsets.only(bottom: height / 30),
                                   gridDelegate:
                                       SliverGridDelegateWithMaxCrossAxisExtent(
                                     maxCrossAxisExtent: height / 10,
                                     mainAxisExtent: height / 8,
                                     childAspectRatio: 3 / 2,
                                     crossAxisSpacing: height / 50,
-                                    mainAxisSpacing: height / 40,
+                                    mainAxisSpacing: height / 100,
                                   ),
                                   itemCount: listFavoritService.length,
                                   itemBuilder: (BuildContext ctx, index) {
+                                    
                                     return GestureDetector(
                                       onTap: () {
-                                        Navigator.push(
+                                        Navigator.pushNamed(
                                           context,
-                                          MaterialPageRoute(
-                                            builder: (context) => PpobProduct(
-                                                type: listFavoritService[index]
-                                                    ["category"]),
-                                          ),
+                                          PpobProduct.routeName,
+                                          arguments: PpobProduct(
+                                                type:listFavoritService[index]
+                                                    ["name_unique"],
+                                                categoryData:
+                                                    listFavoritService[index]
+                                          )
                                         );
                                       },
                                       child: Column(
@@ -670,7 +658,7 @@ class _HomeState extends State<Home> {
                                               listFavoritService[index]["name"],
                                               textAlign: TextAlign.center,
                                               style: TextStyle(
-                                                  fontFamily: "Gilroy Bold",
+                                                  fontFamily: "Gilroy Medium",
                                                   color: notifire.getdarkscolor,
                                                   fontSize: height / 60),
                                             ),
@@ -685,9 +673,9 @@ class _HomeState extends State<Home> {
                         // end grid menu
 
                         // start last transaction
-                        SizedBox(
-                          height: height / 80,
-                        ),
+                        // SizedBox(
+                        //   height: height / 80,
+                        // ),
                         Padding(
                           padding: EdgeInsets.symmetric(horizontal: width / 18),
                           child: Row(
@@ -702,13 +690,7 @@ class _HomeState extends State<Home> {
                               const Spacer(),
                               GestureDetector(
                                 onTap: () {
-                                  Navigator.push(
-                                    context,
-                                    MaterialPageRoute(
-                                      builder: (context) =>
-                                          const Seealltransaction(),
-                                    ),
-                                  );
+                                  Navigator.pushNamed(context, History.routeName);
                                 },
                                 child: Container(
                                   color: Colors.transparent,
@@ -820,6 +802,7 @@ class _HomeState extends State<Home> {
                                       ),
                                       const Spacer(flex: 20),
                                       Column(
+                                        crossAxisAlignment: CrossAxisAlignment.end,
                                         children: [
                                           SizedBox(
                                             height: height / 70,
@@ -854,155 +837,148 @@ class _HomeState extends State<Home> {
                         ),
 
                         // another actions
-                        Container(
-                          height: height / 2.5,
-                          color: Colors.transparent,
-                          child: ListView.builder(
-                            physics: const NeverScrollableScrollPhysics(),
-                            padding: EdgeInsets.zero,
-                            itemCount: cashbankname.length,
-                            itemBuilder: (context, index) => Padding(
-                              padding: EdgeInsets.symmetric(
-                                  horizontal: width / 20,
-                                  vertical: height / 100),
-                              child: InkWell(
-                                onTap: () {
-                                  if (index == 0) {
-                                    Navigator.push(
-                                      context,
-                                      MaterialPageRoute(
-                                        builder: (context) =>
-                                            const Notificationindex(
-                                                CustomStrings.cashback),
-                                      ),
-                                    );
-                                  } else if (index == 1) {
-                                    Navigator.push(
-                                      context,
-                                      MaterialPageRoute(
-                                        builder: (context) => const HelpSupport(
-                                          CustomStrings.becomemerchant,
-                                        ),
-                                      ),
-                                    );
-                                  } else if (index == 2) {
-                                    Navigator.push(
-                                      context,
-                                      MaterialPageRoute(
-                                        builder: (context) => const LegalPolicy(
-                                            CustomStrings.helps),
-                                      ),
-                                    );
-                                  }
-                                },
-                                child: Container(
-                                  height: height / 9,
-                                  width: width,
-                                  decoration: BoxDecoration(
-                                    color: notifire.getdarkwhitecolor,
-                                    border: Border.all(
-                                      color: Colors.grey.withOpacity(0.2),
-                                    ),
-                                    borderRadius: const BorderRadius.all(
-                                      Radius.circular(10),
-                                    ),
-                                  ),
-                                  child: Padding(
-                                    padding: EdgeInsets.symmetric(
-                                        horizontal: width / 20),
-                                    child: Row(
-                                      children: [
-                                        Container(
-                                          height: height / 15,
-                                          width: width / 8,
-                                          decoration: BoxDecoration(
-                                            color: notifire.gettabwhitecolor,
-                                            borderRadius:
-                                                const BorderRadius.all(
-                                              Radius.circular(10),
-                                            ),
-                                          ),
-                                          child: Center(
-                                            child: Image.asset(
-                                              cashbankimg[index],
-                                              height: height / 20,
-                                            ),
-                                          ),
-                                        ),
-                                        SizedBox(
-                                          width: width / 30,
-                                        ),
-                                        Column(
-                                          crossAxisAlignment:
-                                              CrossAxisAlignment.start,
-                                          children: [
-                                            SizedBox(
-                                              height: height / 70,
-                                            ),
-                                            Row(
-                                              children: [
-                                                Text(
-                                                  cashbankname[index],
-                                                  style: TextStyle(
-                                                      fontFamily: "Gilroy Bold",
-                                                      color: notifire
-                                                          .getdarkscolor,
-                                                      fontSize: height / 50),
-                                                ),
-                                                // SizedBox(width: width / 7,),
-                                              ],
-                                            ),
-                                            SizedBox(
-                                              height: height / 100,
-                                            ),
-                                            Row(
-                                              children: [
-                                                Column(
-                                                  crossAxisAlignment:
-                                                      CrossAxisAlignment.start,
-                                                  children: [
-                                                    Text(
-                                                      cashbankdiscription[
-                                                          index],
-                                                      style: TextStyle(
-                                                          fontFamily:
-                                                              "Gilroy Medium",
-                                                          color: notifire
-                                                              .getdarkgreycolor
-                                                              .withOpacity(0.6),
-                                                          fontSize:
-                                                              height / 65),
-                                                    ),
-                                                    Text(
-                                                      cashbankdiscription2[
-                                                          index],
-                                                      style: TextStyle(
-                                                          fontFamily:
-                                                              "Gilroy Medium",
-                                                          color: notifire
-                                                              .getdarkgreycolor
-                                                              .withOpacity(0.6),
-                                                          fontSize:
-                                                              height / 60),
-                                                    ),
-                                                  ],
-                                                ),
-                                              ],
-                                            ),
-                                          ],
-                                        ),
-                                        const Spacer(),
-                                        Icon(Icons.arrow_forward_ios,
-                                            color: notifire.getdarkscolor,
-                                            size: height / 40),
-                                      ],
-                                    ),
-                                  ),
-                                ),
-                              ),
-                            ),
-                          ),
-                        ),
+                        // Container(
+                        //   height: height / 2.5,
+                        //   color: Colors.transparent,
+                        //   child: ListView.builder(
+                        //     physics: const NeverScrollableScrollPhysics(),
+                        //     padding: EdgeInsets.zero,
+                        //     itemCount: cashbankname.length,
+                        //     itemBuilder: (context, index) => Padding(
+                        //       padding: EdgeInsets.symmetric(
+                        //           horizontal: width / 20,
+                        //           vertical: height / 100),
+                        //       child: InkWell(
+                        //         onTap: () {
+                        //           if (index == 0) {
+                        //             Navigator.pushNamed(context, NotificationList.routeName);
+                        //           } else if (index == 1) {
+                        //             Navigator.push(
+                        //               context,
+                        //               MaterialPageRoute(
+                        //                 builder: (context) => const HelpSupport(
+                        //                   CustomStrings.becomemerchant,
+                        //                 ),
+                        //               ),
+                        //             );
+                        //           } else if (index == 2) {
+                        //             Navigator.push(
+                        //               context,
+                        //               MaterialPageRoute(
+                        //                 builder: (context) => const LegalPolicy(
+                        //                     CustomStrings.helps),
+                        //               ),
+                        //             );
+                        //           }
+                        //         },
+                        //         child: Container(
+                        //           height: height / 9,
+                        //           width: width,
+                        //           decoration: BoxDecoration(
+                        //             color: notifire.getdarkwhitecolor,
+                        //             border: Border.all(
+                        //               color: Colors.grey.withOpacity(0.2),
+                        //             ),
+                        //             borderRadius: const BorderRadius.all(
+                        //               Radius.circular(10),
+                        //             ),
+                        //           ),
+                        //           child: Padding(
+                        //             padding: EdgeInsets.symmetric(
+                        //                 horizontal: width / 20),
+                        //             child: Row(
+                        //               children: [
+                        //                 Container(
+                        //                   height: height / 15,
+                        //                   width: width / 8,
+                        //                   decoration: BoxDecoration(
+                        //                     color: notifire.gettabwhitecolor,
+                        //                     borderRadius:
+                        //                         const BorderRadius.all(
+                        //                       Radius.circular(10),
+                        //                     ),
+                        //                   ),
+                        //                   child: Center(
+                        //                     child: Image.asset(
+                        //                       cashbankimg[index],
+                        //                       height: height / 20,
+                        //                     ),
+                        //                   ),
+                        //                 ),
+                        //                 SizedBox(
+                        //                   width: width / 30,
+                        //                 ),
+                        //                 Column(
+                        //                   crossAxisAlignment:
+                        //                       CrossAxisAlignment.start,
+                        //                   children: [
+                        //                     SizedBox(
+                        //                       height: height / 70,
+                        //                     ),
+                        //                     Row(
+                        //                       children: [
+                        //                         Text(
+                        //                           cashbankname[index],
+                        //                           style: TextStyle(
+                        //                               fontFamily: "Gilroy Bold",
+                        //                               color: notifire
+                        //                                   .getdarkscolor,
+                        //                               fontSize: height / 50),
+                        //                         ),
+                        //                         // SizedBox(width: width / 7,),
+                        //                       ],
+                        //                     ),
+                        //                     SizedBox(
+                        //                       height: height / 100,
+                        //                     ),
+                        //                     Row(
+                        //                       children: [
+                        //                         Column(
+                        //                           crossAxisAlignment:
+                        //                               CrossAxisAlignment.start,
+                        //                           children: [
+                        //                             Text(
+                        //                               cashbankdiscription[
+                        //                                   index],
+                        //                               style: TextStyle(
+                        //                                   fontFamily:
+                        //                                       "Gilroy Medium",
+                        //                                   color: notifire
+                        //                                       .getdarkgreycolor
+                        //                                       .withOpacity(0.6),
+                        //                                   fontSize:
+                        //                                       height / 65),
+                        //                             ),
+                        //                             Text(
+                        //                               cashbankdiscription2[
+                        //                                   index],
+                        //                               style: TextStyle(
+                        //                                   fontFamily:
+                        //                                       "Gilroy Medium",
+                        //                                   color: notifire
+                        //                                       .getdarkgreycolor
+                        //                                       .withOpacity(0.6),
+                        //                                   fontSize:
+                        //                                       height / 60),
+                        //                             ),
+                        //                           ],
+                        //                         ),
+                        //                       ],
+                        //                     ),
+                        //                   ],
+                        //                 ),
+                        //                 const Spacer(),
+                        //                 Icon(Icons.arrow_forward_ios,
+                        //                     color: notifire.getdarkscolor,
+                        //                     size: height / 40),
+                        //               ],
+                        //             ),
+                        //           ),
+                        //         ),
+                        //       ),
+                        //     ),
+                        //   ),
+                        // ),
                         SizedBox(
                           height: height / 20,
                         ),
@@ -1017,7 +993,7 @@ class _HomeState extends State<Home> {
           return Center(child: Text('Error: ${snapshot.error}'));
         }
 
-        return Center(child: Text('Upst...'));
+        return const Center(child: Text('Upst...'));
       },
     );
   }
@@ -1046,107 +1022,4 @@ class _HomeState extends State<Home> {
     }
   }
 
-  // FutureBuilder<dynamic> _buildCetagoryList(BuildContext context) {
-  //   final client = ApiClient(Dio(BaseOptions(contentType: "application/json")));
-  //   final Map<String, dynamic> query = {"type": "home"};
-  //   return FutureBuilder<dynamic>(
-  //     future: client.getProductCategory('Bearer ${SharedPrefs().token}',
-  //         queries: query),
-  //     builder: (context, snapshot) {
-  //       try {
-  //         if (snapshot.connectionState == ConnectionState.done) {
-  //           List<dynamic> list = snapshot.data["data"];
-
-  //           return Padding(
-  //             padding: EdgeInsets.symmetric(horizontal: width / 20),
-  //             child: Container(
-  //               color: Colors.transparent,
-  //               height: height / 3.5,
-  //               width: width,
-  //               child: Builder(builder: (context) {
-  //                 // List<dynamic> child2 = item["child"];
-  //                 return GridView.builder(
-  //                     physics: const NeverScrollableScrollPhysics(),
-  //                     padding: EdgeInsets.only(bottom: height / 15),
-  //                     gridDelegate: SliverGridDelegateWithMaxCrossAxisExtent(
-  //                       maxCrossAxisExtent: height / 10,
-  //                       mainAxisExtent: height / 8,
-  //                       childAspectRatio: 3 / 2,
-  //                       crossAxisSpacing: height / 50,
-  //                       mainAxisSpacing: height / 40,
-  //                     ),
-  //                     itemCount: list.length,
-  //                     itemBuilder: (BuildContext ctx, index) {
-  //                       return GestureDetector(
-  //                         onTap: () {
-  //                           Navigator.push(
-  //                             context,
-  //                             MaterialPageRoute(
-  //                               builder: (context) => const Scan(),
-  //                             ),
-  //                           );
-  //                         },
-  //                         child: Column(
-  //                           children: [
-  //                             Container(
-  //                               height: height / 15,
-  //                               width: width / 7,
-  //                               decoration: BoxDecoration(
-  //                                 color: notifire.gettabwhitecolor,
-  //                                 borderRadius: const BorderRadius.all(
-  //                                   Radius.circular(10),
-  //                                 ),
-  //                               ),
-  //                               child: Center(
-  //                                 child: Image.asset(
-  //                                   list[index]["image_mobile"],
-  //                                   height: height / 30,
-  //                                 ),
-  //                               ),
-  //                             ),
-  //                             SizedBox(
-  //                               height: height / 120,
-  //                             ),
-  //                             Center(
-  //                               child: Text(
-  //                                 list[index]["name"],
-  //                                 textAlign: TextAlign.center,
-  //                                 style: TextStyle(
-  //                                     fontFamily: "Gilroy Bold",
-  //                                     color: notifire.getdarkscolor,
-  //                                     fontSize: height / 60),
-  //                               ),
-  //                             ),
-  //                           ],
-  //                         ),
-  //                       );
-  //                     });
-  //               }),
-  //             ),
-  //           );
-  //         } else {
-  //           return Text("Loading..", textAlign: TextAlign.center);
-  //         }
-  //       } on DioException catch (e) {
-  //         if (e.response != null) {
-  //           print(e.response?.data);
-  //           print(e.response?.headers);
-  //           print(e.response?.requestOptions);
-  //         } else {
-  //           // Something happened in setting up or sending the request that triggered an Error
-  //           print(e.requestOptions);
-  //           print(e.message);
-  //         }
-  //       }
-
-  //       return Text("Loading..", textAlign: TextAlign.center);
-  //     },
-  //   );
-  // }
-
-// Widget week() {
-//   return selectedindex == 0
-//       ? const ChatScreen()
-//       : const ChatRound();
-// }
 }

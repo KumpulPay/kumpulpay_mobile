@@ -5,7 +5,7 @@ import 'package:kumpulpay/repository/sqlite/notification_entity.dart';
 abstract class NotificationDao {
 
   // list pagination
-  @Query('SELECT * FROM notification ORDER BY id LIMIT :limit OFFSET :offset')
+  @Query('SELECT * FROM notification ORDER BY id DESC LIMIT :limit OFFSET :offset')
   Future<List<NotificationEntity>> findAll(int limit, int offset);
 
   // show

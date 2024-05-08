@@ -8,6 +8,7 @@ import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class Onbonding extends StatefulWidget {
+  static String routeName = '/intro';
   const Onbonding({Key? key}) : super(key: key);
 
   @override
@@ -282,12 +283,8 @@ class _OnbondingState extends State<Onbonding> {
                         const Spacer(),
                         GestureDetector(
                           onTap: () {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) => const Login(),
-                              ),
-                            );
+                            Navigator.pushNamedAndRemoveUntil(
+                                context, Login.routeName, (route) => false);
                           },
                           child: Container(
                             // color: Colors.transparent,
@@ -343,12 +340,8 @@ class _OnbondingState extends State<Onbonding> {
                         const Spacer(),
                         GestureDetector(
                           onTap: () {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) => const Login(),
-                              ),
-                            );
+                            Navigator.pushNamedAndRemoveUntil(
+                                context, Login.routeName, (route) => false);
                           },
                           child: Container(
                             color: Colors.transparent,
@@ -403,12 +396,8 @@ class _OnbondingState extends State<Onbonding> {
                         const Spacer(),
                         GestureDetector(
                           onTap: () {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) => const Login(),
-                              ),
-                            );
+                           Navigator.pushNamedAndRemoveUntil(
+                                context, Login.routeName, (route) => false);
                           },
                           child: Container(
                             color: Colors.transparent,
@@ -437,12 +426,8 @@ class _OnbondingState extends State<Onbonding> {
                   ),
                   GestureDetector(
                     onTap: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => const Login(),
-                        ),
-                      );
+                      Navigator.pushNamedAndRemoveUntil(
+                          context, Login.routeName, (route) => false);
                     },
                     child: Center(
                       child: Image.asset(

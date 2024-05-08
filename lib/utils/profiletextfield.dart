@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:kumpulpay/utils/normaltextfild.dart';
 import 'media.dart';
 
 class Profiletextfilds {

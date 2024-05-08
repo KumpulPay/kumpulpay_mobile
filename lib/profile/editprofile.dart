@@ -1,7 +1,6 @@
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
-import 'package:kumpulpay/bottombar/bottombar.dart';
 import 'package:kumpulpay/data/shared_prefs.dart';
 import 'package:kumpulpay/utils/textfeilds.dart';
 import 'package:provider/provider.dart';
@@ -9,10 +8,10 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 import '../utils/colornotifire.dart';
 import '../utils/media.dart';
-import '../utils/profiletextfield.dart';
 import '../utils/string.dart';
 
 class EditProfile extends StatefulWidget {
+  static String routeName = '/profile_edit';
   const EditProfile({Key? key}) : super(key: key);
 
   @override
