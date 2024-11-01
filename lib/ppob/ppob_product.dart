@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:developer';
 
 import 'package:accordion/accordion.dart';
 import 'package:accordion/controllers.dart';
@@ -9,6 +10,7 @@ import 'package:flutter_form_builder/flutter_form_builder.dart';
 import 'package:form_builder_validators/form_builder_validators.dart';
 import 'package:kumpulpay/data/phone_provider.dart';
 import 'package:kumpulpay/data/shared_prefs.dart';
+import 'package:kumpulpay/ppob/ppob_product_detail.dart';
 import 'package:kumpulpay/repository/retrofit/api_client.dart';
 import 'package:kumpulpay/transaction/confirm_pin.dart';
 import 'package:kumpulpay/utils/button.dart';
@@ -21,10 +23,11 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:string_capitalize/string_capitalize.dart';
 
 class PpobProduct extends StatefulWidget {
-  static String routeName = '/ppob_product';
+  static String routeName = '/ppob/product/index';
   final dynamic categoryData;
+  final String? category;
   final String? type;
-  const PpobProduct({Key? key, this.type, this.categoryData}) : super(key: key);
+  const PpobProduct({Key? key, this.type, this.category, this.categoryData}) : super(key: key);
   
   @override
   State<PpobProduct> createState() => _PpobProductState();
@@ -40,10 +43,15 @@ class _PpobProductState extends State<PpobProduct>
   Map<String, dynamic> phoneProvider = {};
   dynamic _categoryData;
   String? _type;
+  String? _category;
+  String? _filterCategory; 
+  String? title;
 
   String _txtDestination = "";
   String _txtProvider = "";
   String _txtLabelPriceList = "";
+
+  bool _enabledInput = true;
 
   getdarkmodepreviousstate() async {
     final prefs = await SharedPreferences.getInstance();
@@ -62,34 +70,38 @@ class _PpobProductState extends State<PpobProduct>
   }
 
 
-  void handleFormSubmission(String value) {
-    // print('Text submitted: $value');
-    setState(() {
-      _txtDestination = value;
-      if (_type == 'pulsa' ||
-          _type == 'data' ||
-          _type == 'paket_sms' ||
-          _type == 'paket_telepon') {
-        phoneProvider = PhoneProvider.getProvide(value);
-      }
-    });
+  void handleFormSubmission({destination}) {
+    Navigator.pushNamed(
+      context, PpobProductDetail.routeName,
+      arguments: PpobProductDetail(type: _type,category: _category, categoryData: _categoryData, txtDestination: destination)
+    );
   }
 
-  void listActionGo(String value) {
+  void listActionGo(dynamic value) {
     setState(() {
-      _txtProvider = value;
+      // print('valueX ${value}');
+      Navigator.pushNamed(
+        context, PpobProductDetail.routeName,
+        arguments: PpobProductDetail(type: _type,category: _category, categoryData: _categoryData, providerData: value, txtDestination: _txtProvider)
+      );
     });
   }
 
   @override
   Widget build(BuildContext context) {
+    notifire = Provider.of<ColorNotifire>(context, listen: true);
+
     args = ModalRoute.of(context)!.settings.arguments as PpobProduct?;
     _categoryData = args!.categoryData;
     _type = args!.type;
-    notifire = Provider.of<ColorNotifire>(context, listen: true);
-    // String? title = _categoryData['name_mobile'];
-    String? title = args!.categoryData['name_mobile'];
+    _category = args!.categoryData['id'];
+    _filterCategory = '${_type}_${_category}';
 
+    title = args!.categoryData['short_name'];
+
+    if (_filterCategory == 'prepaid_e_money') {
+        _enabledInput = false;
+    }
     return Scaffold(
         appBar: AppBar(
           elevation: 0,
@@ -109,32 +121,48 @@ class _PpobProductState extends State<PpobProduct>
               padding: const EdgeInsets.all(8.0),
               child: //start input destination
                   FormBuilder(
-                key: _formKey,
-                autovalidateMode: AutovalidateMode.onUserInteraction,
-                child: textfeildC("input_nomor", "",
-                    hintText: "Masukkan nomor...",
-                    keyboardType: TextInputType.number,
-                    textInputAction: TextInputAction.done,
-                    // maxLength: 15,
-                    validator: FormBuilderValidators.compose([
-                      FormBuilderValidators.required(),
-                      FormBuilderValidators.minLength(9),
-                    ]),
-                    onSubmitted: handleFormSubmission,
-                    suffixIconInteractive: GestureDetector(
-                      onTap: () {
-                        // _toggle();
-                      },
-                      child: Padding(
-                        padding: EdgeInsets.symmetric(
-                            vertical: height / 50, horizontal: height / 70),
-                        child: Image.asset(
-                          "images/ic_contact.png",
-                          height: height / 50,
-                        ),
-                      ),
-                    )),
-              ),
+                    key: _formKey,
+                    autovalidateMode: AutovalidateMode.onUserInteraction,
+                    child: textfeildC(
+                        "input_nomor",
+                        "",
+                        hintText: "Masukkan nomor...",
+                        enabled: _enabledInput,
+                        keyboardType: TextInputType.number,
+                        textInputAction: TextInputAction.done,
+                        // maxLength: 15,
+                        validator: FormBuilderValidators.compose([
+                          FormBuilderValidators.required(),
+                          FormBuilderValidators.minLength(9),
+                        ]),
+                        onSubmitted: (value) {
+                            if (_formKey.currentState?.validate() ?? false) {   
+                              final formValue = _formKey.currentState?.fields['input_nomor']?.value;                       
+                              if (_filterCategory == 'prepaid_pln_prepaid') {
+                                _txtDestination = value;
+                              } else {
+                                handleFormSubmission(destination: value);
+                              }
+                            } else {
+                              print('Form tidak valid!');
+                            }
+                        },
+                        onChanged: (value) {
+                          if (_formKey.currentState?.validate() ?? false) {
+                            _txtDestination = value;
+                          } 
+                        },
+                        suffixIconInteractive: GestureDetector(
+                          child: Padding(
+                            padding: EdgeInsets.symmetric(
+                                vertical: height / 50, horizontal: height / 70),
+                            child: Image.asset(
+                              "images/ic_contact.png",
+                              height: height / 50,
+                            ),
+                          ),
+                        )),
+                  ),
               // end input destination
             ),
           ),
@@ -157,41 +185,7 @@ class _PpobProductState extends State<PpobProduct>
                   Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      // SizedBox(
-                      //   height: height / 40,
-                      // ),
-
-                      //start input destination
-                      // FormBuilder(
-                      //   key: _formKey,
-                      //   autovalidateMode: AutovalidateMode.onUserInteraction,
-                      //   child: textfeildC("input_nomor", "",
-                      //       hintText: "Masukkan nomor...",
-                      //       keyboardType: TextInputType.number,
-                      //       textInputAction: TextInputAction.done,
-                      //       // maxLength: 15,
-                      //       validator: FormBuilderValidators.compose([
-                      //         FormBuilderValidators.required(),
-                      //         FormBuilderValidators.minLength(9),
-                      //       ]),
-                      //       onSubmitted: handleFormSubmission,
-                      //       suffixIconInteractive: GestureDetector(
-                      //         onTap: () {
-                      //           // _toggle();
-                      //         },
-                      //         child: Padding(
-                      //           padding: EdgeInsets.symmetric(
-                      //               vertical: height / 50,
-                      //               horizontal: height / 70),
-                      //           child: Image.asset(
-                      //             "images/ic_contact.png",
-                      //             height: height / 50,
-                      //           ),
-                      //         ),
-                      //       )),
-                      // ),
-                      // end input destination
-
+                     
                       SizedBox(
                         height: height / 50,
                       ),
@@ -216,11 +210,13 @@ class _PpobProductState extends State<PpobProduct>
       labelText,
       prefixIcon,
       suffixIconInteractive,
+      enabled,
       keyboardType,
       textInputAction,
       suffixIcon,
       validator,
       onSubmitted,
+      onChanged,
       maxLength}) {
     return Column(
       children: [
@@ -234,6 +230,7 @@ class _PpobProductState extends State<PpobProduct>
                 hintText: hintText,
                 prefixIcon: prefixIcon,
                 name: name,
+                enabled: enabled,
                 keyboardType: keyboardType,
                 textInputAction: textInputAction,
                 labelText: labelText,
@@ -241,6 +238,7 @@ class _PpobProductState extends State<PpobProduct>
                 suffixIconInteractive: suffixIconInteractive,
                 maxLength: maxLength,
                 onSubmitted: onSubmitted,
+                onChanged: onChanged,
                 validator: validator ?? FormBuilderValidators.required()))
       ],
     );
@@ -249,88 +247,41 @@ class _PpobProductState extends State<PpobProduct>
   FutureBuilder<dynamic> _buildList(BuildContext context) {
     final client = ApiClient(Dio(BaseOptions(contentType: "application/json")));
     final Map<String, dynamic> queries = {
-      "type": "prepaid",
-      "category": _type
+      "type": _type,
+      "category": _category
     };
-    if (_type == 'pulsa' ||
-        _type == 'data' ||
-        _type == 'paket_sms' ||
-        _type == 'paket_telepon') {
-      if (phoneProvider.containsKey("provider")) {
-        phoneProvider.remove("icon");
-        phoneProvider.remove("prefix");
-        queries.addAll(phoneProvider);
-      }
-    } else {
-      queries.addAll({"provider": _txtProvider});
-    }
-    // print('printX: ${queries}');
+    // print('queriesX: ${queries}');
     return FutureBuilder<dynamic>(
-        future: client.getProductProvider('Bearer ${SharedPrefs().token}',
+        future: client.getProduct('Bearer ${SharedPrefs().token}',
             queries: queries),
         builder: (context, snapshot) {
           try {
             if (snapshot.connectionState == ConnectionState.done) {
-              List<dynamic> list = snapshot.data["data"];
-
-              if (_type == 'pulsa') {
-                if (list.length == 1) {
-                  _txtLabelPriceList = list[0]["name_mobile"];
-                  List<dynamic> listDetail = list[0]["child"];
-                  return Container(
-                    color: Colors.transparent,
-                    width: width,
-                    child: Builder(builder: (context) {
-                      return _buildItemGridView(listDetail);
-                    }),
-                  );
-                } else {
+              // print('dataX: ${snapshot.data['data']}');
+              var rawList = snapshot.data["data"] as List<dynamic>;
+              List<Map<String, dynamic>> list = rawList.map((item) => Map<String, dynamic>.from(item)).toList();
+            
+              if (_filterCategory == 'prepaid_pulsa' 
+              || _filterCategory == 'prepaid_paket_data'
+              || _filterCategory == 'prepaid_paket_sms'
+              || _filterCategory == 'prepaid_paket_telepon'
+              || _filterCategory == 'prepaid_e_money'
+              ) {
+                var groupedData = groupDataByTypeCategoryProviderArray(list);
+               
                   _txtLabelPriceList = "Provider";
-                  return _buildItemAccordion(list);
-                }
-              }
-
-              if (_type == 'e_money') {
-                if (list.length == 1) {
-                  _txtLabelPriceList = list[0]["name_mobile"];
-                  List<dynamic> listDetail = list[0]["child"];
-                  return Container(
-                    color: Colors.transparent,
-                    width: width,
-                    child: Builder(builder: (context) {
-                      return _buildItemGridView(listDetail);
-                    }),
-                  );
-                } else {
-                  _txtLabelPriceList = "Provider";
-                  return _buildListAction(list);
-                }
-              }
-
-              if (_type == 'data' ||
-                  _type == 'paket_sms' ||
-                  _type == 'paket_telepon') {
-                if (list.length == 1) {
-                  _txtLabelPriceList = list[0]["name_mobile"];
-                  List<dynamic> listDetail = list[0]["child"];
-                  return _buildItemAccordionData(listDetail);
-                } else {
-                  _txtLabelPriceList = "Provider";
-                  return _buildItemAccordion(list);
-                }
-              }
-
-              if (_type == 'token_listrik') {
-                _txtLabelPriceList = list[0]["name_mobile"];
-                List<dynamic> listDetail = list[0]["child"];
+                  return _buildListAction(groupedData);
+                  // return _buildItemAccordion(groupedData);
+              } else if (_filterCategory  == 'prepaid_pln_prepaid'){
                 return Container(
                   color: Colors.transparent,
                   width: width,
                   child: Builder(builder: (context) {
-                    return _buildItemGridView(listDetail);
+                    return _buildItemGridView(rawList);
                   }),
                 );
               }
+             
             } else {
               return const Center(child: Text('Loading...'));
             }
@@ -353,17 +304,20 @@ class _PpobProductState extends State<PpobProduct>
     // print('listDetail: ${listDetail}');
     return Column(
       children: [
-        Padding(
-          padding: EdgeInsets.symmetric(horizontal: width / 20),
-          child: Text(
-            "Daftar Harga $_txtLabelPriceList",
-            textAlign: TextAlign.start,
-            style: TextStyle(
-                color: notifire.getdarkscolor,
-                fontSize: height / 50,
-                fontFamily: 'Gilroy Bold'),
-          ),
-        ),
+        // Padding(
+        //   padding: EdgeInsets.symmetric(horizontal: width / 20),
+        //   child: Align(
+        //     alignment: Alignment.centerLeft,
+        //     child:  Text(
+        //       "Daftar Harga $_txtLabelPriceList",
+        //       textAlign: TextAlign.start,
+        //       style: TextStyle(
+        //           color: notifire.getdarkscolor,
+        //           fontSize: height / 50,
+        //           fontFamily: 'Gilroy Bold'),
+        //     ),
+        //   )
+        // ),
         Padding(
           padding: EdgeInsets.symmetric(
               horizontal: width / 20, vertical: height / 80),
@@ -379,19 +333,25 @@ class _PpobProductState extends State<PpobProduct>
               itemBuilder: (BuildContext ctx, index) {
                 return GestureDetector(
                   onTap: () {
-                    showModalBottomSheet(
-                        isScrollControlled: true,
-                        shape: const RoundedRectangleBorder(
-                          borderRadius: BorderRadius.only(
-                            topLeft: Radius.circular(20),
-                            topRight: Radius.circular(20),
+                    if (_txtDestination.isNotEmpty) {
+                      showModalBottomSheet(
+                          isScrollControlled: true,
+                          shape: const RoundedRectangleBorder(
+                            borderRadius: BorderRadius.only(
+                              topLeft: Radius.circular(20),
+                              topRight: Radius.circular(20),
+                            ),
                           ),
-                        ),
-                        backgroundColor: notifire.getprimerycolor,
-                        context: context,
-                        builder: (context) {
-                          return _bottomSheetContent(listDetail, index);
-                        });
+                          backgroundColor: notifire.getprimerycolor,
+                          context: context,
+                          builder: (context) {
+                              return _bottomSheetContent(
+                                context,listDetail, index);
+                          });
+                    } else {
+                      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+                          content: Text("Masukkan nomor terlebih dulu!")));
+                    }
                   },
                   child: Container(
                       // width: double.infinity,
@@ -408,8 +368,7 @@ class _PpobProductState extends State<PpobProduct>
                           children: [
                             Text(
                               Helpers.currencyFormatter(
-                                  listDetail[index]["name_unique"].toDouble(),
-                                  symbol: ""),
+                              double.tryParse(listDetail[index]["name_unique"] ?? '0') ?? 0.0, symbol: ""),
                               textAlign: TextAlign.end,
                               style: TextStyle(
                                   color: notifire.getdarkscolor,
@@ -427,11 +386,11 @@ class _PpobProductState extends State<PpobProduct>
                                     child: Text(
                                       Helpers.currencyFormatter(
                                           listDetail[index]
-                                                  ["product_price_fixed"]
+                                                  ["price_fixed"]
                                               .toDouble()),
                                       textAlign: TextAlign.end,
                                       style: TextStyle(
-                                          color: notifire.getdarkscolor,
+                                          color: notifire.getbluecolor,
                                           fontSize: height / 60,
                                           fontFamily: 'Gilroy Bold'),
                                     ))
@@ -447,7 +406,8 @@ class _PpobProductState extends State<PpobProduct>
     );
   }
 
-  Widget _buildItemAccordion(List<dynamic> group1) {
+  Widget _buildItemAccordion(List<Map<String, dynamic>> group1) {
+  
     return Column(
       children: [
         Padding(
@@ -486,7 +446,6 @@ class _PpobProductState extends State<PpobProduct>
                 children: [
                   for (var item in group1) ...[
                     AccordionSection(
-                        flipRightIconIfOpen: true,
                         headerBackgroundColor: notifire.gettabwhitecolor,
                         contentBackgroundColor: notifire.gettabwhitecolor,
                         header: Text(
@@ -500,20 +459,15 @@ class _PpobProductState extends State<PpobProduct>
                         contentBorderWidth: 1,
                         content: Builder(builder: (context) {
                           List<dynamic> group2 = item["child"];
-
-                          if (_type == 'pulsa') {
+                        
+                          if (_filterCategory == 'prepaid_pulsa' 
+                          || _filterCategory == 'prepaid_paket_data'
+                          || _filterCategory == 'prepaid_paket_sms'
+                          || _filterCategory == 'prepaid_paket_telepon'
+                              ) {
                             return _buildItemAccordionSub(group2);
                           }
-                          if (_type == 'data' ||
-                              _type == 'paket_sms' ||
-                              _type == 'paket_telepon') {
-                            List<dynamic> group3 = [];
-                            for (var i = 0; i < group2.length; i++) {
-                              group3.addAll(group2[i]['child']);
-                            }
-                            return _buildItemAccordionSub(group3);
-                          }
-
+                         
                           return const Text('Upst...');
                         }))
                   ]
@@ -538,9 +492,9 @@ class _PpobProductState extends State<PpobProduct>
               padding: EdgeInsets.zero,
               itemCount: group2.length,
               itemBuilder: (context, index) {
-                // print(group2[index]["product_price_fixed"]);
+                // print(group2[index]["price_fixed"]);
                 double productPriceFixed =
-                    group2[index]["product_price_fixed"].toDouble();
+                    group2[index]["price_fixed"].toDouble();
                 return Column(children: [
                   Padding(
                       padding: const EdgeInsets.all(8.0),
@@ -612,7 +566,7 @@ class _PpobProductState extends State<PpobProduct>
                 children: [
                   for (var item in group1) ...[
                     AccordionSection(
-                        flipRightIconIfOpen: true,
+                        // flipRightIconIfOpen: true,
                         header: Text(
                           item["name"],
                           style: TextStyle(
@@ -655,7 +609,7 @@ class _PpobProductState extends State<PpobProduct>
                                                     notifire.getprimerycolor,
                                                 context: context,
                                                 builder: (context) {
-                                                  return _bottomSheetContent(
+                                                  return _bottomSheetContent(context,
                                                       group2, index);
                                                 });
                                           },
@@ -748,20 +702,20 @@ class _PpobProductState extends State<PpobProduct>
   }
 
   Widget _buildListAction(List<dynamic> items) {
-    // print('print: ${items.length}');
+    // print('itemsX: ${items.length}');
     return Column(
       children: [
-        Padding(
-          padding: EdgeInsets.symmetric(horizontal: width / 20),
-          child: Text(
-            "Pilih $_txtLabelPriceList",
-            textAlign: TextAlign.start,
-            style: TextStyle(
-                color: notifire.getdarkscolor,
-                fontSize: height / 50,
-                fontFamily: 'Gilroy Bold'),
-          ),
-        ),
+        // Padding(
+        //   padding: EdgeInsets.symmetric(horizontal: width / 20),
+        //   child: Text(
+        //     "Pilih $_txtLabelPriceList",
+        //     textAlign: TextAlign.start,
+        //     style: TextStyle(
+        //         color: notifire.getdarkscolor,
+        //         fontSize: height / 50,
+        //         fontFamily: 'Gilroy Bold'),
+        //   ),
+        // ),
         Padding(
           padding: EdgeInsets.symmetric(horizontal: width / 20),
           child: Container(
@@ -771,15 +725,12 @@ class _PpobProductState extends State<PpobProduct>
               physics: const NeverScrollableScrollPhysics(),
               itemCount: items.length,
               itemBuilder: (context, index) {
+                // print('itemXX ${items[index]}');
                 return Padding(
                   padding: const EdgeInsets.symmetric(vertical: 7),
                   child: GestureDetector(
                     onTap: () {
-                      // print('print: ${items[index]['child']}');
-                      listActionGo(items[index]['name']);
-                      // setState(() {
-                      //   _buildItemGridView(items[index]['child']);
-                      // });
+                      listActionGo(items[index]);
                     },
                     child: Container(
                       // height: height / 9,
@@ -819,7 +770,7 @@ class _PpobProductState extends State<PpobProduct>
                               width: width / 30,
                             ),
                             Text(
-                              items[index]['name_mobile'],
+                              items[index]['name'],
                               style: TextStyle(
                                   fontFamily: "Gilroy Bold",
                                   color: notifire.getdarkscolor,
@@ -843,8 +794,7 @@ class _PpobProductState extends State<PpobProduct>
     );
   }
 
-  Widget _bottomSheetContent(List<dynamic> listDetail, int index) {
-    String? title = _type?.capitalizeEach();
+  Widget _bottomSheetContent(BuildContext ctxBsc, List<dynamic> listDetail, int index) {
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
@@ -902,7 +852,7 @@ class _PpobProductState extends State<PpobProduct>
           child: Row(
             children: [
               Text(
-                'Produk ${title ?? ''}',
+                'Produk ${title?.capitalizeEach()}',
                 style: TextStyle(
                   color: Colors.grey,
                   fontFamily: 'Gilroy Medium',
@@ -911,8 +861,9 @@ class _PpobProductState extends State<PpobProduct>
               ),
               const Spacer(),
               Text(
-                // "Pulsa ${Helpers.currencyFormatter(listDetail[index]["name_unique"].toDouble(), symbol: "")}",
-                listDetail[index]["name_unique"].toString(),
+                Helpers.currencyFormatter(
+                    double.parse(listDetail[index]["name_unique"]),
+                    symbol: ""),
                 style: TextStyle(
                   color: notifire.getdarkscolor,
                   fontFamily: 'Gilroy Medium',
@@ -943,30 +894,42 @@ class _PpobProductState extends State<PpobProduct>
                 ),
               ),
               Expanded(
-                  flex: 2,
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.end,
-                    children: [
-                      Text(
-                        listDetail[index]["provider"],
-                        textAlign: TextAlign.right,
-                        style: TextStyle(
-                          color: notifire.getdarkscolor,
-                          fontFamily: 'Gilroy Medium',
-                          fontSize: height / 60,
-                        ),
-                      ),
-                      Text(
-                        listDetail[index]["name"],
-                        textAlign: TextAlign.right,
-                        style: TextStyle(
-                          color: notifire.getdarkgreycolor,
-                          fontFamily: 'Gilroy Medium',
-                          fontSize: height / 60,
-                        ),
-                      ),
-                    ],
-                  ))
+                flex: 2,
+                child: Text(
+                  listDetail[index]["name"],
+                  textAlign: TextAlign.right,
+                  style: TextStyle(
+                    color: notifire.getdarkgreycolor,
+                    fontFamily: 'Gilroy Medium',
+                    fontSize: height / 60,
+                  ),
+                ),
+              ),
+              // Expanded(
+              //     flex: 2,
+              //     child: Column(
+              //       crossAxisAlignment: CrossAxisAlignment.end,
+              //       children: [
+              //         Text(
+              //           listDetail[index]["provider"],
+              //           textAlign: TextAlign.right,
+              //           style: TextStyle(
+              //             color: notifire.getdarkscolor,
+              //             fontFamily: 'Gilroy Medium',
+              //             fontSize: height / 60,
+              //           ),
+              //         ),
+              //         Text(
+              //           listDetail[index]["name"],
+              //           textAlign: TextAlign.right,
+              //           style: TextStyle(
+              //             color: notifire.getdarkgreycolor,
+              //             fontFamily: 'Gilroy Medium',
+              //             fontSize: height / 60,
+              //           ),
+              //         ),
+              //       ],
+              //     ))
             ],
           ),
         ),
@@ -1009,7 +972,7 @@ class _PpobProductState extends State<PpobProduct>
               const Spacer(),
               Text(
                 Helpers.currencyFormatter(
-                    listDetail[index]["product_price_fixed"].toDouble()),
+                    listDetail[index]["price_fixed"].toDouble()),
                 style: TextStyle(
                   color: notifire.getdarkscolor,
                   fontFamily: 'Gilroy Medium',
@@ -1074,7 +1037,7 @@ class _PpobProductState extends State<PpobProduct>
               const Spacer(),
               Text(
                 Helpers.currencyFormatter(
-                    (listDetail[index]["product_price_fixed"] + 500)
+                    (listDetail[index]["price_fixed"] + 500)
                         .toDouble()),
                 style: TextStyle(
                   color: notifire.getdarkscolor,
@@ -1175,7 +1138,7 @@ class _PpobProductState extends State<PpobProduct>
                 flex: 1,
                 child: GestureDetector(
                   onTap: () {
-                    // Navigator.pop(context);
+                    Navigator.pop(ctxBsc);
                   },
                   child: Custombutton.button2(notifire.gettabwhitecolor, "Ubah",
                       notifire.getdarkscolor),
@@ -1237,5 +1200,41 @@ class _PpobProductState extends State<PpobProduct>
       ConfirmPin.routeName,
       arguments: ConfirmPin(formData: formData)
     );
+  }
+
+  List<Map<String, dynamic>> groupDataByTypeCategoryProviderArray(
+      List<Map<String, dynamic>> data) {
+    Map<String, List<Map<String, dynamic>>> tempGroupedData = {};
+
+    for (var item in data) {
+      // Buat "group key" berdasarkan type, category, dan provider
+      String groupKey =
+          '${item["type"]}_${item["category"]}_${item["provider"]}';
+
+      // Jika group key belum ada di dalam tempGroupedData, tambahkan dengan list kosong
+      if (!tempGroupedData.containsKey(groupKey)) {
+        tempGroupedData[groupKey] = [];
+      }
+
+      // Tambahkan item ke list pada group key yang sesuai
+      tempGroupedData[groupKey]!.add(item);
+    }
+
+    // Konversi tempGroupedData menjadi list sesuai dengan format yang diminta
+    List<Map<String, dynamic>> groupedDataArray =
+        tempGroupedData.entries.map((entry) {
+      // Ambil nama provider dari salah satu item di dalam grup
+      String providerName = entry.value.isNotEmpty ? entry.value[0]["provider_name"] : "";
+      String provider = entry.value.isNotEmpty ? entry.value[0]["provider"] : "";
+
+      return {
+        "group_key": entry.key,
+        "provider": provider,
+        "name": providerName,
+        "child": entry.value,
+      };
+    }).toList();
+    // print('groupedDataArrayX ${jsonEncode(groupedDataArray)}');
+    return groupedDataArray;
   }
 }

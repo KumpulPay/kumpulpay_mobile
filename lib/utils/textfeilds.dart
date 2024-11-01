@@ -160,18 +160,21 @@ class FormBuilderTextFieldCustom {
       initialValue,
       validator,
       maxLength,
+      enabled,
       keyboardType,
       textInputAction,
-      onSubmitted}) {
+      onSubmitted,
+      onChanged}) {
     return FormBuilderTextField(
       name: name,
+      initialValue: initialValue,
       validator: validator,
+      enabled: enabled??true,
       keyboardType: keyboardType,
       textInputAction: textInputAction??TextInputAction.next,
       maxLength: maxLength,
-      onSubmitted: (value) {
-        onSubmitted(value);
-      },
+      onSubmitted: onSubmitted,
+      onChanged: onChanged,
       style: TextStyle(
         fontSize: height / 50,
         color: textclr,

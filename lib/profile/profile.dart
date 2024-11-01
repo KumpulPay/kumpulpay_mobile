@@ -149,6 +149,8 @@ class _ProfileState extends State<Profile> {
                         color: Colors.grey.withOpacity(0.4),
                       ),
                     ),
+
+                    // Start Histori Transaksi
                     SizedBox(height: height / 80),
                     GestureDetector(
                       onTap: () {
@@ -197,16 +199,16 @@ class _ProfileState extends State<Profile> {
                     // end menu search
 
                     // start dark mode
-                    darkmode("images/darkmode.png", CustomStrings.darkmode),
-                    SizedBox(height: height / 100,),
-                    Padding(
-                      padding: EdgeInsets.symmetric(horizontal: width / 20),
-                      child: Divider(
-                        thickness: 0.7,
-                        color: Colors.grey.withOpacity(0.4),
-                      ),
-                    ),
-                    SizedBox(height: height / 80),
+                    // darkmode("images/darkmode.png", CustomStrings.darkmode),
+                    // SizedBox(height: height / 100,),
+                    // Padding(
+                    //   padding: EdgeInsets.symmetric(horizontal: width / 20),
+                    //   child: Divider(
+                    //     thickness: 0.7,
+                    //     color: Colors.grey.withOpacity(0.4),
+                    //   ),
+                    // ),
+                    // SizedBox(height: height / 80),
                     // end dark mode
 
                     // start setting pin
@@ -247,56 +249,6 @@ class _ProfileState extends State<Profile> {
                     SizedBox(height: height / 80),
                     // end setting password
 
-                    // // start change password
-                    // GestureDetector(
-                    //   onTap: () {
-                    //     Navigator.push(
-                    //       context,
-                    //       MaterialPageRoute(
-                    //         builder: (context) => const ChangePassword(),
-                    //       ),
-                    //     );
-                    //   },
-                    //   child: settingtype("images/profilepassword.png",
-                    //       CustomStrings.changepassword),
-                    // ),
-                    // SizedBox(height: height / 80),
-                    // Padding(
-                    //   padding: EdgeInsets.symmetric(horizontal: width / 20),
-                    //   child: Divider(
-                    //     thickness: 0.6,
-                    //     color: Colors.grey.withOpacity(0.4),
-                    //   ),
-                    // ),
-                    // SizedBox(height: height / 80),
-                    // // end change password
-
-                    // // start forgot password
-                    // GestureDetector(
-                    //   onTap: () {
-                    //     Navigator.push(
-                    //       context,
-                    //       MaterialPageRoute(
-                    //         builder: (context) => const ForgotPassword(),
-                    //       ),
-                    //     );
-                    //   },
-                    //   child: settingtype("images/forgotpassword.png",
-                    //       CustomStrings.forgotpasswords),
-                    // ),
-                    // SizedBox(
-                    //   height: height / 80,
-                    // ),
-                    // Padding(
-                    //   padding: EdgeInsets.symmetric(horizontal: width / 20),
-                    //   child: Divider(
-                    //     thickness: 0.6,
-                    //     color: Colors.grey.withOpacity(0.4),
-                    //   ),
-                    // ),
-                    // SizedBox(height: height / 50),
-                    // // end forgot password
-
                     Row(
                       children: [
                         SizedBox(
@@ -310,6 +262,8 @@ class _ProfileState extends State<Profile> {
                         ),
                       ],
                     ),
+
+                    // Start Pemberitahuan
                     SizedBox(
                       height: height / 50,
                     ),
@@ -333,27 +287,9 @@ class _ProfileState extends State<Profile> {
                         color: Colors.grey.withOpacity(0.4),
                       ),
                     ),
-                    SizedBox(height: height / 80),
-                    GestureDetector(
-                      onTap: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => const Language(),
-                          ),
-                        );
-                      },
-                      child: settingtype(
-                          "images/languages.png", CustomStrings.languages),
-                    ),
-                    SizedBox(height: height / 80),
-                    Padding(
-                      padding: EdgeInsets.symmetric(horizontal: width / 20),
-                      child: Divider(
-                        thickness: 0.6,
-                        color: Colors.grey.withOpacity(0.4),
-                      ),
-                    ),
+                    // End Pemberitahuan
+                    
+                    // Start Bantuan
                     SizedBox(height: height / 80),
                     GestureDetector(
                       onTap: () {
@@ -361,13 +297,13 @@ class _ProfileState extends State<Profile> {
                           context,
                           MaterialPageRoute(
                             builder: (context) => const HelpSupport(
-                              CustomStrings.helpandsupports,
+                              "Bantuan",
                             ),
                           ),
                         );
                       },
                       child: settingtype(
-                          "images/helps.png", CustomStrings.helpandsupport),
+                          "images/helps.png", "Bantuan"),
                     ),
                     SizedBox(
                       height: height / 80,
@@ -379,6 +315,9 @@ class _ProfileState extends State<Profile> {
                         color: Colors.grey.withOpacity(0.4),
                       ),
                     ),
+                    // End Bantuan
+
+                    // Start Kebijakan Privasi
                     SizedBox(height: height / 80),
                     GestureDetector(
                       onTap: () {
@@ -386,12 +325,12 @@ class _ProfileState extends State<Profile> {
                           context,
                           MaterialPageRoute(
                             builder: (context) =>
-                                const LegalPolicy(CustomStrings.legalandpolicy),
+                                const LegalPolicy("Kebijakan Privasi"),
                           ),
                         );
                       },
                       child: settingtype(
-                          "images/policy.png", CustomStrings.legalandpolicy),
+                          "images/policy.png", "Kebijakan Privasi"),
                     ),
                     SizedBox(
                       height: height / 80,
@@ -403,6 +342,9 @@ class _ProfileState extends State<Profile> {
                         color: Colors.grey.withOpacity(0.4),
                       ),
                     ),
+                    // End Kebijakan Privasi
+
+                    // Start Keluar
                     GestureDetector(
                       onTap: () {
                         _showMyDialog();
@@ -422,6 +364,7 @@ class _ProfileState extends State<Profile> {
                         ),
                       ),
                     ),
+                    // End Keluar
                     SizedBox(
                       height: height / 20,
                     ),
@@ -526,6 +469,7 @@ class _ProfileState extends State<Profile> {
                 ),
                 GestureDetector(
                   onTap: () {
+                    SharedPrefs().clearAllData();
                     Navigator.pushNamedAndRemoveUntil(context, Login.routeName, (route) => false);
                   },
                   child: Container(

@@ -71,111 +71,123 @@ class _HistoryTopupState extends State<HistoryTopup> {
     return Scaffold(
       backgroundColor: Colors.transparent,
       body: SingleChildScrollView(
+        physics: const NeverScrollableScrollPhysics(),
         child: Column(
           children: [
+            // SizedBox(
+            //   height: height / 50,
+            // ),
+            // Row(
+            //   children: [
+            //     Text(
+            //       CustomStrings.showinghistory,
+            //       style: TextStyle(
+            //           color: notifire.getdarkscolor,
+            //           fontFamily: 'Gilroy Bold',
+            //           fontSize: height / 50),
+            //     ),
+            //     const Spacer(),
+            //     Icon(
+            //       Icons.cloud_download_rounded,
+            //       color: notifire.getbluecolor,
+            //     ),
+            //     SizedBox(
+            //       width: width / 90,
+            //     ),
+            //     Text(
+            //       CustomStrings.download,
+            //       style: TextStyle(
+            //           color: notifire.getbluecolor,
+            //           fontFamily: 'Gilroy Bold',
+            //           fontSize: height / 50),
+            //     ),
+            //   ],
+            // ),
             SizedBox(
               height: height / 50,
             ),
-            Row(
-              children: [
-                // Text(
-                //   CustomStrings.showinghistory,
-                //   style: TextStyle(
-                //       color: notifire.getdarkscolor,
-                //       fontFamily: 'Gilroy Bold',
-                //       fontSize: height / 50),
-                // ),
-                const Spacer(),
-                Icon(
-                  Icons.cloud_download_rounded,
-                  color: notifire.getbluecolor,
-                ),
-                SizedBox(
-                  width: width / 90,
-                ),
-                Text(
-                  CustomStrings.download,
-                  style: TextStyle(
-                      color: notifire.getbluecolor,
-                      fontFamily: 'Gilroy Bold',
-                      fontSize: height / 50),
-                ),
-              ],
-            ),
-            SizedBox(
-              height: height / 50,
-            ),
-            ListView.builder(
-              shrinkWrap: true,
-              controller: _scrollController,
-              itemCount: _data.length + (_isLoading ? 1 : 0),
-              padding: EdgeInsets.zero,
-              itemBuilder: (context, index) {
-                if (index < _data.length) {
-                  return Column(
-                    children: [
-                      Padding(
-                        padding: EdgeInsets.only(bottom: height / 60),
-                        child: Container(
-                          decoration: BoxDecoration(
-                            borderRadius: const BorderRadius.all(
-                              Radius.circular(10),
+            Container(
+              height: height / 1.29,
+              width: width,
+              decoration: const BoxDecoration(
+                color: Colors.transparent,
+              ),
+              child: ListView.builder(
+                shrinkWrap: true,
+                controller: _scrollController,
+                itemCount: _data.length + (_isLoading ? 1 : 0),
+                padding: EdgeInsets.zero,
+                itemBuilder: (context, index) {
+                  if (index < _data.length) {
+                    return Column(
+                      children: [
+                        Padding(
+                          padding: EdgeInsets.only(bottom: height / 60),
+                          child: Container(
+                            decoration: BoxDecoration(
+                              borderRadius: const BorderRadius.all(
+                                Radius.circular(10),
+                              ),
+                              color: notifire.gettabwhitecolor,
                             ),
-                            color: notifire.gettabwhitecolor,
-                          ),
-                          child: Padding(
-                            padding: EdgeInsets.symmetric(
-                                horizontal: width / 20, vertical: height / 80),
-                            child: Row(
-                              children: [
-                                Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    fieldType(_data[index]['type']),
-                                    SizedBox(
-                                      height: height / 150,
-                                    ),
-                                    Text(
-                                      Helpers.dateTimeToFormat(
-                                          _data[index]["created_at"],
-                                          format: "dd MMM yy | hh:mm:ss"),
-                                      style: TextStyle(
-                                          color: Colors.grey,
-                                          fontSize: height / 60,
-                                          fontFamily: 'Gilroy Medium'),
-                                    ),
-                                  ],
-                                ),
-                                const Spacer(),
-                                Column(
-                                  crossAxisAlignment: CrossAxisAlignment.end,
-                                  children: [
-                                    Text(
-                                      Helpers.currencyFormatter(
-                                          _data[index]["amount"].toDouble()),
-                                      style: TextStyle(
-                                          color: notifire.getdarkscolor,
-                                          fontSize: height / 50,
-                                          fontFamily: 'Gilroy Bold'),
-                                    ),
-                                    SizedBox(
-                                      height: height / 150,
-                                    ),
-                                    statusTransaction(_data[index]['confirmed'])
-                                  ],
-                                ),
-                              ],
+                            child: Padding(
+                              padding: EdgeInsets.symmetric(
+                                  horizontal: width / 20,
+                                  vertical: height / 80),
+                              child: Row(
+                                children: [
+                                  Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      // fieldType(_data[index]['type']),
+                                      fieldType("Deposit"),
+                                      SizedBox(
+                                        height: height / 150,
+                                      ),
+                                      Text(
+                                        Helpers.dateTimeToFormat(
+                                            _data[index]["created_at"],
+                                            format: "dd MMM yy | hh:mm:ss"),
+                                        style: TextStyle(
+                                            color: Colors.grey,
+                                            fontSize: height / 60,
+                                            fontFamily: 'Gilroy Medium'),
+                                      ),
+                                    ],
+                                  ),
+                                  const Spacer(),
+                                  Column(
+                                    crossAxisAlignment: CrossAxisAlignment.end,
+                                    children: [
+                                      Text(
+                                        Helpers.currencyFormatter(
+                                            _data[index]["amount"].toDouble()),
+                                        style: TextStyle(
+                                            color: notifire.getdarkscolor,
+                                            fontSize: height / 50,
+                                            fontFamily: 'Gilroy Bold'),
+                                      ),
+                                      SizedBox(
+                                        height: height / 150,
+                                      ),
+                                      // statusTransaction(_data[index]['confirmed'])
+                                      statusTransaction(_data[index])
+                                    ],
+                                  ),
+                                ],
+                              ),
                             ),
                           ),
                         ),
-                      ),
-                    ],
-                  );
-                } else {
-                  return const Center(
-                      child: Text('Please wait its loading...'));
-                }
-              },
+                      ],
+                    );
+                  } else {
+                    return const Center(
+                        child: Text('Please wait its loading...'));
+                  }
+                },
+              ),
             ),
             SizedBox(
               height: height / 30,
@@ -197,12 +209,12 @@ class _HistoryTopupState extends State<HistoryTopup> {
 
       final client =
           ApiClient(Dio(BaseOptions(contentType: "application/json")));
-      final dynamic get = await client.getWalletTransaction(
+      final dynamic get = await client.getWalletDeposit(
           'Bearer ${SharedPrefs().token}',
           queries: queries);
 
       List<dynamic> newData = get["data"];
-      // print(newData);
+      print('newDataX ${newData}');
       setState(() {
         // print(newData);
         _data.addAll(newData);
@@ -237,13 +249,23 @@ class _HistoryTopupState extends State<HistoryTopup> {
     );
   }
 
-  Widget statusTransaction(bool confirmed) {
+  Widget statusTransaction(dynamic data) {
     String statusText = 'Proses';
     Color statusColor = notifire.getdarkscolor;
-    if (confirmed) {
+    if (data['approved']) {
       statusColor = const Color(0xff6C56F9);
       statusText = 'Sukses';
+    } else if(data['rejected']){
+      statusText = 'Ditolak';  
+    } else if(data['canceled']){
+      statusText = 'Batal';
+    } else if (data['expired']) {
+      statusText = 'Expire';
     }
+    // if (confirmed) {
+    //   statusColor = const Color(0xff6C56F9);
+    //   statusText = 'Sukses';
+    // }
 
     return Text(
       statusText,

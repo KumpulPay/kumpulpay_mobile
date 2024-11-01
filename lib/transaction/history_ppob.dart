@@ -71,37 +71,38 @@ class _HistoryPpobState extends State<HistoryPpob> {
     return Scaffold(
       backgroundColor: Colors.transparent,
       body: SingleChildScrollView(
+        physics: const NeverScrollableScrollPhysics(),
         child: Column(
           children: [
-            SizedBox(
-              height: height / 50,
-            ),
-            Row(
-              children: [
-                // Text(
-                //   CustomStrings.showinghistory,
-                //   style: TextStyle(
-                //       color: notifire.getdarkscolor,
-                //       fontFamily: 'Gilroy Bold',
-                //       fontSize: height / 50),
-                // ),
-                const Spacer(),
-                Icon(
-                  Icons.cloud_download_rounded,
-                  color: notifire.getbluecolor,
-                ),
-                SizedBox(
-                  width: width / 90,
-                ),
-                Text(
-                  CustomStrings.download,
-                  style: TextStyle(
-                      color: notifire.getbluecolor,
-                      fontFamily: 'Gilroy Bold',
-                      fontSize: height / 50),
-                ),
-              ],
-            ),
+            // SizedBox(
+            //   height: height / 50,
+            // ),
+            // Row(
+            //   children: [
+            //     Text(
+            //       CustomStrings.showinghistory,
+            //       style: TextStyle(
+            //           color: notifire.getdarkscolor,
+            //           fontFamily: 'Gilroy Bold',
+            //           fontSize: height / 50),
+            //     ),
+            //     const Spacer(),
+            //     Icon(
+            //       Icons.cloud_download_rounded,
+            //       color: notifire.getbluecolor,
+            //     ),
+            //     SizedBox(
+            //       width: width / 90,
+            //     ),
+            //     Text(
+            //       CustomStrings.download,
+            //       style: TextStyle(
+            //           color: notifire.getbluecolor,
+            //           fontFamily: 'Gilroy Bold',
+            //           fontSize: height / 50),
+            //     ),
+            //   ],
+            // ),
             SizedBox(
               height: height / 50,
             ),
@@ -113,6 +114,7 @@ class _HistoryPpobState extends State<HistoryPpob> {
                 color: Colors.transparent,
               ),
               child: ListView.builder(
+                shrinkWrap: true,
                 controller: _scrollController,
                 itemCount: _data.length + (_isLoading ? 1 : 0),
                 padding: EdgeInsets.zero,
@@ -238,9 +240,8 @@ class _HistoryPpobState extends State<HistoryPpob> {
           queries: queries);
     
       List<dynamic> newData = get["data"];
-      print(newData);
+     
       setState(() {
-      // print(newData);
         _data.addAll(newData);
         _page++;
         _isLoading = false;

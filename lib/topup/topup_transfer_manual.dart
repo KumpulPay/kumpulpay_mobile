@@ -1,9 +1,11 @@
-
 import 'package:accordion/accordion.dart';
+import 'package:accordion/controllers.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
+import 'package:kumpulpay/bottombar/bottombar.dart';
 import 'package:kumpulpay/data/shared_prefs.dart';
 import 'package:kumpulpay/repository/retrofit/api_client.dart';
+import 'package:kumpulpay/transaction/history.dart';
 import 'package:kumpulpay/utils/helpers.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -12,9 +14,9 @@ import '../../../utils/colornotifire.dart';
 import '../../../utils/media.dart';
 
 class TopupTransferManual extends StatefulWidget {
-  final double? amount;
+  static String routeName = '/topup_transfer_manual';
   final dynamic data;
-  const TopupTransferManual({Key? key, this.amount, this.data}) : super(key: key);
+  const TopupTransferManual({Key? key, this.data}) : super(key: key);
 
   @override
   State<TopupTransferManual> createState() => _TopupTransferManualState();
@@ -22,6 +24,8 @@ class TopupTransferManual extends StatefulWidget {
 
 class _TopupTransferManualState extends State<TopupTransferManual> {
   late ColorNotifire notifire;
+  TopupTransferManual? args;
+  dynamic _data;
 
   getdarkmodepreviousstate() async {
     final prefs = await SharedPreferences.getInstance();
@@ -57,346 +61,369 @@ class _TopupTransferManualState extends State<TopupTransferManual> {
     {
       "number": "5.",
       "text":
-          "Apabila saldo gagal terisi dan pelanggan tidak memberitahu terhitung 3 bulan setelah transfer, maka tidak ada kewajiban bagi Topindoku untuk validasi dan input manual saldo"
+          "Apabila saldo gagal terisi dan pelanggan tidak memberitahu terhitung 3 bulan setelah transfer, maka tidak ada kewajiban bagi KumpulPay untuk validasi dan input manual saldo"
     }
   ];
 
-
   @override
   Widget build(BuildContext context) {
-    // double amount =  widget.amount??0;
-    dynamic data =  widget.data;
+    args = ModalRoute.of(context)!.settings.arguments as TopupTransferManual?;
+    _data = args!.data;
     notifire = Provider.of<ColorNotifire>(context, listen: true);
-    // return Text(Helpers.currencyFormatter(data['amount'].toDouble()));
-    return Scaffold(
-      appBar: AppBar(
-        backgroundColor: notifire.getprimerycolor,
-        elevation: 0,
-        leading: GestureDetector(
-          onTap: () {
-            Navigator.pop(context);
-          },
-          child: Container(
-            height: 40,
-            width: 40,
-            margin: const EdgeInsets.all(8),
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(10),
-              border: Border.all(color: Colors.grey.withOpacity(0.4)),
-            ),
-            child: Icon(Icons.arrow_back, color: notifire.getdarkscolor),
-          ),
-        ),
-        title: Text(
-          "Transfer Bank",
-          style: TextStyle(
-            color: notifire.getdarkscolor,
-            fontFamily: 'Gilroy Bold',
-            fontSize: height / 40,
-          ),
-        ),
-        centerTitle: false,
-      ),
-      backgroundColor: notifire.getprimerycolor,
-      body: SingleChildScrollView(
-        // physics: const NeverScrollableScrollPhysics(),
-        child: Column(
-          children: [
-            Stack(
-              children: [
-                Container(
-                  height: height * 0.9,
-                  width: width,
-                  color: Colors.transparent,
-                  child: Image.asset(
-                    "images/background.png",
-                    fit: BoxFit.cover,
-                  ),
+    print(_data);
+    return PopScope(
+        canPop: false,
+        onPopInvokedWithResult: (didPop, result) {
+          Navigator.pushNamedAndRemoveUntil(
+            context,
+            History.routeName,
+            ModalRoute.withName(Bottombar.routeName),
+          );
+          return;
+        },  
+        child: Scaffold(
+          appBar: AppBar(
+            backgroundColor: notifire.getprimerycolor,
+            elevation: 0,
+            leading: GestureDetector(
+              onTap: () {
+                Navigator.pop(context);
+              },
+              child: Container(
+                height: 40,
+                width: 40,
+                margin: const EdgeInsets.all(8),
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(10),
+                  border: Border.all(color: Colors.grey.withOpacity(0.4)),
                 ),
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
+                child: Icon(Icons.arrow_back, color: notifire.getdarkscolor),
+              ),
+            ),
+            title: Text(
+              "Transfer Bank",
+              style: TextStyle(
+                color: notifire.getdarkscolor,
+                fontFamily: 'Gilroy Bold',
+                fontSize: height / 40,
+              ),
+            ),
+            centerTitle: false,
+          ),
+          backgroundColor: notifire.getprimerycolor,
+          body: SingleChildScrollView(
+            child: Column(
+              children: [
+                Stack(
                   children: [
-                    SizedBox(
-                      height: height / 50,
+                    Container(
+                      height: height * 0.9,
+                      width: width,
+                      color: Colors.transparent,
+                      child: Image.asset(
+                        "images/background.png",
+                        fit: BoxFit.cover,
+                      ),
                     ),
-                    Padding(
-                      padding: EdgeInsets.symmetric(horizontal: width / 20),
-                      child: Text(
-                        "Metode Pembayaran",
-                        style: TextStyle(
-                          color: Colors.grey.shade700,
-                          fontFamily: 'Gilroy Bold',
-                          fontSize: height / 50,
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        SizedBox(
+                          height: height / 50,
                         ),
-                      ),
-                    ),
-                    SizedBox(
-                      height: height / 70,
-                    ),
-                    Padding(
-                      padding: EdgeInsets.symmetric(horizontal: width / 20),
-                      child: Row(
-                        children: [
-                          Expanded(
-                              flex: 1,
-                              child: Text("Nominal",
-                                  style: TextStyle(
-                                    color: Colors.grey,
-                                    fontFamily: 'Gilroy Medium',
-                                    fontSize: height / 60,
-                                  ))),
-                          Expanded(
-                              flex: 2,
-                              child: Text(
-                                Helpers.currencyFormatter(data['amount'].toDouble()),
-                                textAlign: TextAlign.end,
-                              )),
-                        ],
-                      ),
-                    ),
-                    Padding(
-                      padding: EdgeInsets.symmetric(horizontal: width / 20),
-                      child: Row(
-                        children: [
-                          Expanded(
-                              flex: 1,
-                              child: Text("Kode Unik",
-                                  style: TextStyle(
-                                    color: Colors.grey,
-                                    fontFamily: 'Gilroy Medium',
-                                    fontSize: height / 60,
-                                  ))),
-                          Expanded(
-                              flex: 2,
-                              child: Text(
-                                data['unique'].toString(),
-                                textAlign: TextAlign.end,
-                              )),
-                        ],
-                      ),
-                    ),
-                    Padding(
-                      padding: EdgeInsets.symmetric(horizontal: width / 20),
-                      child: Row(
-                        children: [
-                          Expanded(
-                              flex: 1,
-                              child: Text("Total Bayar",
-                                  style: TextStyle(
-                                    color: Colors.grey,
-                                    fontFamily: 'Gilroy Medium',
-                                    fontSize: height / 60,
-                                  ))),
-                          Expanded(
-                              flex: 2,
-                              child: Text(
-                                Helpers.currencyFormatter(data['total'].toDouble()),
-                                textAlign: TextAlign.end,
-                              )),
-                        ],
-                      ),
-                    ),
-
-                    // line
-                    Padding(
-                      padding: EdgeInsets.symmetric(
-                          vertical: width / 20, horizontal: width / 20),
-                      child: const DottedLine(
-                        direction: Axis.horizontal,
-                        alignment: WrapAlignment.center,
-                        lineLength: double.infinity,
-                        lineThickness: 1.0,
-                        dashLength: 4.0,
-                        dashColor: Colors.grey,
-                      ),
-                    ),
-
-                    SizedBox(
-                      height: height / 70,
-                    ),
-                    Padding(
-                      padding: EdgeInsets.symmetric(horizontal: width / 20),
-                      child: Text(
-                        "Instruksi Pembayaran",
-                        style: TextStyle(
-                          color: Colors.grey.shade700,
-                          fontFamily: 'Gilroy Bold',
-                          fontSize: height / 50,
-                        ),
-                      ),
-                    ),
-                    SizedBox(
-                      height: height / 70,
-                    ),
-
-                    ListView.builder(
-                      physics: NeverScrollableScrollPhysics(),
-                      shrinkWrap: true,
-                      itemCount: _listPaymentInstructions.length,
-                      itemBuilder: (context, index) {
-                        return Column(
-                          children: [
-                            Padding(
-                                padding: EdgeInsets.symmetric(
-                                    horizontal: width / 20),
-                                child: Row(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Expanded(
-                                      flex: 1,
-                                      child: Column(
-                                        children: [
-                                          Align(
-                                            alignment: Alignment.topLeft,
-                                            child: Text(
-                                                _listPaymentInstructions[index]
-                                                    ["number"],
-                                                textAlign: TextAlign.start,
-                                                style: TextStyle(
-                                                  color: Colors.grey,
-                                                  fontFamily: 'Gilroy Medium',
-                                                  fontSize: height / 60,
-                                                )),
-                                          )
-                                        ],
-                                      )),
-                                  Expanded(
-                                      flex: 15,
-                                      child: Text(
-                                          _listPaymentInstructions[index]
-                                              ["text"],
-                                          style: TextStyle(
-                                            color: Colors.grey,
-                                            fontFamily: 'Gilroy Medium',
-                                            fontSize: height / 60,
-                                          ))),
-                                ],
-                              ),
+                        Padding(
+                          padding: EdgeInsets.symmetric(horizontal: width / 20),
+                          child: Text(
+                            "Rincian",
+                            style: TextStyle(
+                              color: Colors.grey.shade700,
+                              fontFamily: 'Gilroy Bold',
+                              fontSize: height / 50,
                             ),
-                            SizedBox(
-                              height: height / 70,
-                            ),
-                          ],
-                        );
-                      },
-                    ),
-
-
-                    // start list bank
-                    SizedBox(
-                      height: height / 70,
-                    ),
-                    Padding(
-                      padding: EdgeInsets.symmetric(horizontal: width / 20),
-                      child: Text(
-                        "Pilihan Bank",
-                        style: TextStyle(
-                          color: Colors.grey.shade700,
-                          fontFamily: 'Gilroy Bold',
-                          fontSize: height / 50,
+                          ),
                         ),
-                      ),
-                    ),
+                        SizedBox(
+                          height: height / 70,
+                        ),
+                        Padding(
+                          padding: EdgeInsets.symmetric(horizontal: width / 20),
+                          child: Row(
+                            children: [
+                              Expanded(
+                                  flex: 1,
+                                  child: Text("Nominal",
+                                      style: TextStyle(
+                                        color: Colors.grey,
+                                        fontFamily: 'Gilroy Medium',
+                                        fontSize: height / 60,
+                                      ))),
+                              Expanded(
+                                  flex: 2,
+                                  child: Text(
+                                    Helpers.currencyFormatter(
+                                        _data['amount'].toDouble()),
+                                    textAlign: TextAlign.end,
+                                  )),
+                            ],
+                          ),
+                        ),
+                        Padding(
+                          padding: EdgeInsets.symmetric(horizontal: width / 20),
+                          child: Row(
+                            children: [
+                              Expanded(
+                                  flex: 1,
+                                  child: Text("Kode Unik",
+                                      style: TextStyle(
+                                        color: Colors.grey,
+                                        fontFamily: 'Gilroy Medium',
+                                        fontSize: height / 60,
+                                      ))),
+                              Expanded(
+                                  flex: 2,
+                                  child: Text(
+                                    _data['unique'].toString(),
+                                    textAlign: TextAlign.end,
+                                  )),
+                            ],
+                          ),
+                        ),
+                        Padding(
+                          padding: EdgeInsets.symmetric(horizontal: width / 20),
+                          child: Row(
+                            children: [
+                              Expanded(
+                                  flex: 2,
+                                  child: Text("Jumlah Yang Harus Di Transfer",
+                                      style: TextStyle(
+                                        color: Colors.grey,
+                                        fontFamily: 'Gilroy Medium',
+                                        fontSize: height / 60,
+                                      ))),
+                              Expanded(
+                                  flex: 1,
+                                  child: Text(
+                                    Helpers.currencyFormatter(
+                                        _data['amount_unique'].toDouble()),
+                                    textAlign: TextAlign.end,
+                                  )),
+                            ],
+                          ),
+                        ),
 
-                    FutureBuilder(
-                      future: ApiClient(Dio(BaseOptions(contentType: "application/json"))).getCompanyBank('Bearer ${SharedPrefs().token}'),
-                      builder: (context, dynamic snapshot) {
-                        print('print: ${snapshot}');
-                        if (snapshot.connectionState == ConnectionState.waiting) {
-                          return const Center(
-                              child: Text('Please wait its loading...'));
-                        } else if (snapshot.connectionState == ConnectionState.done) {  
-                          return _buildAccordion(snapshot.data['data']);
-                        } else if (snapshot.hasError) {
-                          return Text('Error: ${snapshot.error}');
-                        } else {
-                          return const Center(child: Text('Upst...'));
-                        }
-                      },
+                        // line
+                        Padding(
+                          padding: EdgeInsets.symmetric(
+                              vertical: width / 20, horizontal: width / 20),
+                          child: const DottedLine(
+                            direction: Axis.horizontal,
+                            alignment: WrapAlignment.center,
+                            lineLength: double.infinity,
+                            lineThickness: 1.0,
+                            dashLength: 4.0,
+                            dashColor: Colors.grey,
+                          ),
+                        ),
+
+                        SizedBox(
+                          height: height / 70,
+                        ),
+                        Padding(
+                          padding: EdgeInsets.symmetric(horizontal: width / 20),
+                          child: Text(
+                            "Instruksi Pembayaran",
+                            style: TextStyle(
+                              color: Colors.grey.shade700,
+                              fontFamily: 'Gilroy Bold',
+                              fontSize: height / 50,
+                            ),
+                          ),
+                        ),
+                        SizedBox(
+                          height: height / 70,
+                        ),
+
+                        ListView.builder(
+                          physics: const NeverScrollableScrollPhysics(),
+                          shrinkWrap: true,
+                          itemCount: _listPaymentInstructions.length,
+                          itemBuilder: (context, index) {
+                            return Column(
+                              children: [
+                                Padding(
+                                  padding: EdgeInsets.symmetric(
+                                      horizontal: width / 20),
+                                  child: Row(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      Expanded(
+                                          flex: 1,
+                                          child: Column(
+                                            children: [
+                                              Align(
+                                                alignment: Alignment.topLeft,
+                                                child: Text(
+                                                    _listPaymentInstructions[
+                                                        index]["number"],
+                                                    textAlign: TextAlign.start,
+                                                    style: TextStyle(
+                                                      color: Colors.grey,
+                                                      fontFamily:
+                                                          'Gilroy Medium',
+                                                      fontSize: height / 60,
+                                                    )),
+                                              )
+                                            ],
+                                          )),
+                                      Expanded(
+                                          flex: 15,
+                                          child: Text(
+                                              _listPaymentInstructions[index]
+                                                  ["text"],
+                                              style: TextStyle(
+                                                color: Colors.grey,
+                                                fontFamily: 'Gilroy Medium',
+                                                fontSize: height / 60,
+                                              ))),
+                                    ],
+                                  ),
+                                ),
+                                SizedBox(
+                                  height: height / 70,
+                                ),
+                              ],
+                            );
+                          },
+                        ),
+
+                        // start list bank
+                        SizedBox(
+                          height: height / 70,
+                        ),
+                        Padding(
+                          padding: EdgeInsets.symmetric(horizontal: width / 20),
+                          child: Text(
+                            "Pilihan Bank",
+                            style: TextStyle(
+                              color: Colors.grey.shade700,
+                              fontFamily: 'Gilroy Bold',
+                              fontSize: height / 50,
+                            ),
+                          ),
+                        ),
+
+                        FutureBuilder(
+                          future: ApiClient(Dio(
+                                  BaseOptions(contentType: "application/json")))
+                              .getCompanyBank('Bearer ${SharedPrefs().token}'),
+                          builder: (context, dynamic snapshot) {
+                            // print('print: $snapshot');
+                            if (snapshot.connectionState ==
+                                ConnectionState.waiting) {
+                              return const Center(
+                                  child: Text('Please wait its loading...'));
+                            } else if (snapshot.connectionState ==
+                                ConnectionState.done) {
+                              return _buildAccordion(snapshot.data['data']);
+                            } else if (snapshot.hasError) {
+                              return Text('Error: ${snapshot.error}');
+                            } else {
+                              return const Center(child: Text('Upst...'));
+                            }
+                          },
+                        ),
+                      ],
                     ),
                   ],
                 ),
               ],
             ),
-          ],
-        ),
-      ),
-    );
+          ),
+        ));
   }
 
-  Widget _buildAccordion(dynamic snapshot){
-    dynamic data = widget.data;
+  Widget _buildAccordion(dynamic snapshot) {
     return Padding(
       padding: EdgeInsets.symmetric(horizontal: width / 40),
       child: Accordion(
-        contentBorderColor: notifire.getgreycolor,
-        rightIcon: Transform.rotate(
+          disableScrolling: true,
+          flipRightIconIfOpen: true,
+          contentVerticalPadding: 0,
+          scrollIntoViewOfItems: ScrollIntoViewOfItems.fast,
+          maxOpenSections: 1,
+          headerBackgroundColorOpened: Colors.black54,
+          headerPadding:
+              const EdgeInsets.symmetric(vertical: 7, horizontal: 15),
+          contentBorderColor: notifire.getgreycolor,
+          rightIcon: Transform.rotate(
               angle: 45 * 3.14159 / 90,
               child: Icon(Icons.arrow_forward_ios,
                   color: notifire.getdarkscolor, size: height / 50)),
-        children: [
-        for (var item in snapshot) ...[
-          AccordionSection(
-            headerBackgroundColor: notifire.gettabwhitecolor,
-            contentBackgroundColor: notifire.gettabwhitecolor,
-            header: Text(
-              item['bank_datas']['name'],
-              style: TextStyle(
-                  fontFamily: "Gilroy Bold",
-                  color: notifire.getdarkscolor,
-                  fontSize: height / 55),
-            ),
-            content: Builder(builder: (context) {
-              return Container(
-                child: Column(
-                  children: [
-                    Text(
-                      "Transfer pembayaran ke Nomor Rekening",
-                      style: TextStyle(
-                          fontFamily: "Gilroy Light",
-                          color: notifire.getdarkscolor,
-                          fontSize: height / 55),
-                    ),
-                    SizedBox(
-                      height: height / 60,
-                    ),
-                    Text(
-                      item['account_number'],
-                      style: TextStyle(
-                          fontFamily: "Gilroy Bold",
-                          color: notifire.getbluecolor,
-                          fontSize: height / 40),
-                    ),
-                    Text(
-                      'a/n:  ${item['account_name']}',
-                      style: TextStyle(
-                          fontFamily: "Gilroy Light",
-                          color: notifire.getdarkscolor,
-                          fontSize: height / 55),
-                    ),
-                    SizedBox(
-                      height: height / 60,
-                    ),
-                    Text(
-                      'Total Transfer',
-                      style: TextStyle(
-                          fontFamily: "Gilroy Light",
-                          color: notifire.getdarkscolor,
-                          fontSize: height / 55),
-                    ),
-                    Text(
-                      Helpers.currencyFormatter(data['total'].toDouble()),
-                      style: TextStyle(
-                          fontFamily: "Gilroy Bold",
-                          color: notifire.getbluecolor,
-                          fontSize: height / 40),
-                    ),
-                  ],
-                ),
-              );
-            })),
-        ]
-      ]),
+          children: [
+            for (var item in snapshot) ...[
+              AccordionSection(
+                  headerBackgroundColor: notifire.gettabwhitecolor,
+                  contentBackgroundColor: notifire.gettabwhitecolor,
+                  header: Text(
+                    item['bank_datas']['name'],
+                    style: TextStyle(
+                        fontFamily: "Gilroy Bold",
+                        color: notifire.getdarkscolor,
+                        fontSize: height / 55),
+                  ),
+                  content: Builder(builder: (context) {
+                    return Container(
+                      child: Column(
+                        children: [
+                          Text(
+                            "Transfer pembayaran ke Nomor Rekening",
+                            style: TextStyle(
+                                fontFamily: "Gilroy Light",
+                                color: notifire.getdarkscolor,
+                                fontSize: height / 55),
+                          ),
+                          SizedBox(
+                            height: height / 60,
+                          ),
+                          Text(
+                            item['account_number'],
+                            style: TextStyle(
+                                fontFamily: "Gilroy Bold",
+                                color: notifire.getbluecolor,
+                                fontSize: height / 40),
+                          ),
+                          Text(
+                            'a/n:  ${item['account_name']}',
+                            style: TextStyle(
+                                fontFamily: "Gilroy Light",
+                                color: notifire.getdarkscolor,
+                                fontSize: height / 55),
+                          ),
+                          SizedBox(
+                            height: height / 60,
+                          ),
+                          Text(
+                            'Total Transfer',
+                            style: TextStyle(
+                                fontFamily: "Gilroy Light",
+                                color: notifire.getdarkscolor,
+                                fontSize: height / 55),
+                          ),
+                          Text(
+                            Helpers.currencyFormatter(
+                                _data['amount_unique'].toDouble()),
+                            style: TextStyle(
+                                fontFamily: "Gilroy Bold",
+                                color: notifire.getbluecolor,
+                                fontSize: height / 40),
+                          ),
+                        ],
+                      ),
+                    );
+                  })),
+            ]
+          ]),
     );
   }
 

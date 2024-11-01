@@ -9,6 +9,7 @@ import 'package:kumpulpay/login/register.dart';
 import 'package:kumpulpay/notification/notification_list.dart';
 import 'package:kumpulpay/onbonding.dart';
 import 'package:kumpulpay/ppob/ppob_product.dart';
+import 'package:kumpulpay/ppob/ppob_product_detail.dart';
 import 'package:kumpulpay/profile/editprofile.dart';
 import 'package:kumpulpay/repository/notification/notification_controller.dart';
 import 'package:kumpulpay/repository/sqlite/database_provider.dart';
@@ -19,6 +20,7 @@ import 'package:kumpulpay/security/pin/pin.dart';
 import 'package:kumpulpay/security/pin/pin_create.dart';
 import 'package:kumpulpay/splashscreen.dart';
 import 'package:kumpulpay/topup/topup.dart';
+import 'package:kumpulpay/topup/topup_transfer_manual.dart';
 import 'package:kumpulpay/transaction/confirm_pin.dart';
 import 'package:kumpulpay/transaction/history.dart';
 import 'package:kumpulpay/utils/colornotifire.dart';
@@ -55,11 +57,16 @@ FutureOr<void> main() async {
           Home.routeName: (context) => const Home(),
           Bottombar.routeName: (context) => const Bottombar(),
           NotificationList.routeName: (context) => const NotificationList(),
+
           Topup.routeName: (context) => const Topup(),
+          TopupTransferManual.routeName: (context) => const TopupTransferManual(),
+
           Category.routeName: (context) => const Category(),
           PpobProduct.routeName: (context) => const PpobProduct(),
+          PpobProductDetail.routeName: (context) => const PpobProductDetail(),
           History.routeName: (context) => const History(),
           ConfirmPin.routeName: (context) => const ConfirmPin(),
+
           EditProfile.routeName: (context) => const EditProfile(),
           Pin.routeName: (context) => const Pin(),
           PinCreate.routeName: (context) => const PinCreate(),

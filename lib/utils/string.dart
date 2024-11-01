@@ -41,8 +41,8 @@ class CustomStrings {
   static const String yourprofile = 'Profil';
   static const String personalinfo = 'Data Personal';
   static const String broklyn = '@Broklyn';
-  static const String general = 'General';
-  static const String logout = 'Logout';
+  static const String general = 'Umum';
+  static const String logout = 'Keluar';
   static const String today = 'Today';
   static const String figma = 'Figma';
   static const String nonfinancialactivity = 'Non-financial Activity';
@@ -53,7 +53,7 @@ class CustomStrings {
   static const String subscription = 'Subscription';
   static const String recenttransaction = 'Recent transaction';
   static const String helpandsupport = 'Help and support';
-  static const String notification = 'Notification';
+  static const String notification = 'Notifikasi';
   static const String languages = 'Languages';
   static const String suggestedlanguages = 'Suggested Languages';
   static const String tiana = 'Tiana Saris';

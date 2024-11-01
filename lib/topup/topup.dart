@@ -7,8 +7,6 @@ import 'package:kumpulpay/data/shared_prefs.dart';
 import 'package:kumpulpay/repository/retrofit/api_client.dart';
 import 'package:kumpulpay/topup/topup_transfer_manual.dart';
 import 'package:kumpulpay/utils/helpers.dart';
-import 'package:kumpulpay/utils/loading.dart';
-import 'package:kumpulpay/utils/string.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -16,6 +14,7 @@ import '../../../utils/colornotifire.dart';
 import '../../../utils/media.dart';
 
 class Topup extends StatefulWidget {
+  static String routeName = '/topup';
   const Topup({Key? key}) : super(key: key);
 
   @override
@@ -26,7 +25,7 @@ class _TopupState extends State<Topup> {
   final _globalKey = GlobalKey<State>();
   late ColorNotifire notifire;
   int _selectedIndex = 1;
-  TextEditingController _ctrAmount = TextEditingController();
+  final TextEditingController _ctrAmount = TextEditingController();
 
   getdarkmodepreviousstate() async {
     final prefs = await SharedPreferences.getInstance();
@@ -411,18 +410,15 @@ class _TopupState extends State<Topup> {
           "amount": Helpers.removeCurrencyFormatter(_ctrAmount.text)
         };
         String jsonString = json.encode(body);
-
+      
         final client =
           ApiClient(Dio(BaseOptions(contentType: "application/json")));
         final dynamic post = await client.postWalletDeposit('Bearer ${SharedPrefs().token}', jsonString);
-        print('print: ${post}');
+       
         if (post["status"]) {
-            Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (context) => TopupTransferManual(data: post['data']),
-              ),
-            );
+          
+            Navigator.pushNamed(context, TopupTransferManual.routeName, arguments: TopupTransferManual(data: post['data']));
+           
         } else {
           // Navigator.pop(context);
           ScaffoldMessenger.of(context)

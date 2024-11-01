@@ -42,6 +42,7 @@ class _HomeState extends State<Home> {
   Map<String, dynamic> userData = jsonDecode(SharedPrefs().userData);
 
   late double limitsAvailable = 0;
+  late double balanceAvailable = 0;
   List<dynamic> listFavoritService = [];
   List<dynamic> listLastTransaction = [];
 
@@ -132,114 +133,11 @@ class _HomeState extends State<Home> {
             });
           }
 
+          balanceAvailable = snapshot.data["data"]["balance"].toDouble();
+          SharedPrefs().balanceAvailable = balanceAvailable;
+
           listFavoritService = snapshot.data["data"]["favorit_sevice"];
           listLastTransaction = snapshot.data["data"]["last_transaction"];
-
-          List<Widget> valuesWidget = [];
-          for (int i = 0; i < listCardBalance.length; i++) {
-            valuesWidget.add(Container(
-              width: double.infinity,
-              decoration: BoxDecoration(
-                borderRadius: const BorderRadius.all(Radius.circular(20)),
-                color: listCardBalance[i]['color'],
-              ),
-              child: Column(
-                children: [
-                  SizedBox(
-                    height: height / 50,
-                  ),
-                  Padding(
-                    padding: EdgeInsets.symmetric(horizontal: width / 20),
-                    child: Row(
-                      children: [
-                        Text(
-                          listCardBalance[i]['name'],
-                          style: TextStyle(
-                              color: Colors.white,
-                              fontSize: height / 50,
-                              fontFamily: 'Gilroy Medium'),
-                        ),
-                        const Spacer(),
-                        Column(
-                          children: [
-                            Image.asset(
-                              "images/message1.png",
-                              height: height / 25,
-                              color: Colors.white,
-                            ),
-                            Text(
-                              listCardBalance[i]['id'],
-                              style: TextStyle(
-                                  color: Colors.white,
-                                  fontSize: height / 70,
-                                  fontFamily: 'Gilroy Medium'),
-                            ),
-                          ],
-                        ),
-                      ],
-                    ),
-                  ),
-                  // start balance
-                  Padding(
-                    padding: EdgeInsets.only(left: width / 20),
-                    child: Row(
-                      children: [
-                        Container(
-                          height: height / 20,
-                          width: width / 2.4,
-                          color: selection
-                              ? Colors.transparent
-                              : Colors.transparent,
-                          child: selection
-                              ? Text(
-                                  Helpers.currencyFormatter(
-                                      listCardBalance[i]['balance'].toDouble()),
-                                  style: TextStyle(
-                                      color: Colors.white,
-                                      fontSize: height / 35,
-                                      fontFamily: 'Gilroy Bold'),
-                                )
-                              : Text(
-                                  "********",
-                                  style: TextStyle(
-                                      color: Colors.white,
-                                      fontSize: height / 20,
-                                      fontFamily: 'Gilroy Bold'),
-                                ),
-                        ),
-                        GestureDetector(
-                          onTap: () {
-                            setState(() {
-                              selection = !selection;
-                            });
-                          },
-                          child: selection
-                              ? Padding(
-                                  padding:
-                                      EdgeInsets.only(bottom: height / 100),
-                                  child: Image.asset(
-                                    "images/eye.png",
-                                    color: Colors.white,
-                                    height: height / 40,
-                                  ),
-                                )
-                              : Padding(
-                                  padding:
-                                      EdgeInsets.only(bottom: height / 100),
-                                  child: const Icon(
-                                    Icons.remove_red_eye,
-                                    color: Colors.white,
-                                  ),
-                                ),
-                        ),
-                      ],
-                    ),
-                  )
-                  // end balance
-                ],
-              ),
-            ));
-          }
 
           return Scaffold(
             appBar: AppBar(
@@ -318,241 +216,365 @@ class _HomeState extends State<Home> {
                                     fit: BoxFit.cover)),
                             // end top background
 
-                            Padding(
-                              padding: EdgeInsets.only(
-                                  top: height / 40,
-                                  left: width / 50,
-                                  right: width / 50),
-                              child: SizedBox(
-                                height: height / 3.1,
-                                child: CardSlider(
-                                  // containerHeight: 320,
-                                  containerHeight: double.infinity,
-                                  cards: valuesWidget,
-                                  // bottomOffset: -0.0005,
-                                  bottomOffset: -0.001,
-                                  // cardHeight: 0.75,
-                                  cardHeight: 0.30,
-                                  // cardHeightOffset: 0.01,
-                                  cardHeightOffset: 0.01,
-                                  // itemDotOffset: -0.25,
-                                  itemDotOffset: 0,
+                            Column(
+                              children: [
+                                SizedBox(
+                                  height: height / 40,
                                 ),
-                              ),
-                            ),
-
-                            // start card midle action
-                            Center(
-                              child: Padding(
-                                padding: EdgeInsets.only(
-                                    top: height / 5.4,
-                                    left: width / 30,
-                                    right: width / 30),
-                                // padding: EdgeInsets.symmetric(horizontal: width / 30),
-                                child: Container(
-                                  height: height / 7,
-                                  width: width,
-                                  decoration: BoxDecoration(
-                                    borderRadius: const BorderRadius.all(
-                                      Radius.circular(10),
+                                Center(
+                                  child: Container(
+                                    height: height / 35,
+                                    width: width / 1.5,
+                                    decoration: const BoxDecoration(
+                                      borderRadius: BorderRadius.only(
+                                        topLeft: Radius.circular(20),
+                                        topRight: Radius.circular(20),
+                                      ),
+                                      color: Color(0xff8978fa),
                                     ),
-                                    color: notifire.getdarkwhitecolor,
-                                    boxShadow: <BoxShadow>[
-                                      BoxShadow(
-                                        color: notifire.getbluecolor
-                                            .withOpacity(0.4),
-                                        blurRadius: 15.0,
-                                        offset: const Offset(0.0, 0.75),
-                                      ),
-                                    ],
                                   ),
-                                  child: Column(
-                                    children: [
-                                      SizedBox(
-                                        height: height / 50,
+                                ),
+                                Center(
+                                  child: Container(
+                                    height: height / 7,
+                                    width: width / 1.2,
+                                    decoration: BoxDecoration(
+                                      borderRadius: const BorderRadius.only(
+                                        topLeft: Radius.circular(20),
+                                        topRight: Radius.circular(20),
                                       ),
-                                      Row(
-                                        mainAxisAlignment:
-                                            MainAxisAlignment.spaceAround,
+                                      color: notifire.getbluecolor,
+                                    ),
+                                    child: Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        SizedBox(
+                                          height: height / 40,
+                                        ),
+                                        Padding(
+                                          padding: EdgeInsets.symmetric(
+                                              horizontal: width / 20),
+                                          child: Row(
+                                            children: [
+                                              Text(
+                                                "Saldo Saat Ini",
+                                                style: TextStyle(
+                                                    color: Colors.white,
+                                                    fontSize: height / 50,
+                                                    fontFamily:
+                                                        'Gilroy Medium'),
+                                              ),
+                                              const Spacer(),
+                                              Column(
+                                                children: [
+                                                  Image.asset(
+                                                    "images/message1.png",
+                                                    color: Colors.white,
+                                                    height: height / 25,
+                                                  ),
+                                                  Text(
+                                                    "Saldo",
+                                                    style: TextStyle(
+                                                        color: Colors.white,
+                                                        fontSize: height / 70,
+                                                        fontFamily:
+                                                            'Gilroy Medium'),
+                                                  ),
+                                                ],
+                                              ),
+                                            ],
+                                          ),
+                                        ),
+                                        Padding(
+                                          padding:
+                                              EdgeInsets.only(left: width / 20),
+                                          child: Row(
+                                            children: [
+                                              Container(
+                                                height: height / 20,
+                                                width: width / 2.4,
+                                                color: selection
+                                                    ? Colors.transparent
+                                                    : Colors.transparent,
+                                                child: selection
+                                                    ? Text(
+                                                        Helpers.currencyFormatter(balanceAvailable),
+                                                        style: TextStyle(
+                                                            color: Colors.white,
+                                                            fontSize:
+                                                                height / 35,
+                                                            fontFamily:
+                                                                'Gilroy Bold'),
+                                                      )
+                                                    : Text(
+                                                        "********",
+                                                        style: TextStyle(
+                                                            color: Colors.white,
+                                                            fontSize:
+                                                                height / 20,
+                                                            fontFamily:
+                                                                'Gilroy Bold'),
+                                                      ),
+                                              ),
+                                              GestureDetector(
+                                                onTap: () {
+                                                  setState(() {
+                                                    selection = !selection;
+                                                  });
+                                                },
+                                                child: selection
+                                                    ? Padding(
+                                                        padding:
+                                                            EdgeInsets.only(
+                                                                bottom: height /
+                                                                    100),
+                                                        child: Image.asset(
+                                                          "images/eye.png",
+                                                          color: Colors.white,
+                                                          height: height / 40,
+                                                        ),
+                                                      )
+                                                    : Padding(
+                                                        padding:
+                                                            EdgeInsets.only(
+                                                                bottom: height /
+                                                                    100),
+                                                        child: const Icon(
+                                                          Icons.remove_red_eye,
+                                                          color: Colors.white,
+                                                        ),
+                                                      ),
+                                              ),
+                                            ],
+                                          ),
+                                        )
+                                      ],
+                                    ),
+                                  ),
+                                ),
+
+                                // start card midle action
+                                Center(
+                                  child: Padding(
+                                    padding: EdgeInsets.symmetric(horizontal: width / 30),
+                                    child: Container(
+                                      height: height / 7,
+                                      width: width,
+                                      decoration: BoxDecoration(
+                                        borderRadius: const BorderRadius.all(
+                                          Radius.circular(10),
+                                        ),
+                                        color: notifire.getdarkwhitecolor,
+                                        boxShadow: <BoxShadow>[
+                                          BoxShadow(
+                                            color: notifire.getbluecolor
+                                                .withOpacity(0.4),
+                                            blurRadius: 15.0,
+                                            offset: const Offset(0.0, 0.75),
+                                          ),
+                                        ],
+                                      ),
+                                      child: Column(
                                         children: [
-                                          Column(
-                                            children: [
-                                              GestureDetector(
-                                                onTap: () {
-                                                  Navigator.push(
-                                                    context,
-                                                    MaterialPageRoute(
-                                                      builder: (context) =>
-                                                          const Scan(),
-                                                    ),
-                                                  );
-                                                },
-                                                child: Container(
-                                                  height: height / 15,
-                                                  width: width / 7,
-                                                  decoration: BoxDecoration(
-                                                    color: notifire
-                                                        .gettabwhitecolor,
-                                                    borderRadius:
-                                                        const BorderRadius.all(
-                                                      Radius.circular(10),
-                                                    ),
-                                                  ),
-                                                  child: Center(
-                                                    child: Image.asset(
-                                                      "images/scanpay.png",
-                                                      height: height / 20,
-                                                    ),
-                                                  ),
-                                                ),
-                                              ),
-                                              SizedBox(
-                                                height: height / 60,
-                                              ),
-                                              Text(
-                                                CustomStrings.scanpay,
-                                                style: TextStyle(
-                                                    fontFamily: "Gilroy Bold",
-                                                    color:
-                                                        notifire.getdarkscolor,
-                                                    fontSize: height / 55),
-                                              ),
-                                            ],
+                                          SizedBox(
+                                            height: height / 50,
                                           ),
-                                          Column(
+                                          Row(
+                                            mainAxisAlignment:
+                                                MainAxisAlignment.spaceAround,
                                             children: [
-                                              GestureDetector(
-                                                onTap: () {
-                                                  Navigator.push(
-                                                    context,
-                                                    MaterialPageRoute(
-                                                      builder: (context) =>
-                                                          const SendMoney(),
-                                                    ),
-                                                  );
-                                                },
-                                                child: Container(
-                                                  height: height / 15,
-                                                  width: width / 7,
-                                                  decoration: BoxDecoration(
-                                                    color: notifire
-                                                        .gettabwhitecolor,
-                                                    borderRadius:
-                                                        const BorderRadius.all(
-                                                      Radius.circular(10),
-                                                    ),
-                                                  ),
-                                                  child: Center(
-                                                    child: Image.asset(
-                                                      "images/transfer.png",
-                                                      height: height / 20,
-                                                    ),
-                                                  ),
-                                                ),
-                                              ),
-                                              SizedBox(
-                                                height: height / 60,
-                                              ),
-                                              Text(
-                                                CustomStrings.transfer,
-                                                style: TextStyle(
-                                                    fontFamily: "Gilroy Bold",
-                                                    color:
-                                                        notifire.getdarkscolor,
-                                                    fontSize: height / 55),
-                                              ),
-                                            ],
-                                          ),
-                                          Column(
-                                            children: [
-                                              GestureDetector(
-                                                onTap: () {
-                                                  Navigator.push(
-                                                    context,
-                                                    MaterialPageRoute(
-                                                      builder: (context) =>
-                                                          const Request(),
-                                                    ),
-                                                  );
-                                                },
-                                                child: Container(
-                                                  height: height / 15,
-                                                  width: width / 7,
-                                                  decoration: BoxDecoration(
-                                                    color: notifire
-                                                        .gettabwhitecolor,
-                                                    borderRadius:
-                                                        const BorderRadius.all(
-                                                      Radius.circular(10),
+                                              Column(
+                                                children: [
+                                                  GestureDetector(
+                                                    onTap: () {
+                                                      Navigator.push(
+                                                        context,
+                                                        MaterialPageRoute(
+                                                          builder: (context) =>
+                                                              const Scan(),
+                                                        ),
+                                                      );
+                                                    },
+                                                    child: Container(
+                                                      height: height / 15,
+                                                      width: width / 7,
+                                                      decoration: BoxDecoration(
+                                                        color: notifire
+                                                            .gettabwhitecolor,
+                                                        borderRadius:
+                                                            const BorderRadius
+                                                                .all(
+                                                          Radius.circular(10),
+                                                        ),
+                                                      ),
+                                                      child: Center(
+                                                        child: Image.asset(
+                                                          "images/scanpay.png",
+                                                          height: height / 20,
+                                                        ),
+                                                      ),
                                                     ),
                                                   ),
-                                                  child: Center(
-                                                    child: Image.asset(
-                                                      "images/request.png",
-                                                      height: height / 20,
+                                                  SizedBox(
+                                                    height: height / 60,
+                                                  ),
+                                                  Text(
+                                                    CustomStrings.scanpay,
+                                                    style: TextStyle(
+                                                        fontFamily:
+                                                            "Gilroy Bold",
+                                                        color: notifire
+                                                            .getdarkscolor,
+                                                        fontSize: height / 55),
+                                                  ),
+                                                ],
+                                              ),
+                                              Column(
+                                                children: [
+                                                  GestureDetector(
+                                                    onTap: () {
+                                                      Navigator.push(
+                                                        context,
+                                                        MaterialPageRoute(
+                                                          builder: (context) =>
+                                                              const SendMoney(),
+                                                        ),
+                                                      );
+                                                    },
+                                                    child: Container(
+                                                      height: height / 15,
+                                                      width: width / 7,
+                                                      decoration: BoxDecoration(
+                                                        color: notifire
+                                                            .gettabwhitecolor,
+                                                        borderRadius:
+                                                            const BorderRadius
+                                                                .all(
+                                                          Radius.circular(10),
+                                                        ),
+                                                      ),
+                                                      child: Center(
+                                                        child: Image.asset(
+                                                          "images/transfer.png",
+                                                          height: height / 20,
+                                                        ),
+                                                      ),
                                                     ),
                                                   ),
-                                                ),
+                                                  SizedBox(
+                                                    height: height / 60,
+                                                  ),
+                                                  Text(
+                                                    CustomStrings.transfer,
+                                                    style: TextStyle(
+                                                        fontFamily:
+                                                            "Gilroy Bold",
+                                                        color: notifire
+                                                            .getdarkscolor,
+                                                        fontSize: height / 55),
+                                                  ),
+                                                ],
                                               ),
-                                              SizedBox(
-                                                height: height / 60,
-                                              ),
-                                              Text(
-                                                CustomStrings.request,
-                                                style: TextStyle(
-                                                    fontFamily: "Gilroy Bold",
-                                                    color:
-                                                        notifire.getdarkscolor,
-                                                    fontSize: height / 55),
-                                              ),
-                                            ],
-                                          ),
-                                          Column(
-                                            children: [
-                                              GestureDetector(
-                                                onTap: () {
-                                                  Navigator.pushNamed(context, Topup.routeName);
-                                                },
-                                                child: Container(
-                                                  height: height / 15,
-                                                  width: width / 7,
-                                                  decoration: BoxDecoration(
-                                                    color: notifire
-                                                        .gettabwhitecolor,
-                                                    borderRadius:
-                                                        const BorderRadius.all(
-                                                      Radius.circular(10),
+                                              Column(
+                                                children: [
+                                                  GestureDetector(
+                                                    onTap: () {
+                                                      Navigator.push(
+                                                        context,
+                                                        MaterialPageRoute(
+                                                          builder: (context) =>
+                                                              const Request(),
+                                                        ),
+                                                      );
+                                                    },
+                                                    child: Container(
+                                                      height: height / 15,
+                                                      width: width / 7,
+                                                      decoration: BoxDecoration(
+                                                        color: notifire
+                                                            .gettabwhitecolor,
+                                                        borderRadius:
+                                                            const BorderRadius
+                                                                .all(
+                                                          Radius.circular(10),
+                                                        ),
+                                                      ),
+                                                      child: Center(
+                                                        child: Image.asset(
+                                                          "images/request.png",
+                                                          height: height / 20,
+                                                        ),
+                                                      ),
                                                     ),
                                                   ),
-                                                  child: Center(
-                                                    child: Image.asset(
-                                                      "images/topup.png",
-                                                      height: height / 20,
+                                                  SizedBox(
+                                                    height: height / 60,
+                                                  ),
+                                                  Text(
+                                                    "Tarik Tunai",
+                                                    style: TextStyle(
+                                                        fontFamily:
+                                                            "Gilroy Bold",
+                                                        color: notifire
+                                                            .getdarkscolor,
+                                                        fontSize: height / 55),
+                                                  ),
+                                                ],
+                                              ),
+                                              Column(
+                                                children: [
+                                                  GestureDetector(
+                                                    onTap: () {
+                                                      Navigator.pushNamed(
+                                                          context,
+                                                          Topup.routeName);
+                                                    },
+                                                    child: Container(
+                                                      height: height / 15,
+                                                      width: width / 7,
+                                                      decoration: BoxDecoration(
+                                                        color: notifire
+                                                            .gettabwhitecolor,
+                                                        borderRadius:
+                                                            const BorderRadius
+                                                                .all(
+                                                          Radius.circular(10),
+                                                        ),
+                                                      ),
+                                                      child: Center(
+                                                        child: Image.asset(
+                                                          "images/topup.png",
+                                                          height: height / 20,
+                                                        ),
+                                                      ),
                                                     ),
                                                   ),
-                                                ),
-                                              ),
-                                              SizedBox(
-                                                height: height / 60,
-                                              ),
-                                              Text(
-                                                CustomStrings.topup,
-                                                style: TextStyle(
-                                                    fontFamily: "Gilroy Bold",
-                                                    color:
-                                                        notifire.getdarkscolor,
-                                                    fontSize: height / 55),
+                                                  SizedBox(
+                                                    height: height / 60,
+                                                  ),
+                                                  Text(
+                                                    "Deposit",
+                                                    style: TextStyle(
+                                                        fontFamily:
+                                                            "Gilroy Bold",
+                                                        color: notifire
+                                                            .getdarkscolor,
+                                                        fontSize: height / 55),
+                                                  ),
+                                                ],
                                               ),
                                             ],
                                           ),
                                         ],
                                       ),
-                                    ],
+                                    ),
                                   ),
                                 ),
-                              ),
+                                // end card midle action
+                              ],
                             ),
-                            // end card midle action
+                            
                           ],
                         ),
                         SizedBox(

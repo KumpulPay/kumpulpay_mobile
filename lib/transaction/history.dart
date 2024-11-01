@@ -33,7 +33,7 @@ class _HistoryState extends State<History>
   List<Widget> tabs = [
     const HistoryPpob(),
     const HistoryTopup(),
-    const HistoryPpob(),
+    // const HistoryPpob(),
   ];
 
   @override
@@ -125,8 +125,8 @@ class _HistoryState extends State<History>
                               unselectedLabelColor: Colors.grey,
                               tabs: const [
                                 Tab(text: "Produk"),
-                                Tab(text: "Topup"),
-                                Tab(text: "Paylater"),
+                                Tab(text: "Deposit"),
+                                // Tab(text: "Paylater"),
                               ],
                             ),
                           ),

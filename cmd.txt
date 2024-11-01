@@ -1,0 +1,24 @@
+flutter run --flavor <flavorName> -t lib/main_<flavorName>.dart
+
+Flutter run key commands.
+r Hot reload.
+R Hot restart.
+h List all available interactive commands.
+d Detach (terminate "flutter run" but leave application running).
+c Clear the screen
+q Quit (terminate the application on the device).
+
+
+Bersihkan Cache Pub
+flutter pub cache repair
+
+Perbarui SDK Dart atau Flutter
+flutter upgrade
+
+Sinkronisasi Dependensi
+flutter pub get
+
+
+#====================== Build Runner ======================
+dart run build_runner <command>
+build, watch, serve, and test

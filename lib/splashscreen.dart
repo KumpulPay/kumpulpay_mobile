@@ -1,6 +1,8 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:kumpulpay/bottombar/bottombar.dart';
+import 'package:kumpulpay/data/shared_prefs.dart';
 import 'package:kumpulpay/utils/colornotifire.dart';
 import 'package:kumpulpay/utils/media.dart';
 import 'package:provider/provider.dart';
@@ -10,7 +12,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'onbonding.dart';
 
 class Splashscreen extends StatefulWidget {
-  static String routeName = '/main';
+  static String routeName = '/splashcreen';
   const Splashscreen({Key? key}) : super(key: key);
 
   @override
@@ -19,7 +21,6 @@ class Splashscreen extends StatefulWidget {
 
 class _SplashscreenState extends State<Splashscreen> {
   late ColorNotifire notifire;
-
 
   getdarkmodepreviousstate() async {
     final prefs = await SharedPreferences.getInstance();
@@ -32,11 +33,21 @@ class _SplashscreenState extends State<Splashscreen> {
   }
 
   getInit() async {
-    Timer(
-      const Duration(seconds: 3),
-      () => Navigator.pushNamedAndRemoveUntil(
-                          context, Onbonding.routeName, (route) => false),
-    );
+    print('_token: ${SharedPrefs().token}');
+    if (SharedPrefs().token.isEmpty) {
+        Timer(
+          const Duration(seconds: 3),
+          () => Navigator.pushNamedAndRemoveUntil(
+              context, Onbonding.routeName, (route) => false),
+        );
+    } else {
+        Timer(
+          const Duration(seconds: 3),
+          () => Navigator.pushNamedAndRemoveUntil(
+              context, Bottombar.routeName, (route) => false),
+        );
+    }
+    
   }
 
   @override
