@@ -105,7 +105,7 @@ class _HelpSupportState extends State<HelpSupport> {
                                     contentBorderWidth: 1,
                                   ),
                                   AccordionSection(
-                                    flipRightIconIfOpen: true,
+                                    // flipRightIconIfOpen: true,
                                     headerBackgroundColor:
                                         notifire.gettabwhitecolor,
                                     contentBackgroundColor:
@@ -123,7 +123,7 @@ class _HelpSupportState extends State<HelpSupport> {
                                     contentBorderWidth: 1,
                                   ),
                                   AccordionSection(
-                                    flipRightIconIfOpen: true,
+                                    // flipRightIconIfOpen: true,
                                     headerBackgroundColor:
                                         notifire.gettabwhitecolor,
                                     contentBackgroundColor:
@@ -141,7 +141,7 @@ class _HelpSupportState extends State<HelpSupport> {
                                     contentBorderWidth: 1,
                                   ),
                                   AccordionSection(
-                                    flipRightIconIfOpen: true,
+                                    // flipRightIconIfOpen: true,
                                     headerBackgroundColor:
                                         notifire.gettabwhitecolor,
                                     contentBackgroundColor:
@@ -159,7 +159,7 @@ class _HelpSupportState extends State<HelpSupport> {
                                     contentBorderWidth: 1,
                                   ),
                                   AccordionSection(
-                                    flipRightIconIfOpen: true,
+                                    // flipRightIconIfOpen: true,
                                     headerBackgroundColor:
                                         notifire.gettabwhitecolor,
                                     contentBackgroundColor:

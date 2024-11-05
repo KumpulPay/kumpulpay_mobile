@@ -8,10 +8,11 @@ class Apis {
   static const String home = '/api/v1/home';
 
   // product ppob
-  static const String productCategory = '/api/v1/ppob/product-category';
+  static const String productCategory = '/api/v1/ppob/category';
+  static const String product = '/api/v1/ppob/product';
   static const String productProvider = '/api/v1/ppob/product-provider';
 
-  static const String historyTransaction = '/api/v1/ppob/transaction-history';
+  static const String historyTransaction = '/api/v1/ppob/transaction';
   static const String ppobTransaction = '/api/v1/ppob/transaction';
 
   // paylater

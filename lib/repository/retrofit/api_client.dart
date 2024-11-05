@@ -33,6 +33,12 @@ abstract class ApiClient {
       {@Header('Content-Type') String contentType = 'application/json',
       @Queries() Map<String, dynamic>? queries});
 
+  @GET(Apis.product)
+  Future<dynamic> getProduct(
+      @Header('Authorization') String authorization,
+      {@Header('Content-Type') String contentType = 'application/json',
+      @Queries() Map<String, dynamic>? queries});
+
   @GET(Apis.productProvider)
   Future<dynamic> getProductProvider(
       @Header('Authorization') String authorization,
@@ -92,6 +98,12 @@ abstract class ApiClient {
       @Header('Authorization') String authorization, @Body() String body,
       {@Header('Content-Type') String contentType = 'application/json',
       @Queries() Map<String, dynamic>? queries});
+
+  @GET(Apis.walletDeposit)
+  Future<dynamic> getWalletDeposit(
+      @Header('Authorization') String authorization,
+      {@Header('Content-Type') String contentType = 'application/json',
+      @Queries() Map<String, dynamic>? queries});    
 
   @GET(Apis.walletTransaction)
   Future<dynamic> getWalletTransaction(

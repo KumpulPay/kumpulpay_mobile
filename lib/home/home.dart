@@ -67,24 +67,29 @@ class _HomeState extends State<Home> {
     "images/netflix.png"
   ];
 
-  List cashbankimg = [
-    "images/cashback.png",
-    "images/merchant1.png",
+  List anotherActionImg = [
+    // "images/cashback.png",
+    // "images/merchant1.png",
     "images/helpandsupport.png"
   ];
-  List cashbankname = [
-    CustomStrings.cashback,
-    CustomStrings.becomemerchant,
+  List anotherActionID = [
+    // CustomStrings.cashback,
+    // CustomStrings.becomemerchant,
+    "help",
+  ];
+  List anotherActionTxt = [
+    // CustomStrings.cashback,
+    // CustomStrings.becomemerchant,
     CustomStrings.helpandsuppors,
   ];
-  List cashbankdiscription = [
-    CustomStrings.scratchcards,
-    CustomStrings.startsccepting,
+  List anotherActionDesc = [
+    // CustomStrings.scratchcards,
+    // CustomStrings.startsccepting,
     CustomStrings.relatedpaytm,
   ];
-  List cashbankdiscription2 = [
-    CustomStrings.scratchcards2,
-    CustomStrings.startsccepting2,
+  List anotherActionDesc2 = [
+    // CustomStrings.scratchcards2,
+    // CustomStrings.startsccepting2,
     CustomStrings.relatedpaytm2,
   ];
   bool selection = true;
@@ -858,152 +863,136 @@ class _HomeState extends State<Home> {
                           ),
                         ),
 
-                        // another actions
-                        // Container(
-                        //   height: height / 2.5,
-                        //   color: Colors.transparent,
-                        //   child: ListView.builder(
-                        //     physics: const NeverScrollableScrollPhysics(),
-                        //     padding: EdgeInsets.zero,
-                        //     itemCount: cashbankname.length,
-                        //     itemBuilder: (context, index) => Padding(
-                        //       padding: EdgeInsets.symmetric(
-                        //           horizontal: width / 20,
-                        //           vertical: height / 100),
-                        //       child: InkWell(
-                        //         onTap: () {
-                        //           if (index == 0) {
-                        //             Navigator.pushNamed(context, NotificationList.routeName);
-                        //           } else if (index == 1) {
-                        //             Navigator.push(
-                        //               context,
-                        //               MaterialPageRoute(
-                        //                 builder: (context) => const HelpSupport(
-                        //                   CustomStrings.becomemerchant,
-                        //                 ),
-                        //               ),
-                        //             );
-                        //           } else if (index == 2) {
-                        //             Navigator.push(
-                        //               context,
-                        //               MaterialPageRoute(
-                        //                 builder: (context) => const LegalPolicy(
-                        //                     CustomStrings.helps),
-                        //               ),
-                        //             );
-                        //           }
-                        //         },
-                        //         child: Container(
-                        //           height: height / 9,
-                        //           width: width,
-                        //           decoration: BoxDecoration(
-                        //             color: notifire.getdarkwhitecolor,
-                        //             border: Border.all(
-                        //               color: Colors.grey.withOpacity(0.2),
-                        //             ),
-                        //             borderRadius: const BorderRadius.all(
-                        //               Radius.circular(10),
-                        //             ),
-                        //           ),
-                        //           child: Padding(
-                        //             padding: EdgeInsets.symmetric(
-                        //                 horizontal: width / 20),
-                        //             child: Row(
-                        //               children: [
-                        //                 Container(
-                        //                   height: height / 15,
-                        //                   width: width / 8,
-                        //                   decoration: BoxDecoration(
-                        //                     color: notifire.gettabwhitecolor,
-                        //                     borderRadius:
-                        //                         const BorderRadius.all(
-                        //                       Radius.circular(10),
-                        //                     ),
-                        //                   ),
-                        //                   child: Center(
-                        //                     child: Image.asset(
-                        //                       cashbankimg[index],
-                        //                       height: height / 20,
-                        //                     ),
-                        //                   ),
-                        //                 ),
-                        //                 SizedBox(
-                        //                   width: width / 30,
-                        //                 ),
-                        //                 Column(
-                        //                   crossAxisAlignment:
-                        //                       CrossAxisAlignment.start,
-                        //                   children: [
-                        //                     SizedBox(
-                        //                       height: height / 70,
-                        //                     ),
-                        //                     Row(
-                        //                       children: [
-                        //                         Text(
-                        //                           cashbankname[index],
-                        //                           style: TextStyle(
-                        //                               fontFamily: "Gilroy Bold",
-                        //                               color: notifire
-                        //                                   .getdarkscolor,
-                        //                               fontSize: height / 50),
-                        //                         ),
-                        //                         // SizedBox(width: width / 7,),
-                        //                       ],
-                        //                     ),
-                        //                     SizedBox(
-                        //                       height: height / 100,
-                        //                     ),
-                        //                     Row(
-                        //                       children: [
-                        //                         Column(
-                        //                           crossAxisAlignment:
-                        //                               CrossAxisAlignment.start,
-                        //                           children: [
-                        //                             Text(
-                        //                               cashbankdiscription[
-                        //                                   index],
-                        //                               style: TextStyle(
-                        //                                   fontFamily:
-                        //                                       "Gilroy Medium",
-                        //                                   color: notifire
-                        //                                       .getdarkgreycolor
-                        //                                       .withOpacity(0.6),
-                        //                                   fontSize:
-                        //                                       height / 65),
-                        //                             ),
-                        //                             Text(
-                        //                               cashbankdiscription2[
-                        //                                   index],
-                        //                               style: TextStyle(
-                        //                                   fontFamily:
-                        //                                       "Gilroy Medium",
-                        //                                   color: notifire
-                        //                                       .getdarkgreycolor
-                        //                                       .withOpacity(0.6),
-                        //                                   fontSize:
-                        //                                       height / 60),
-                        //                             ),
-                        //                           ],
-                        //                         ),
-                        //                       ],
-                        //                     ),
-                        //                   ],
-                        //                 ),
-                        //                 const Spacer(),
-                        //                 Icon(Icons.arrow_forward_ios,
-                        //                     color: notifire.getdarkscolor,
-                        //                     size: height / 40),
-                        //               ],
-                        //             ),
-                        //           ),
-                        //         ),
-                        //       ),
-                        //     ),
-                        //   ),
-                        // ),
+                        // start another actions
+                        Container(
+                          height: height / 2.5,
+                          color: Colors.transparent,
+                          child: ListView.builder(
+                            physics: const NeverScrollableScrollPhysics(),
+                            padding: EdgeInsets.zero,
+                            itemCount: anotherActionTxt.length,
+                            itemBuilder: (context, index) => Padding(
+                              padding: EdgeInsets.symmetric(
+                                  horizontal: width / 20,
+                                  vertical: height / 100),
+                              child: InkWell(
+                                onTap: () {
+                                  if (anotherActionID[index] == "help") {
+                                    Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                        builder: (context) => const HelpSupport(
+                                          CustomStrings.becomemerchant,
+                                        ),
+                                      ),
+                                    );
+                                    
+                                  } 
+                                  // else if (index == 1) {
+                                  //   Navigator.pushNamed(
+                                  //       context, NotificationList.routeName);
+                                  // } else if (index == 2) {
+                                  //   Navigator.push(
+                                  //     context,
+                                  //     MaterialPageRoute(
+                                  //       builder: (context) => const LegalPolicy(
+                                  //           CustomStrings.helps),
+                                  //     ),
+                                  //   );
+                                  // }
+                                },
+                                child: Container(
+                                  height: height / 9,
+                                  width: width,
+                                  decoration: BoxDecoration(
+                                    color: notifire.getdarkwhitecolor,
+                                    border: Border.all(
+                                      color: Colors.grey.withOpacity(0.2),
+                                    ),
+                                    borderRadius: const BorderRadius.all(
+                                      Radius.circular(10),
+                                    ),
+                                  ),
+                                  child: Padding(
+                                    padding: EdgeInsets.symmetric(
+                                        horizontal: width / 20),
+                                    child: Row(
+                                      children: [
+                                        Container(
+                                          height: height / 15,
+                                          width: width / 8,
+                                          decoration: BoxDecoration(
+                                            color: notifire.gettabwhitecolor,
+                                            borderRadius:
+                                                const BorderRadius.all(
+                                              Radius.circular(10),
+                                            ),
+                                          ),
+                                          child: Center(
+                                            child: Image.asset(
+                                              anotherActionImg[index],
+                                              height: height / 20,
+                                            ),
+                                          ),
+                                        ),
+                                        SizedBox(
+                                          width: width / 30,
+                                        ),
+                                        Expanded(
+                                          child: Column(
+                                            crossAxisAlignment:
+                                                CrossAxisAlignment.start,
+                                            children: [
+                                              SizedBox(
+                                                height: height / 70,
+                                              ),
+                                              Row(
+                                                children: [
+                                                  Text(
+                                                    anotherActionTxt[index],
+                                                    style: TextStyle(
+                                                        fontFamily:
+                                                            "Gilroy Bold",
+                                                        color: notifire
+                                                            .getdarkscolor,
+                                                        fontSize: height / 50),
+                                                  ),
+                                                  // SizedBox(width: width / 7,),
+                                                ],
+                                              ),
+                                              SizedBox(
+                                                height: height / 100,
+                                              ),
+                                              Text(
+                                                "Butuh Bantuan Konsultasi? Jangan ragu untuk menghubungi kami.",
+                                                maxLines: 2,
+                                                overflow: TextOverflow.ellipsis,
+                                                style: TextStyle(
+                                                    fontFamily: "Gilroy Medium",
+                                                    color: notifire
+                                                        .getdarkgreycolor
+                                                        .withOpacity(0.6),
+                                                    fontSize: height / 65),
+                                              ),
+                                            ],
+                                          ),
+                                        ),
+                                        // const Spacer(),
+                                        Icon(Icons.arrow_forward_ios,
+                                            color: notifire.getdarkscolor,
+                                            size: height / 40),
+                                      ],
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ),
+                        ),
                         SizedBox(
                           height: height / 20,
                         ),
+                        // end another actions
                       ],
                     ),
                   ),

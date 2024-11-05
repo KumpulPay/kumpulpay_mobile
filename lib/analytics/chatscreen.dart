@@ -420,14 +420,14 @@ class _ChatScreenState extends State<ChatScreen> {
             x: '50%',
             y: '50%')
       ],
-      series: <ChartSeries<ChartData, String>>[
-        ColumnSeries<ChartData, String>(
-            color: notifire.getbluecolor,
-            borderRadius: const BorderRadius.all(Radius.circular(10)),
-            dataSource: chartData,
-            xValueMapper: (ChartData data, _) => data.x,
-            yValueMapper: (ChartData data, _) => data.y)
-      ],
+      // series: <ChartSeries<ChartData, String>>[
+      //   ColumnSeries<ChartData, String>(
+      //       color: notifire.getbluecolor,
+      //       borderRadius: const BorderRadius.all(Radius.circular(10)),
+      //       dataSource: chartData,
+      //       xValueMapper: (ChartData data, _) => data.x,
+      //       yValueMapper: (ChartData data, _) => data.y)
+      // ],
     );
   }
 }

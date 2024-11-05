@@ -116,10 +116,10 @@ class _PpobProductState extends State<PpobProduct>
           ),
           bottom: PreferredSize(
             preferredSize:
-                const Size.fromHeight(70), // Set preferred height of the TextField
+                const Size.fromHeight(70),
             child: Padding(
               padding: const EdgeInsets.all(8.0),
-              child: //start input destination
+              child:
                   FormBuilder(
                     key: _formKey,
                     autovalidateMode: AutovalidateMode.onUserInteraction,
@@ -304,20 +304,6 @@ class _PpobProductState extends State<PpobProduct>
     // print('listDetail: ${listDetail}');
     return Column(
       children: [
-        // Padding(
-        //   padding: EdgeInsets.symmetric(horizontal: width / 20),
-        //   child: Align(
-        //     alignment: Alignment.centerLeft,
-        //     child:  Text(
-        //       "Daftar Harga $_txtLabelPriceList",
-        //       textAlign: TextAlign.start,
-        //       style: TextStyle(
-        //           color: notifire.getdarkscolor,
-        //           fontSize: height / 50,
-        //           fontFamily: 'Gilroy Bold'),
-        //     ),
-        //   )
-        // ),
         Padding(
           padding: EdgeInsets.symmetric(
               horizontal: width / 20, vertical: height / 80),

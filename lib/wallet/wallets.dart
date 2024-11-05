@@ -2,7 +2,6 @@ import 'dart:async';
 
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
 import 'package:kumpulpay/data/shared_prefs.dart';
 import 'package:kumpulpay/paylater/paylater_invoice.dart';
 import 'package:kumpulpay/repository/retrofit/api_client.dart';
@@ -51,7 +50,7 @@ class _WalletsState extends State<Wallets> {
 
   final int _numPages = 2;
   final PageController _pageController = PageController(initialPage: 0);
-  int _currentPage = 0;
+  final int _currentPage = 0;
 
   List<Widget> _buildPageIndicator() {
     List<Widget> list = [];
@@ -81,7 +80,7 @@ class _WalletsState extends State<Wallets> {
 
   @override
   Widget build(BuildContext context) {
-    print('printX: ${_currentPage}');
+    print('printX: $_currentPage');
     notifire = Provider.of<ColorNotifire>(context, listen: true);
     return Scaffold(
       appBar: AppBar(
@@ -477,12 +476,12 @@ class _WalletsState extends State<Wallets> {
       ),
       child: Container(
           height: height / 4,
-          decoration: BoxDecoration(
+          decoration: const BoxDecoration(
             color: Colors.green,
-            borderRadius: const BorderRadius.all(
+            borderRadius: BorderRadius.all(
               Radius.circular(20),
             ),
-            image: const DecorationImage(
+            image: DecorationImage(
               opacity: 0.5,
               image: AssetImage('images/backphoto.png'), // Path to your image
               fit: BoxFit.cover, // Adjust the image size and aspect ratio
@@ -573,7 +572,7 @@ class _WalletsState extends State<Wallets> {
           child: PageView.builder(
             itemCount: valuesWidget.length,
             onPageChanged: (value) {
-              print('onPageChanged: ${value}');
+              print('onPageChanged: $value');
             },
             itemBuilder: (context, index) {
               return valuesWidget[index];
@@ -696,7 +695,7 @@ class _WalletsState extends State<Wallets> {
           height: height / 40,
         ),
         Padding(
-          padding: EdgeInsets.symmetric(),
+          padding: const EdgeInsets.symmetric(),
           child: Container(
               height: height,
               width: width,

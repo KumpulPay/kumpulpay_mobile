@@ -8,6 +8,8 @@ import 'package:kumpulpay/login/login.dart';
 import 'package:kumpulpay/login/register.dart';
 import 'package:kumpulpay/notification/notification_list.dart';
 import 'package:kumpulpay/onbonding.dart';
+import 'package:kumpulpay/ppob/product_provider.dart';
+import 'package:kumpulpay/ppob/ppob_postpaid.dart';
 import 'package:kumpulpay/ppob/ppob_product.dart';
 import 'package:kumpulpay/ppob/ppob_product_detail.dart';
 import 'package:kumpulpay/profile/editprofile.dart';
@@ -62,8 +64,14 @@ FutureOr<void> main() async {
           TopupTransferManual.routeName: (context) => const TopupTransferManual(),
 
           Category.routeName: (context) => const Category(),
+          ProductProvider.routeName: (context) => const ProductProvider(),
+
+
           PpobProduct.routeName: (context) => const PpobProduct(),
           PpobProductDetail.routeName: (context) => const PpobProductDetail(),
+
+          PpobPostpaid.routeName: (context) => const PpobPostpaid(),
+
           History.routeName: (context) => const History(),
           ConfirmPin.routeName: (context) => const ConfirmPin(),
 

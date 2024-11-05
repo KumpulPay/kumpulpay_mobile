@@ -44,4 +44,13 @@ class SharedPrefs {
     _sharedPrefs.setDouble("limits_available", value);
   }
 
+  double get balanceAvailable => _sharedPrefs.getDouble("balance_available") ?? 0;
+  set balanceAvailable(double value) {
+    _sharedPrefs.setDouble("balance_available", value);
+  }
+
+  Future<void> clearAllData() async {
+    await _sharedPrefs.clear();
+  }
+
 }
