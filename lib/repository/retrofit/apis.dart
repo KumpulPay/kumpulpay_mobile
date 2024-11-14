@@ -14,6 +14,7 @@ class Apis {
 
   static const String historyTransaction = '/api/v1/ppob/transaction';
   static const String ppobTransaction = '/api/v1/ppob/transaction';
+  static const String ppobCheckBill = '/api/v1/ppob/check-bill';
 
   // paylater
   static const String paylaterPeriod = '/api/v1/paylater/period';

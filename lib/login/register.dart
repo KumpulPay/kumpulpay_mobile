@@ -201,7 +201,7 @@ class _RegisterState extends State<Register> {
                     ),
                     Center(
                       child: Image.asset(
-                        "images/logo_app/ic_launcher_round.webp",
+                        "images/logo_app/playstore.png",
                         height: height / 8,
                       ),
                     ),

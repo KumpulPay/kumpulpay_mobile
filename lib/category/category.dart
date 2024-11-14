@@ -1,16 +1,15 @@
 
-import 'dart:developer';
 
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:kumpulpay/data/shared_prefs.dart';
-import 'package:kumpulpay/ppob/ppob_postpaid.dart';
+import 'package:kumpulpay/ppob/ppob_postpaid_single_provider.dart';
 import 'package:kumpulpay/ppob/ppob_product.dart';
+import 'package:kumpulpay/ppob/product_provider.dart';
 import 'package:kumpulpay/repository/retrofit/api_client.dart';
 import 'package:kumpulpay/utils/media.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-
 import '../utils/colornotifire.dart';
 import '../utils/string.dart';
 
@@ -50,33 +49,40 @@ class _CategoryState extends State<Category> {
               color: notifire.getdarkscolor,
               fontSize: height / 40),
         ),
-        actions: [
-          Icon(
-            Icons.more_horiz_outlined,
-            color: notifire.getdarkscolor,
-            size: 35,
-          ),
-          const SizedBox(
-            width: 10,
-          )
-        ],
         iconTheme: IconThemeData(color: notifire.getdarkscolor),
       ),
       backgroundColor: notifire.getprimerycolor,
-      body: SingleChildScrollView(
+      body: Container(
+        height: height,
+        width: width,
+        decoration: const BoxDecoration(
+          color: Colors.transparent,
+          image: DecorationImage(
+            image: AssetImage(
+              "images/background.png",
+            ),
+            fit: BoxFit.cover,
+          ),
+        ),
         child: Column(
           children: [
-
-            _buildBody(context),
-
+            Expanded(
+              child: SingleChildScrollView(
+                child: Column(
+                  children: [
+                    _buildBody(context),
+                  ],
+                ),
+              ),
+            )
           ],
         ),
       ),
+      
     );
   }
 
   FutureBuilder<dynamic> _buildBody(BuildContext context) {
-    // final Orientation orientation = MediaQuery.of(context).orientation;
     final client = ApiClient(Dio(BaseOptions(contentType: "application/json")));
     return FutureBuilder<dynamic>(
       future: client.getProductCategory('Bearer ${SharedPrefs().token}'),
@@ -138,6 +144,7 @@ class _CategoryState extends State<Category> {
                                   children: [
                                     GestureDetector(
                                       onTap: () {
+                                        // print('count_providerX ${child2[index]['count_provider']}');
                                         if (item['id'] == 'prepaid'){
                                           Navigator.pushNamed(
                                             context, PpobProduct.routeName,
@@ -145,19 +152,36 @@ class _CategoryState extends State<Category> {
                                                 type: item['id'],
                                                 categoryData: child2[index]));
                                         } else if (item['id'] == 'postpaid'){
-                                          Navigator.pushNamed(
-                                            context, PpobPostpaid.routeName,
-                                            arguments: PpobPostpaid(
-                                                type: item['id'],
-                                                categoryData: child2[index]));
-                                        } else if (item['id'] == 'entertain'){
+                                          if (child2[index]['count_provider'] > 1) {
+                                            // Navigator.pushNamed(
+                                            //     context, PpobPostpaid.routeName,
+                                            //     arguments: PpobPostpaid(
+                                            //         type: item['id'],
+                                            //         categoryData:
+                                            //             child2[index]));
+                                             Navigator.pushNamed(
+                                                context, ProductProvider.routeName,
+                                                arguments: ProductProvider(
+                                                    type: item['id'],
+                                                    typeName: item['name'],
+                                                    category: child2[index]['id'],
+                                                    categoryName: child2[index]['name']));
+                                          } else {
+                                            Navigator.pushNamed(
+                                                context, PpobPostpaidSingleProvider.routeName,
+                                                arguments: PpobPostpaidSingleProvider(
+                                                    type: item['id'],
+                                                    typeName: item['name'],
+                                                    category: child2[index]['id'],
+                                                    categoryName: child2[index]['name']));
+                                          }
+                                        } else if (item['id'] == 'entertainment'){
                                           Navigator.pushNamed(
                                             context, PpobProduct.routeName,
                                             arguments: PpobProduct(
                                                 type: item['id'],
                                                 categoryData: child2[index]));
                                         }
-                                         
                                       },
                                       child: Container(
                                         height: height / 15,
@@ -170,7 +194,8 @@ class _CategoryState extends State<Category> {
                                         ),
                                         child: Center(
                                           child: Image.asset(
-                                            child2[index]["short_name"],
+                                            // child2[index]["short_name"],
+                                            'images/logo_app/disabled_kumpulpay_logo.png',
                                             height: height / 30,
                                           ),
                                         ),
@@ -209,18 +234,26 @@ class _CategoryState extends State<Category> {
             );
 
           } else {
-              return const Center(child: Text("Loading..", textAlign: TextAlign.center));
+              // return const Center(child: Text("Loading..", textAlign: TextAlign.center));
+              return Center(
+                child: SizedBox(
+                  height: height - 100, // Membuat container dengan tinggi penuh agar indikator berada di tengah vertikal
+                  child: const Center(
+                    child: CircularProgressIndicator(),
+                  ),
+                ),
+              );
           }
          
         } on DioException catch (e) {
           if (e.response != null) {
-            print(e.response?.data);
-            print(e.response?.headers);
-            print(e.response?.requestOptions);
+            // print(e.response?.data);
+            // print(e.response?.headers);
+            // print(e.response?.requestOptions);
           } else {
             // Something happened in setting up or sending the request that triggered an Error
-            print(e.requestOptions);
-            print(e.message);
+            // print(e.requestOptions);
+            // print(e.message);
           }
         }
 

@@ -33,7 +33,7 @@ class _SplashscreenState extends State<Splashscreen> {
   }
 
   getInit() async {
-    print('_token: ${SharedPrefs().token}');
+    // print('_token: ${SharedPrefs().token}');
     if (SharedPrefs().token.isEmpty) {
         Timer(
           const Duration(seconds: 3),
@@ -76,20 +76,20 @@ class _SplashscreenState extends State<Splashscreen> {
             children: <Widget>[
               SizedBox(
                 width: 100, height: 100,
-                child: Image.asset('images/kumpulpay_logo.webp', fit: BoxFit.cover),
+                child: Image.asset('images/logo_app/playstore.png', fit: BoxFit.cover),
               ),
               const SizedBox(height: 10),
               Text("KumpulPay",  style: TextStyle(
                         fontSize: height / 30,
                         fontFamily: 'Gilroy Bold',
-                        color: notifire.getdarkscolor)),
+                        color: notifire.getPrimaryPurpleColor)),
               const SizedBox(height: 20),
               SizedBox(
                 height: 5,
                 width: 80,
                 child: LinearProgressIndicator(
                   valueColor:
-                      const AlwaysStoppedAnimation<Color>( Color(0xff6C56F9)),
+                      AlwaysStoppedAnimation<Color>(notifire.getPrimaryPinkColor),
                   backgroundColor: Colors.grey[300],
                 ),
               )

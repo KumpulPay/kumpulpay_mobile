@@ -168,37 +168,35 @@ class _PpobProductState extends State<PpobProduct>
           ),
         ),
         backgroundColor: notifire.getprimerycolor,
-        body: SingleChildScrollView(
+        body: Container(
+          height: height,
+          width: width,
+          decoration: const BoxDecoration(
+            color: Colors.transparent,
+            image: DecorationImage(
+              image: AssetImage(
+                "images/background.png",
+              ),
+              fit: BoxFit.cover,
+            ),
+          ),
           child: Column(
             children: [
-              Stack(
-                children: [
-                  Container(
-                    height: height,
-                    width: width,
-                    color: Colors.transparent,
-                    child: Image.asset(
-                      "images/background.png",
-                      fit: BoxFit.cover,
-                    ),
-                  ),
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
+              Expanded(
+                child: SingleChildScrollView(
+                  child: Column(
                     children: [
-                     
                       SizedBox(
                         height: height / 50,
                       ),
-
                       _buildList(context),
-
                       SizedBox(
                         height: height / 50,
                       ),
                     ],
-                  )
-                ],
-              ),
+                  ),
+                )
+              )
             ],
           ),
         ),
@@ -414,7 +412,7 @@ class _PpobProductState extends State<PpobProduct>
                 leftIcon: Padding(
                     padding: const EdgeInsets.all(5),
                     child: Image.asset(
-                        "images/logo_app/ic_launcher-playstore.png",
+                        "images/logo_app/playstore.png",
                         height: height / 25)),
                 rightIcon: Transform.rotate(
                     angle: 45 * 3.14159 / 90,
@@ -746,7 +744,7 @@ class _PpobProductState extends State<PpobProduct>
                               ),
                               child: Center(
                                 child: Image.asset(
-                                  "images/logo_app/ic_launcher-playstore.png",
+                                  "images/logo_app/disabled_kumpulpay_logo.png",
                                   height: height / 20,
                                 ),
                               ),

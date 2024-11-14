@@ -1,8 +1,13 @@
+import 'dart:convert';
+import 'dart:developer';
 
-import 'package:flutter/widgets.dart';
+import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_form_builder/flutter_form_builder.dart';
 import 'package:form_builder_validators/form_builder_validators.dart';
+import 'package:kumpulpay/data/shared_prefs.dart';
+import 'package:kumpulpay/ppob/ppob_postpaid_single_provider.dart';
+import 'package:kumpulpay/repository/retrofit/api_client.dart';
 import 'package:kumpulpay/utils/colornotifire.dart';
 import 'package:kumpulpay/utils/media.dart';
 import 'package:kumpulpay/utils/textfeilds.dart';
@@ -11,9 +16,10 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 class ProductProvider extends StatefulWidget {
   static String routeName = '/ppob/product/provider';
- 
-  final List<dynamic>? providerList;
-  const ProductProvider({Key? key, this.providerList}) : super(key: key);
+  final String? type, typeName, category, categoryName;
+  const ProductProvider(
+      {Key? key, this.type, this.typeName, this.category, this.categoryName})
+      : super(key: key);
 
   @override
   State<ProductProvider> createState() => _ProductProviderState();
@@ -24,31 +30,27 @@ class _ProductProviderState extends State<ProductProvider> {
 
   ProductProvider? args;
   final _formKey = GlobalKey<FormBuilderState>();
+  String? _type, _typeName;
+  String? _category, _categoryName;
   List<dynamic> providerList = [];
   List<dynamic> filteredProviderList = []; // Daftar hasil filter
+  late Future<dynamic> dataProvider;
 
   @override
   void initState() {
     super.initState();
-    notifire = Provider.of<ColorNotifire>(context, listen: false);
-    getdarkmodepreviousstate();
 
-    // Ambil data provider list dari args
     WidgetsBinding.instance.addPostFrameCallback((_) {
       args = ModalRoute.of(context)!.settings.arguments as ProductProvider?;
-      providerList = args?.providerList ?? [];
-      filteredProviderList = providerList; // Set default hasil filter
-    });
-  }
 
-  // @override
-  // void didChangeDependencies() {
-  //   super.didChangeDependencies();
-  //   // Ambil data provider list dari args
-  //   final args = ModalRoute.of(context)!.settings.arguments as ProductProvider?;
-  //   providerList = args?.providerList ?? [];
-  //   filteredProviderList = providerList; // Set default hasil filter
-  // }
+      _type = args!.type;
+      _typeName = args!.typeName;
+      _category = args!.category;
+      _categoryName = args!.categoryName;
+    });
+
+    getdarkmodepreviousstate();
+  }
 
   getdarkmodepreviousstate() async {
     final prefs = await SharedPreferences.getInstance();
@@ -60,13 +62,25 @@ class _ProductProviderState extends State<ProductProvider> {
     }
   }
 
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+
+    notifire = Provider.of<ColorNotifire>(context, listen: false);
+
+    final Map<String, dynamic> queries = {"type": _type, "category": _category};
+    print('queriesX ${queries}');
+    dataProvider = ApiClient(Dio(BaseOptions(contentType: "application/json")))
+        .getProduct('Bearer ${SharedPrefs().token}', queries: queries);
+  }
+
   void _filterProviderList(String query) {
     setState(() {
       if (query.isEmpty) {
-        filteredProviderList = providerList;
+        filteredProviderList = List.from(providerList);
       } else {
-        filteredProviderList = providerList
-            .where((provider) => provider['name']
+        filteredProviderList = List.from(providerList)
+            .where((provider) => provider['provider_name']
                 .toString()
                 .toLowerCase()
                 .contains(query.toLowerCase()))
@@ -78,10 +92,7 @@ class _ProductProviderState extends State<ProductProvider> {
   @override
   Widget build(BuildContext context) {
     notifire = Provider.of<ColorNotifire>(context, listen: true);
-    // args = ModalRoute.of(context)!.settings.arguments as ProductProvider?;
-    // providerList = args!.providerList ?? [];
-    // print('providerX ${args!.provider}');
-    print('providerListXX ${providerList}');
+
     return Scaffold(
       appBar: AppBar(
         elevation: 0,
@@ -102,10 +113,9 @@ class _ProductProviderState extends State<ProductProvider> {
               key: _formKey,
               child: textfeildC("cari_provider", "",
                   hintText: "Cari Provider...",
-                  textInputAction: TextInputAction.done,
-                  onChanged: (value) {
-                     _filterProviderList(value ?? '');
-                  },
+                  textInputAction: TextInputAction.done, onChanged: (value) {
+                _filterProviderList(value ?? '');
+              },
                   suffixIconInteractive: GestureDetector(
                     child: Padding(
                       padding: EdgeInsets.symmetric(
@@ -122,42 +132,107 @@ class _ProductProviderState extends State<ProductProvider> {
         ),
       ),
       backgroundColor: notifire.getprimerycolor,
-      body: SingleChildScrollView(
-        child: Column(
-          children: [
-            Stack(
-              children: [
-                Container(
-                  height: height,
-                  width: width,
-                  color: Colors.transparent,
-                  child: Image.asset(
-                    "images/background.png",
-                    fit: BoxFit.cover,
-                  ),
-                ),
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    SizedBox(
-                      height: height / 50,
-                    ),
-                    _buildListAction(filteredProviderList),
-                    SizedBox(
-                      height: height / 50,
-                    ),
-                  ],
-                )
-              ],
+      body: Container(
+        height: height,
+        width: width,
+        decoration: const BoxDecoration(
+          color: Colors.transparent,
+          image: DecorationImage(
+            image: AssetImage(
+              "images/background.png",
             ),
-          ],
+            fit: BoxFit.cover,
+          ),
         ),
+        child: Column(children: [
+          Expanded(
+            child: SingleChildScrollView(
+              child: Column(
+                children: [
+                  SizedBox(
+                    height: height / 50,
+                  ),
+                  FutureBuilder(
+                    future: dataProvider,
+                    builder: (context, snapshot) {
+                      if (snapshot.connectionState == ConnectionState.waiting) {
+                        return const Center(child: CircularProgressIndicator());
+                      } else if (snapshot.hasError) {
+                        return Center(child: Text('Error: ${snapshot.error}'));
+                      } else if (snapshot.hasData) {
+                        var rawList = (snapshot.data
+                            as Map<String, dynamic>)["data"] as List<dynamic>;
+
+                        List<Map<String, dynamic>> list = rawList
+                            .map((item) => Map<String, dynamic>.from(item))
+                            .toList();
+
+                        if (providerList.isEmpty) {
+                          providerList =
+                              groupDataByTypeCategoryProviderArray(list);
+                          filteredProviderList = List.from(providerList);
+                        }
+
+                        return _buildListAction(filteredProviderList);
+                      } else {
+                        return const Center(child: Text("No data available"));
+                      }
+                    },
+                  ),
+                  SizedBox(
+                    height: height / 50,
+                  ),
+                ],
+              ),
+            ),
+          )
+        ]),
       ),
     );
   }
 
+  List<Map<String, dynamic>> groupDataByTypeCategoryProviderArray(
+      List<Map<String, dynamic>> data) {
+    Map<String, List<Map<String, dynamic>>> tempGroupedData = {};
+
+    for (var item in data) {
+      // Buat "group key" berdasarkan type, category, dan provider
+      String groupKey =
+          '${item["type"]}_${item["category"]}_${item["provider"]}';
+
+      // Jika group key belum ada di dalam tempGroupedData, tambahkan dengan list kosong
+      if (!tempGroupedData.containsKey(groupKey)) {
+        tempGroupedData[groupKey] = [];
+      }
+
+      // Tambahkan item ke list pada group key yang sesuai
+      tempGroupedData[groupKey]!.add(item);
+    }
+
+    // Konversi tempGroupedData menjadi list sesuai dengan format yang diminta
+    List<Map<String, dynamic>> groupedDataArray =
+        tempGroupedData.entries.map((entry) {
+      // Ambil nama provider dari salah satu item di dalam grup
+      String providerName =
+          entry.value.isNotEmpty ? entry.value[0]["provider_name"] : "";
+      String provider =
+          entry.value.isNotEmpty ? entry.value[0]["provider"] : "";
+      String categoryName =
+          entry.value.isNotEmpty ? entry.value[0]["category_name"] : "";
+
+      return {
+        "group_key": entry.key,
+        "category_name": categoryName,
+        "provider": provider,
+        "provider_name": providerName,
+        "child": entry.value,
+      };
+    }).toList();
+    print('groupedDataArrayX ${jsonEncode(groupedDataArray)}');
+    return groupedDataArray;
+  }
+
   Widget _buildListAction(List<dynamic> items) {
-    // print('itemsX: ${items.length}');
     return Column(
       children: [
         Padding(
@@ -169,14 +244,18 @@ class _ProductProviderState extends State<ProductProvider> {
               physics: const NeverScrollableScrollPhysics(),
               itemCount: items.length,
               itemBuilder: (context, index) {
-                // print('itemXX ${items[index]}');
                 return Padding(
                   padding: const EdgeInsets.symmetric(vertical: 7),
                   child: GestureDetector(
                     onTap: () {
-                      // dynamic selectedProvider = items[index]; // Ambil data provider yang dipilih
-
-                      Navigator.pop(context, items[index]); // Kirim data kembali
+                      Navigator.pushNamed(
+                          context, PpobPostpaidSingleProvider.routeName,
+                          arguments: PpobPostpaidSingleProvider(
+                            type: _type,
+                            typeName: items[index]['category_name'],
+                            categoryName: items[index]['provider_name'],
+                            child: items[index]['child'],
+                          ));
                     },
                     child: Container(
                       // height: height / 9,
@@ -206,7 +285,7 @@ class _ProductProviderState extends State<ProductProvider> {
                               ),
                               child: Center(
                                 child: Image.asset(
-                                  "images/logo_app/ic_launcher-playstore.png",
+                                  "images/logo_app/disabled_kumpulpay_logo.png",
                                   height: height / 20,
                                 ),
                               ),
@@ -216,7 +295,7 @@ class _ProductProviderState extends State<ProductProvider> {
                               width: width / 30,
                             ),
                             Text(
-                              items[index]['name'],
+                              items[index]['provider_name'],
                               style: TextStyle(
                                   fontFamily: "Gilroy Bold",
                                   color: notifire.getdarkscolor,

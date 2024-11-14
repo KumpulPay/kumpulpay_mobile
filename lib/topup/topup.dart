@@ -179,7 +179,7 @@ class _TopupState extends State<Topup> {
                                 decoration: BoxDecoration(
                                   boxShadow: [
                                     BoxShadow(
-                                      color: notifire.getbluecolor
+                                      color: notifire.getPrimaryPurpleColor
                                           .withOpacity(0.4),
                                       blurRadius:
                                           _selectedIndex == index ? 5.0 : 0.0,
@@ -192,7 +192,7 @@ class _TopupState extends State<Topup> {
                                   border: Border.all(
                                     color: _selectedIndex == index
                                         ? Colors.transparent
-                                        : notifire.getbluecolor
+                                        : notifire.getPrimaryPurpleColor
                                             .withOpacity(0.1),
                                   ),
                                 ),
@@ -261,7 +261,7 @@ class _TopupState extends State<Topup> {
                             Radius.circular(10),
                           ),
                           border: Border.all(
-                            color: notifire.getbluecolor.withOpacity(0.1),
+                            color: notifire.getPrimaryPurpleColor.withOpacity(0.1),
                           ),
                         ),
                         child: Column(
@@ -340,7 +340,7 @@ class _TopupState extends State<Topup> {
                                       Radius.circular(10),
                                     ),
                                     color:
-                                        notifire.getbluecolor.withOpacity(0.3),
+                                        notifire.getPrimaryPurpleColor.withOpacity(0.3),
                                   ),
                                   child: Center(
                                     child: Padding(
@@ -349,7 +349,7 @@ class _TopupState extends State<Topup> {
                                         child: Text(
                                           amount[index],
                                           style: TextStyle(
-                                              color: notifire.getbluecolor,
+                                              color: notifire.getPrimaryPurpleColor,
                                               fontFamily: 'Gilroy Bold',
                                               fontSize: height / 60),
                                         )),
@@ -387,7 +387,7 @@ class _TopupState extends State<Topup> {
                               _handleSubmit();
                             },
                             child: scannerbutton(
-                              notifire.getbluecolor,
+                              notifire.getPrimaryPurpleColor,
                               "Konfirmasi",
                               Colors.white,
                             )),
@@ -455,7 +455,7 @@ class _TopupState extends State<Topup> {
           borderRadius: const BorderRadius.all(
             Radius.circular(30),
           ),
-          border: Border.all(color: notifire.getbluecolor)),
+          border: Border.all(color: notifire.getPrimaryPurpleColor)),
       child: Center(
         child: Text(
           txt,

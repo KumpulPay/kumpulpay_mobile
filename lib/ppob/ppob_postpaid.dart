@@ -1,13 +1,16 @@
 import 'dart:convert';
 
 import 'package:dio/dio.dart';
+import 'package:dotted_line/dotted_line.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_form_builder/flutter_form_builder.dart';
 import 'package:form_builder_validators/form_builder_validators.dart';
 import 'package:kumpulpay/data/shared_prefs.dart';
 import 'package:kumpulpay/ppob/product_provider.dart';
 import 'package:kumpulpay/repository/retrofit/api_client.dart';
+import 'package:kumpulpay/utils/button.dart';
 import 'package:kumpulpay/utils/colornotifire.dart';
+import 'package:kumpulpay/utils/helpers.dart';
 import 'package:kumpulpay/utils/textfeilds.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -38,25 +41,27 @@ class _PpobPostpaidState extends State<PpobPostpaid> {
   String? title;
   // List<dynamic>? providerList;
   dynamic selectedProvider;
+  String selectedProviderName = 'Pilih Provider';
 
-  void _navigateToProvider(BuildContext context,
-      {final List<dynamic>? providerList}) async {
+  // void _navigateToProvider(BuildContext context,
+  //     {final List<dynamic>? providerList}) async {
 
-    final result = await Navigator.pushNamed(
-      context,
-      ProductProvider.routeName,
-      arguments: ProductProvider(
-          providerList: providerList ?? [], // Gunakan default jika null
-      ),
-    );
+  //   final result = await Navigator.pushNamed(
+  //     context,
+  //     ProductProvider.routeName,
+  //     arguments: ProductProvider(
+  //         providerList: providerList ?? [], // Gunakan default jika null
+  //     ),
+  //   );
 
-    if (result != null) {
-      setState(() {
-        selectedProvider = result; // Perbarui selectedProvider
-      });
-      print("_navigateToProvider ${jsonEncode(result)}");
-    }
-  }
+  //   if (result != null) {
+  //     setState(() {
+  //       selectedProvider = result; // Perbarui selectedProvider
+  //       selectedProviderName = selectedProvider['name'];
+  //     });
+  //     print("_navigateToProvider ${jsonEncode(result)}");
+  //   }
+  // }
   
   @override
   void initState() {
@@ -75,8 +80,6 @@ class _PpobPostpaidState extends State<PpobPostpaid> {
       notifire.setIsDark = previusstate;
     }
   }
-
-  
 
   @override
   Widget build(BuildContext context) {
@@ -120,22 +123,26 @@ class _PpobPostpaidState extends State<PpobPostpaid> {
                     FormBuilderValidators.required(),
                     FormBuilderValidators.minLength(9),
                   ]), onSubmitted: (value) {
-                if (_formKey.currentState?.validate() ?? false) {
-                  final formValue =
-                      _formKey.currentState?.fields['input_nomor']?.value;
-                  if (_filterCategory == 'prepaid_pln_prepaid') {
-                    // _txtDestination = value;
-                  } else {
-                    // handleFormSubmission(destination: value);
-                  }
-                } else {
-                  print('Form tidak valid!');
-                }
-              }, onChanged: (value) {
-                if (_formKey.currentState?.validate() ?? false) {
-                  // _txtDestination = value;
-                }
-              },
+                    if (_formKey.currentState?.validate() ?? false) {
+                      final formValue =
+                          _formKey.currentState?.fields['input_nomor']?.value;
+                      showModalBottomSheet(
+                      isScrollControlled: true,
+                      shape: const RoundedRectangleBorder(
+                        borderRadius: BorderRadius.only(
+                          topLeft: Radius.circular(20),
+                          topRight: Radius.circular(20),
+                        ),
+                      ),
+                      backgroundColor: notifire.getprimerycolor,
+                      context: context,
+                      builder: (context) {
+                        return _bottomSheetContent(context);
+                      });
+                    } else {
+                      print('Form tidak valid!');
+                    }
+                  },
                   suffixIconInteractive: GestureDetector(
                     child: Padding(
                       padding: EdgeInsets.symmetric(
@@ -248,15 +255,14 @@ class _PpobPostpaidState extends State<PpobPostpaid> {
   }
 
   Widget _buildView(List<dynamic> items) {
-    print('itemsX ${items}');
-    print('selectedProvider ${selectedProvider}');
+    
     return Column(
       children: [
         Padding(
           padding: EdgeInsets.symmetric(horizontal: width / 15),
           child: GestureDetector(
             onTap: () {
-              _navigateToProvider(context, providerList: items);
+              // _navigateToProvider(context, providerList: items);
              
             },
             child: Container(
@@ -279,7 +285,7 @@ class _PpobPostpaidState extends State<PpobPostpaid> {
                       width: width / 30,
                     ),
                     Text(
-                      "Pilih Provider",
+                      selectedProviderName,
                       style: TextStyle(
                         // fontFamily: "Gilroy Bold",
                         color: notifire.getdarkgreycolor,
@@ -311,6 +317,382 @@ class _PpobPostpaidState extends State<PpobPostpaid> {
   //     Navigator.pushReplacementNamed(context, '/login');
   //   }
   // }
+
+  Widget _bottomSheetContent(
+      BuildContext ctxBsc) {
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        // start costumer info
+        SizedBox(
+          height: height / 30,
+        ),
+        Row(
+          children: [
+            SizedBox(
+              width: width / 20,
+            ),
+            Text(
+              "Informasi Pembelian",
+              style: TextStyle(
+                color: notifire.getdarkscolor,
+                fontFamily: 'Gilroy Bold',
+                fontSize: height / 50,
+              ),
+            ),
+          ],
+        ),
+        SizedBox(
+          height: height / 60,
+        ),
+        Padding(
+          padding: EdgeInsets.symmetric(horizontal: width / 20),
+          child: Row(
+            children: [
+              Text(
+                "Nomor Tujuan",
+                style: TextStyle(
+                  color: Colors.grey,
+                  fontFamily: 'Gilroy Medium',
+                  fontSize: height / 60,
+                ),
+              ),
+              const Spacer(),
+              Text(
+                "aasasas",
+                style: TextStyle(
+                  color: notifire.getdarkscolor,
+                  fontFamily: 'Gilroy Medium',
+                  fontSize: height / 60,
+                ),
+              ),
+            ],
+          ),
+        ),
+        SizedBox(
+          height: height / 80,
+        ),
+        Padding(
+          padding: EdgeInsets.symmetric(horizontal: width / 20),
+          child: Row(
+            children: [
+              Text(
+                'Produk ${title?.capitalizeEach()}',
+                style: TextStyle(
+                  color: Colors.grey,
+                  fontFamily: 'Gilroy Medium',
+                  fontSize: height / 60,
+                ),
+              ),
+              const Spacer(),
+              Text(
+                "xx",
+                // Helpers.currencyFormatter(
+                //     double.parse(listDetail[index]["name_unique"]),
+                //     symbol: ""),
+                style: TextStyle(
+                  color: notifire.getdarkscolor,
+                  fontFamily: 'Gilroy Medium',
+                  fontSize: height / 60,
+                ),
+              ),
+            ],
+          ),
+        ),
+        // description
+        SizedBox(
+          height: height / 80,
+        ),
+        Padding(
+          padding: EdgeInsets.symmetric(horizontal: width / 20),
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Expanded(
+                flex: 1,
+                child: Text(
+                  'Deskripsi',
+                  style: TextStyle(
+                    color: Colors.grey,
+                    fontFamily: 'Gilroy Medium',
+                    fontSize: height / 60,
+                  ),
+                ),
+              ),
+              Expanded(
+                flex: 2,
+                child: Text(
+                  "cc",
+                  // listDetail[index]["name"],
+                  textAlign: TextAlign.right,
+                  style: TextStyle(
+                    color: notifire.getdarkgreycolor,
+                    fontFamily: 'Gilroy Medium',
+                    fontSize: height / 60,
+                  ),
+                ),
+              ),
+              // Expanded(
+              //     flex: 2,
+              //     child: Column(
+              //       crossAxisAlignment: CrossAxisAlignment.end,
+              //       children: [
+              //         Text(
+              //           listDetail[index]["provider"],
+              //           textAlign: TextAlign.right,
+              //           style: TextStyle(
+              //             color: notifire.getdarkscolor,
+              //             fontFamily: 'Gilroy Medium',
+              //             fontSize: height / 60,
+              //           ),
+              //         ),
+              //         Text(
+              //           listDetail[index]["name"],
+              //           textAlign: TextAlign.right,
+              //           style: TextStyle(
+              //             color: notifire.getdarkgreycolor,
+              //             fontFamily: 'Gilroy Medium',
+              //             fontSize: height / 60,
+              //           ),
+              //         ),
+              //       ],
+              //     ))
+            ],
+          ),
+        ),
+        // end costumer info
+
+        // start payment detail
+        SizedBox(
+          height: height / 60,
+        ),
+        Row(
+          children: [
+            SizedBox(
+              width: width / 20,
+            ),
+            Text(
+              "Detail Pembayaran",
+              style: TextStyle(
+                color: notifire.getdarkscolor,
+                fontFamily: 'Gilroy Bold',
+                fontSize: height / 50,
+              ),
+            ),
+          ],
+        ),
+        SizedBox(
+          height: height / 60,
+        ),
+        Padding(
+          padding: EdgeInsets.symmetric(horizontal: width / 20),
+          child: Row(
+            children: [
+              Text(
+                "Harga",
+                style: TextStyle(
+                  color: Colors.grey,
+                  fontFamily: 'Gilroy Medium',
+                  fontSize: height / 60,
+                ),
+              ),
+              const Spacer(),
+              Text(
+                "mm",
+                // Helpers.currencyFormatter(
+                //     listDetail[index]["price_fixed"].toDouble()),
+                style: TextStyle(
+                  color: notifire.getdarkscolor,
+                  fontFamily: 'Gilroy Medium',
+                  fontSize: height / 60,
+                ),
+              ),
+            ],
+          ),
+        ),
+        SizedBox(
+          height: height / 80,
+        ),
+        Padding(
+          padding: EdgeInsets.symmetric(horizontal: width / 20),
+          child: Row(
+            children: [
+              Text(
+                "Admin",
+                style: TextStyle(
+                  color: Colors.grey,
+                  fontFamily: 'Gilroy Medium',
+                  fontSize: height / 60,
+                ),
+              ),
+              const Spacer(),
+              Text(
+                "Rp500",
+                style: TextStyle(
+                  color: notifire.getdarkscolor,
+                  fontFamily: 'Gilroy Medium',
+                  fontSize: height / 60,
+                ),
+              ),
+            ],
+          ),
+        ),
+
+        Padding(
+          padding: EdgeInsets.symmetric(
+              vertical: width / 20, horizontal: width / 20),
+          child: const DottedLine(
+            direction: Axis.horizontal,
+            alignment: WrapAlignment.center,
+            lineLength: double.infinity,
+            lineThickness: 1.0,
+            dashLength: 4.0,
+            dashColor: Colors.grey,
+          ),
+        ),
+        Padding(
+          padding: EdgeInsets.symmetric(horizontal: width / 20),
+          child: Row(
+            children: [
+              Text(
+                "Total Bayar",
+                style: TextStyle(
+                  color: Colors.grey,
+                  fontFamily: 'Gilroy Medium',
+                  fontSize: height / 60,
+                ),
+              ),
+              const Spacer(),
+              Text(
+                "vv",
+                // Helpers.currencyFormatter(
+                //     (listDetail[index]["price_fixed"] + 500).toDouble()),
+                style: TextStyle(
+                  color: notifire.getdarkscolor,
+                  fontFamily: 'Gilroy Medium',
+                  fontSize: height / 60,
+                ),
+              ),
+            ],
+          ),
+        ),
+        // end payment detail
+
+        // start balance info
+        SizedBox(
+          height: height / 30,
+        ),
+        Row(
+          children: [
+            SizedBox(
+              width: width / 20,
+            ),
+            Text(
+              "Informasi Saldo",
+              style: TextStyle(
+                color: notifire.getdarkscolor,
+                fontFamily: 'Gilroy Bold',
+                fontSize: height / 50,
+              ),
+            ),
+          ],
+        ),
+        SizedBox(
+          height: height / 60,
+        ),
+        Padding(
+          padding: EdgeInsets.symmetric(horizontal: width / 20),
+          child: Row(
+            children: [
+              Text(
+                "Paylater",
+                style: TextStyle(
+                  color: Colors.grey,
+                  fontFamily: 'Gilroy Medium',
+                  fontSize: height / 60,
+                ),
+              ),
+              const Spacer(),
+              Text(
+                Helpers.currencyFormatter(SharedPrefs().limitsAvailable,
+                    decimalDigits: 0),
+                style: TextStyle(
+                  color: notifire.getdarkscolor,
+                  fontFamily: 'Gilroy Medium',
+                  fontSize: height / 60,
+                ),
+              ),
+            ],
+          ),
+        ),
+        SizedBox(
+          height: height / 80,
+        ),
+        Padding(
+          padding: EdgeInsets.symmetric(horizontal: width / 20),
+          child: Row(
+            children: [
+              Text(
+                "Deposit",
+                style: TextStyle(
+                  color: Colors.grey,
+                  fontFamily: 'Gilroy Medium',
+                  fontSize: height / 60,
+                ),
+              ),
+              const Spacer(),
+              Text(
+                "0",
+                style: TextStyle(
+                  color: notifire.getdarkscolor,
+                  fontFamily: 'Gilroy Medium',
+                  fontSize: height / 60,
+                ),
+              ),
+            ],
+          ),
+        ),
+        // end costumer info
+
+        // start action button
+        SizedBox(
+          height: height / 30,
+        ),
+        Padding(
+          padding: EdgeInsets.symmetric(horizontal: width / 20),
+          child: Row(
+            children: [
+              Expanded(
+                flex: 1,
+                child: GestureDetector(
+                  onTap: () {
+                    Navigator.pop(ctxBsc);
+                  },
+                  child: Custombutton.button2(notifire.gettabwhitecolor, "Ubah",
+                      notifire.getdarkscolor),
+                ),
+              ),
+              Padding(padding: EdgeInsets.symmetric(horizontal: width / 50)),
+              Expanded(
+                flex: 1,
+                child: GestureDetector(
+                  onTap: () {
+                    // fetchDataAndNavigate(context, listDetail[index]);
+                  },
+                  child: Custombutton.button2(
+                      notifire.getbluecolor, "Konfirmasi", Colors.white),
+                ),
+              ),
+            ],
+          ),
+        ),
+        SizedBox(
+          height: height / 20,
+        ),
+        // end action button
+      ],
+    );
+  }
 
   List<Map<String, dynamic>> groupDataByTypeCategoryProviderArray(
       List<Map<String, dynamic>> data) {

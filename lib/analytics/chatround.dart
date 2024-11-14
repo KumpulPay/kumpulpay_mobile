@@ -66,7 +66,7 @@ class _ChatRoundState extends State<ChatRound> {
                   height: height / 12,
                   width: width / 2.5,
                   decoration: BoxDecoration(
-                    color: notifire.getpurplcolor,
+                    color: notifire.getPrimaryPurpleColor,
                     borderRadius: const BorderRadius.all(
                       Radius.circular(10),
                     ),
@@ -116,7 +116,7 @@ class _ChatRoundState extends State<ChatRound> {
                   height: height / 12,
                   width: width / 2.5,
                   decoration: BoxDecoration(
-                    color: notifire.getpurplcolor,
+                    color: notifire.getPrimaryPurpleColor,
                     borderRadius: const BorderRadius.all(
                       Radius.circular(10),
                     ),

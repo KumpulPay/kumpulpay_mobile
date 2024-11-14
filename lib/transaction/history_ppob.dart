@@ -204,8 +204,14 @@ class _HistoryPpobState extends State<HistoryPpob> {
                       ],
                     );
                   } else {
-                    return const Center(
-                        child: Text('Please wait its loading...'));
+                    return Center(
+                      child: SizedBox(
+                        height: height / 10,
+                        child: const Center(
+                          child: CircularProgressIndicator(),
+                        ),
+                      ),
+                    );
                   }
                 },
               ),

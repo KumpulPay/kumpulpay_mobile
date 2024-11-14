@@ -238,7 +238,7 @@ class _PasswordChangeState extends State<PasswordChange> {
                         height: height / 17,
                         width: width,
                         decoration: BoxDecoration(
-                          color: notifire.getbluecolor,
+                          color: notifire.getPrimaryPurpleColor,
                           borderRadius: const BorderRadius.all(
                             Radius.circular(30),
                           ),
@@ -297,7 +297,7 @@ class _PasswordChangeState extends State<PasswordChange> {
             child: FormBuilderTextFieldCustom.type1(
                 notifire.getdarkscolor,
                 Colors.grey, //hint color
-                notifire.getbluecolor,
+                notifire.getPrimaryPurpleColor,
                 notifire.getdarkwhitecolor,
                 hintText: hintText,
                 prefixIcon: prefixIcon,

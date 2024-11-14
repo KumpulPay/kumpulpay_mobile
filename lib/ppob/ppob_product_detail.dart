@@ -171,37 +171,69 @@ class _PpobProductDetailState extends State<PpobProductDetail> {
         ),
       ),
       backgroundColor: notifire.getprimerycolor,
-      body: SingleChildScrollView(
-        child: Column(
-          children: [
-            Stack(
-              children: [
-                 Container(
-                  height: height,
-                  width: width,
-                  color: Colors.transparent,
-                  child: Image.asset(
-                    "images/background.png",
-                    fit: BoxFit.cover,
+      body: Container(
+          height: height,
+          width: width,
+          decoration: const BoxDecoration(
+            color: Colors.transparent,
+            image: DecorationImage(
+              image: AssetImage(
+                "images/background.png",
+              ),
+              fit: BoxFit.cover,
+            ),
+          ),
+          child: Column(
+            children: [
+              Expanded(
+                child: SingleChildScrollView(
+                  child: Column(
+                    children: [
+                      SizedBox(
+                    height: height / 50,
                   ),
-                ),
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    SizedBox(
-                      height: height / 50,
-                    ),
-                    _buildList(context),
-                    SizedBox(
-                      height: height / 50,
-                    ),
-                  ],
+                  _buildList(context),
+                  SizedBox(
+                    height: height / 50,
+                  ),
+                    ],
+                  ),
                 )
-              ],
-            )
-          ],
-        ),
+              )
+            ],
+          ),
       ),
+      // SingleChildScrollView(
+      //   child: Column(
+      //     children: [
+      //       Stack(
+      //         children: [
+      //            Container(
+      //             height: height,
+      //             width: width,
+      //             color: Colors.transparent,
+      //             child: Image.asset(
+      //               "images/background.png",
+      //               fit: BoxFit.cover,
+      //             ),
+      //           ),
+      //           Column(
+      //             crossAxisAlignment: CrossAxisAlignment.start,
+      //             children: [
+      //               SizedBox(
+      //                 height: height / 50,
+      //               ),
+      //               _buildList(context),
+      //               SizedBox(
+      //                 height: height / 50,
+      //               ),
+      //             ],
+      //           )
+      //         ],
+      //       )
+      //     ],
+      //   ),
+      // ),
     );
   }
 
@@ -225,7 +257,7 @@ class _PpobProductDetailState extends State<PpobProductDetail> {
             child: FormBuilderTextFieldCustom.type1(
                 notifire.getdarkscolor,
                 Colors.grey, //hint color
-                notifire.getbluecolor,
+                notifire.getPrimaryPurpleColor,
                 notifire.getdarkwhitecolor,
                 hintText: hintText,
                 prefixIcon: prefixIcon,
@@ -377,7 +409,7 @@ class _PpobProductDetailState extends State<PpobProductDetail> {
                                               .toDouble()),
                                       textAlign: TextAlign.end,
                                       style: TextStyle(
-                                          color: notifire.getbluecolor,
+                                          color: notifire.getPrimaryPurpleColor,
                                           fontSize: height / 60,
                                           fontFamily: 'Gilroy Bold'),
                                     ))
@@ -527,7 +559,7 @@ class _PpobProductDetailState extends State<PpobProductDetail> {
                                                           style: TextStyle(
                                                               fontFamily:
                                                                   "Gilroy Bold",
-                                                              color: notifire.getbluecolor,
+                                                              color: notifire.getPrimaryPurpleColor,
                                                               fontSize:
                                                                   height / 50)),
                                                     ],
@@ -921,8 +953,8 @@ class _PpobProductDetailState extends State<PpobProductDetail> {
                   onTap: () {
                     Navigator.pop(ctxBsc);
                   },
-                  child: Custombutton.button2(notifire.gettabwhitecolor, "Ubah",
-                      notifire.getdarkscolor),
+                  child: Custombutton.button2(notifire.getbackcolor, "Ubah",
+                      notifire.getPrimaryPurpleColor),
                 ),
               ),
               Padding(padding: EdgeInsets.symmetric(horizontal: width / 50)),
@@ -933,7 +965,7 @@ class _PpobProductDetailState extends State<PpobProductDetail> {
                     fetchDataAndNavigate(ctxBsc, listDetail[index]);
                   },
                   child: Custombutton.button2(
-                      notifire.getbluecolor, "Konfirmasi", Colors.white),
+                      notifire.getPrimaryPurpleColor, "Konfirmasi", Colors.white),
                 ),
               ),
             ],

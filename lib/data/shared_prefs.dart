@@ -22,6 +22,10 @@ class SharedPrefs {
   set token(String value) {
     _sharedPrefs.setString("token_api", value);
   }
+  String get refreshToken => _sharedPrefs.getString("token_refresh_api") ?? "";
+  set refreshToken(String value) {
+    _sharedPrefs.setString("token_refresh_api", value);
+  }
 
   String get fcmTokenMobile => _sharedPrefs.getString("fcm_token_mobile") ?? "";
   set fcmTokenMobile(String value) {

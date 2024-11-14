@@ -321,8 +321,16 @@ class _TopupTransferManualState extends State<TopupTransferManual> {
                             // print('print: $snapshot');
                             if (snapshot.connectionState ==
                                 ConnectionState.waiting) {
-                              return const Center(
-                                  child: Text('Please wait its loading...'));
+                              return Center(
+                                child: SizedBox(
+                                  height: height / 10, // Membuat container dengan tinggi penuh agar indikator berada di tengah vertikal
+                                  child: const Center(
+                                    child: CircularProgressIndicator(),
+                                  ),
+                                ),
+                              );    
+                              // return const Center(
+                              //     child: Text('Please wait its loading...'));
                             } else if (snapshot.connectionState ==
                                 ConnectionState.done) {
                               return _buildAccordion(snapshot.data['data']);
@@ -390,7 +398,7 @@ class _TopupTransferManualState extends State<TopupTransferManual> {
                             item['account_number'],
                             style: TextStyle(
                                 fontFamily: "Gilroy Bold",
-                                color: notifire.getbluecolor,
+                                color: notifire.getPrimaryPurpleColor,
                                 fontSize: height / 40),
                           ),
                           Text(
@@ -415,8 +423,11 @@ class _TopupTransferManualState extends State<TopupTransferManual> {
                                 _data['amount_unique'].toDouble()),
                             style: TextStyle(
                                 fontFamily: "Gilroy Bold",
-                                color: notifire.getbluecolor,
+                                color: notifire.getPrimaryPurpleColor,
                                 fontSize: height / 40),
+                          ),
+                          SizedBox(
+                            height: height / 60,
                           ),
                         ],
                       ),
@@ -436,7 +447,7 @@ class _TopupTransferManualState extends State<TopupTransferManual> {
           borderRadius: const BorderRadius.all(
             Radius.circular(30),
           ),
-          border: Border.all(color: notifire.getbluecolor)),
+          border: Border.all(color: notifire.getPrimaryPurpleColor)),
       child: Center(
         child: Text(
           txt,

@@ -56,12 +56,12 @@ class _BottombarState extends State<Bottombar> {
           child: currentScreen,
         ),
         floatingActionButton: FloatingActionButton(
-          backgroundColor: notifire.getbluecolor,
+          backgroundColor: notifire.getbackcolor,
           shape:
               RoundedRectangleBorder(borderRadius: BorderRadius.circular(35)),
           child: Image.asset(
-            "images/scan1.png",
-            height: height / 30,
+            "images/logo_app/playstore.png",
+            height: height / 25,
           ),
           onPressed: () {
             Navigator.push(
@@ -105,7 +105,7 @@ class _BottombarState extends State<Bottombar> {
                             ? Image.asset(
                                 "images/home1.png",
                                 height: height / 34,
-                                color: notifire.getbluecolor,
+                                color: notifire.getPrimaryPurpleColor,
                               )
                             : Image.asset(
                                 "images/home.png",
@@ -134,7 +134,7 @@ class _BottombarState extends State<Bottombar> {
                             ? Image.asset(
                                 "images/order1.png",
                                 height: height / 33,
-                                color: notifire.getbluecolor,
+                                color: notifire.getPrimaryPurpleColor,
                               )
                             : Image.asset("images/variant.png",
                                 height: height / 33,
@@ -163,7 +163,7 @@ class _BottombarState extends State<Bottombar> {
                             ? Image.asset(
                                 "images/wallet.png",
                                 height: height / 30,
-                                color: notifire.getbluecolor,
+                                color: notifire.getPrimaryPurpleColor,
                               )
                             : Image.asset("images/message1.png",
                                 height: height / 30,
@@ -190,7 +190,7 @@ class _BottombarState extends State<Bottombar> {
                             ? Image.asset(
                                 "images/profile1.png",
                                 height: height / 30,
-                                color: notifire.getbluecolor,
+                                color: notifire.getPrimaryPurpleColor,
                               )
                             : Image.asset("images/profile.png",
                                 height: height / 30,

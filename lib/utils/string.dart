@@ -133,8 +133,8 @@ class CustomStrings {
   static const String terms = '1. Terms';
   static const String legalandpolicy = 'Legal and Policy';
   static const String helpandsupports = 'Help and Supports';
-  static const String sure = 'Are you sure want to';
-  static const String log = 'Log Out?';
+  static const String sure = 'Apa kamu yakin';
+  static const String log = 'Keluar?';
   static const String otherlanguages = 'Other Languages';
   static const String englishuk = 'English (UK)';
   static const String english = 'English';
@@ -217,7 +217,7 @@ class CustomStrings {
   static const String television = 'Television';
   static const String merchant = 'Merchant';
   static const String games = 'Games';
-  static const String allservices = 'All  Services';
+  static const String allservices = 'Semua Layanan';
   static const String spotifypremium = 'Monthly Premium';
   static const String netflixpremium = 'Netflix Balance';
   static const String starbuckscoffee = 'Zara';

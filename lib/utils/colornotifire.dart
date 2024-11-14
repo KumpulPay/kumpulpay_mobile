@@ -31,7 +31,9 @@ class ColorNotifire with ChangeNotifier {
 
   get gettabwhitecolor => isDark ? darktabwhiteColor : lighttabwhiteColor;
 
-  get getpurplcolor => isDark ? darkpurpulColor : purpulColor;
+  get getPrimaryPurpleColor => isDark ? darkPrimaryPurpleColor : primaryPurpleColor;
+  get getPrimaryPinkColor => isDark ? darkPrimaryPinkColor : primaryPinkColor;
+  get getPrimaryYellowColor => isDark ? darkPrimaryYellowColor : primaryYellowColor;
 
   get getgreycolor => isDark ? darktabwhiteColor : lighttabwhiteColor;
 

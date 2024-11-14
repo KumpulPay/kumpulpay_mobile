@@ -96,7 +96,7 @@ class _ChatScreenState extends State<ChatScreen> {
                   height: height / 12,
                   width: width / 2.5,
                   decoration: BoxDecoration(
-                    color: notifire.getpurplcolor,
+                    color: notifire.getPrimaryPurpleColor,
                     borderRadius: const BorderRadius.all(
                       Radius.circular(10),
                     ),
@@ -146,7 +146,7 @@ class _ChatScreenState extends State<ChatScreen> {
                   height: height / 12,
                   width: width / 2.5,
                   decoration: BoxDecoration(
-                    color: notifire.getpurplcolor,
+                    color: notifire.getPrimaryPurpleColor,
                     borderRadius: const BorderRadius.all(
                       Radius.circular(10),
                     ),

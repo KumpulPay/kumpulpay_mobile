@@ -117,7 +117,7 @@ class _HomeState extends State<Home> {
       future: _getDataHome(), // function where you call your api
       builder: (BuildContext context, dynamic snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
-          return const Center(child: Text('Please wait its loading...'));
+          return const Center(child:  CircularProgressIndicator());
         } else if (snapshot.connectionState == ConnectionState.done) {
           if (snapshot.data == null) {
             return const Center(child: Text('Upst...'));
@@ -230,12 +230,13 @@ class _HomeState extends State<Home> {
                                   child: Container(
                                     height: height / 35,
                                     width: width / 1.5,
-                                    decoration: const BoxDecoration(
-                                      borderRadius: BorderRadius.only(
+                                    decoration: BoxDecoration(
+                                      borderRadius: const BorderRadius.only(
                                         topLeft: Radius.circular(20),
                                         topRight: Radius.circular(20),
                                       ),
-                                      color: Color(0xff8978fa),
+                                      // color: Color(0xff8978fa),
+                                      color: lightPrimaryPurpleColor,
                                     ),
                                   ),
                                 ),
@@ -248,7 +249,7 @@ class _HomeState extends State<Home> {
                                         topLeft: Radius.circular(20),
                                         topRight: Radius.circular(20),
                                       ),
-                                      color: notifire.getbluecolor,
+                                      color: notifire.getPrimaryPurpleColor,
                                     ),
                                     child: Column(
                                       crossAxisAlignment:
@@ -373,7 +374,7 @@ class _HomeState extends State<Home> {
                                         color: notifire.getdarkwhitecolor,
                                         boxShadow: <BoxShadow>[
                                           BoxShadow(
-                                            color: notifire.getbluecolor
+                                            color: notifire.getPrimaryPurpleColor
                                                 .withOpacity(0.4),
                                             blurRadius: 15.0,
                                             offset: const Offset(0.0, 0.75),
@@ -609,7 +610,7 @@ class _HomeState extends State<Home> {
                                     CustomStrings.seeall,
                                     style: TextStyle(
                                         fontFamily: "Gilroy Bold",
-                                        color: notifire.getbluecolor,
+                                        color: notifire.getPrimaryPurpleColor,
                                         fontSize: height / 45),
                                   ),
                                 ),
@@ -725,7 +726,7 @@ class _HomeState extends State<Home> {
                                     CustomStrings.seeall,
                                     style: TextStyle(
                                         fontFamily: "Gilroy Bold",
-                                        color: notifire.getbluecolor,
+                                        color: notifire.getPrimaryPurpleColor,
                                         fontSize: height / 45),
                                   ),
                                 ),
@@ -775,7 +776,7 @@ class _HomeState extends State<Home> {
                                         ),
                                         child: Center(
                                           child: Image.asset(
-                                            "images/no-image-2.png",
+                                            "images/logo_app/disabled_kumpulpay_logo.png",
                                             height: height / 20,
                                           ),
                                         ),

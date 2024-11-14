@@ -135,7 +135,6 @@ class _PinCreateState extends State<PinCreate> {
                                     Icons.remove_red_eye,
                                     color: Colors.grey,
                                   ))),
-
                     textfeildC("pin_transaction_new", "PIN Baru",
                         hintText: "Masukkan PIN baru",
                         prefixIcon: "images/password.png",
@@ -239,7 +238,7 @@ class _PinCreateState extends State<PinCreate> {
                         height: height / 17,
                         width: width,
                         decoration: BoxDecoration(
-                          color: notifire.getbluecolor,
+                          color: notifire.getPrimaryPurpleColor,
                           borderRadius: const BorderRadius.all(
                             Radius.circular(30),
                           ),
@@ -298,7 +297,7 @@ class _PinCreateState extends State<PinCreate> {
             child: FormBuilderTextFieldCustom.type1(
                 notifire.getdarkscolor,
                 Colors.grey, //hint color
-                notifire.getbluecolor,
+                notifire.getPrimaryPurpleColor,
                 notifire.getdarkwhitecolor,
                 hintText: hintText,
                 prefixIcon: prefixIcon,

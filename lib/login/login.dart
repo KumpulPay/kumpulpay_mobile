@@ -372,7 +372,7 @@ class _LoginState extends State<Login> {
                             top: -60,
                             child: Center(
                               child: Image.asset(
-                                "images/logo_app/ic_launcher_round.webp",
+                                "images/logo_app/playstore.png",
                                 height: height / 7,
                               ),
                             ),

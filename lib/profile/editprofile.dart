@@ -137,7 +137,7 @@ class _EditProfileState extends State<EditProfile> {
                     txtClr: notifire.getdarkscolor,
                     histClr: notifire.getdarkgreycolor,
                     hintTxt: "Nama Lengkap",
-                    borderClr: notifire.getbluecolor,
+                    borderClr: notifire.getPrimaryPurpleColor,
                     fillClr: notifire.getdarkwhitecolor),
                 SizedBox(
                   height: height / 50,
@@ -165,7 +165,7 @@ class _EditProfileState extends State<EditProfile> {
                     txtClr: notifire.getdarkscolor,
                     histClr: notifire.getdarkgreycolor,
                     hintTxt: CustomStrings.email,
-                    borderClr: notifire.getbluecolor,
+                    borderClr: notifire.getPrimaryPurpleColor,
                     fillClr: notifire.getdarkwhitecolor,
                     enabled: false),
 
@@ -194,7 +194,7 @@ class _EditProfileState extends State<EditProfile> {
                     txtClr: notifire.getdarkscolor,
                     histClr: notifire.getdarkgreycolor,
                     hintTxt: "Telepon",
-                    borderClr: notifire.getbluecolor,
+                    borderClr: notifire.getPrimaryPurpleColor,
                     fillClr: notifire.getdarkwhitecolor,
                     enabled: false),
                     
@@ -240,7 +240,7 @@ class _EditProfileState extends State<EditProfile> {
                             fontSize: height / 60),
                         focusedBorder: OutlineInputBorder(
                           borderSide: BorderSide(
-                            color: notifire.getbluecolor,
+                            color: notifire.getPrimaryPurpleColor,
                           ),
                           borderRadius: BorderRadius.circular(10),
                         ),
@@ -274,7 +274,7 @@ class _EditProfileState extends State<EditProfile> {
                       height: height / 15,
                       width: width,
                       decoration: BoxDecoration(
-                        color: notifire.getbluecolor,
+                        color: notifire.getPrimaryPurpleColor,
                         borderRadius: const BorderRadius.all(
                           Radius.circular(20),
                         ),

@@ -126,7 +126,7 @@ class _PasswordForgotState extends State<PasswordForgot> {
                 Customtextfilds.textField(
                     notifire.getdarkscolor,
                     notifire.getdarkgreycolor,
-                    notifire.getbluecolor,
+                    notifire.getPrimaryPurpleColor,
                     "images/email.png",
                     CustomStrings.emailhint,
                     notifire.getdarkwhitecolor),
@@ -143,7 +143,7 @@ class _PasswordForgotState extends State<PasswordForgot> {
                       height: height / 17,
                       width: width,
                       decoration: BoxDecoration(
-                        color: notifire.getbluecolor,
+                        color: notifire.getPrimaryPurpleColor,
                         borderRadius: const BorderRadius.all(
                           Radius.circular(30),
                         ),

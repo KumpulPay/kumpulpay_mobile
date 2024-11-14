@@ -448,7 +448,7 @@ class _ProfileState extends State<Profile> {
                     height: height / 18,
                     width: width / 2.5,
                     decoration: BoxDecoration(
-                      color: notifire.getbluecolor,
+                      color: notifire.getPrimaryPurpleColor,
                       borderRadius: const BorderRadius.all(
                         Radius.circular(20),
                       ),
@@ -524,7 +524,7 @@ class _ProfileState extends State<Profile> {
           child: CupertinoSwitch(
             trackColor: notifire.getdarkgreycolor,
             thumbColor: Colors.white,
-            activeColor: notifire.getbluecolor,
+            activeColor: notifire.getPrimaryPurpleColor,
             value: _switchValue,
             onChanged: (value) {
               setState(
@@ -564,7 +564,7 @@ class _ProfileState extends State<Profile> {
           child: CupertinoSwitch(
             trackColor: notifire.getdarkgreycolor,
             thumbColor: Colors.white,
-            activeColor: notifire.getbluecolor,
+            activeColor: notifire.getPrimaryPurpleColor,
             value: notifire.getIsDark,
             onChanged: (val) async {
               final prefs = await SharedPreferences.getInstance();
