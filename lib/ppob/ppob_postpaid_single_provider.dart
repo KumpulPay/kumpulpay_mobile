@@ -3,11 +3,14 @@ import 'package:dio/dio.dart';
 import 'package:dotted_line/dotted_line.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_form_builder/flutter_form_builder.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:form_builder_validators/form_builder_validators.dart';
 import 'package:kumpulpay/data/shared_prefs.dart';
 import 'package:kumpulpay/repository/retrofit/api_client.dart';
+import 'package:kumpulpay/transaction/confirm_pin.dart';
 import 'package:kumpulpay/utils/button.dart';
 import 'package:kumpulpay/utils/helpers.dart';
+import 'package:kumpulpay/utils/loading.dart';
 import 'package:kumpulpay/utils/textfeilds.dart';
 import '../utils/colornotifire.dart';
 import '../utils/media.dart';
@@ -28,13 +31,14 @@ class PpobPostpaidSingleProvider extends StatefulWidget {
 
 class _PpobPostpaidSingleProviderState extends State<PpobPostpaidSingleProvider> {
   PpobPostpaidSingleProvider? args;
+  final _globalKey = GlobalKey<State>();
   final _formKey = GlobalKey<FormBuilderState>();
   late ColorNotifire notifire;
   String? title;
   String? _type, _typeName;
   String? _category, _categoryName;
   String? _provider;
-  dynamic _child;
+  dynamic _productCheck, _productPay;
   String _txtDestination = "";
   bool isButtonEnabled = false;
 
@@ -63,8 +67,11 @@ class _PpobPostpaidSingleProviderState extends State<PpobPostpaidSingleProvider>
     _typeName = args!.typeName;
     _category = args!.category;
     _categoryName = args!.categoryName;
-    _child = args!.child;
-    print('_childX ${_child}');
+    final filteredData = filterDataByCode(args!.child);
+    _productCheck = filteredData['startsWithC'];
+    _productPay = filteredData['startsWithB'];
+    print('Data starts with C: ${filteredData['startsWithC']}');
+    print('Data starts with B: ${filteredData['startsWithB']}');
     
     return Scaffold(
       appBar: AppBar(
@@ -293,10 +300,7 @@ class _PpobPostpaidSingleProviderState extends State<PpobPostpaidSingleProvider>
     return GestureDetector(
       onTap: isEnabled
           ? () {
-              // Aksi yang terjadi ketika tombol diklik
-              print("Tombol diklik");
               _checkBill();
-              
             }
           : null, // Tidak ada aksi ketika tombol dinonaktifkan
       child: Container(
@@ -330,7 +334,7 @@ class _PpobPostpaidSingleProviderState extends State<PpobPostpaidSingleProvider>
     );
   }
 
-  Widget _bottomSheetContent(BuildContext ctxBsc) {
+  Widget _bottomSheetContent(BuildContext ctxBsc, dynamic dataCheck) {
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
@@ -398,7 +402,7 @@ class _PpobPostpaidSingleProviderState extends State<PpobPostpaidSingleProvider>
               ),
               const Spacer(),
               Text(
-                'Adi',
+                dataCheck['bill_details']['customer_name'],
                 style: TextStyle(
                   color: notifire.getdarkscolor,
                   fontFamily: 'Gilroy Medium',
@@ -510,9 +514,8 @@ class _PpobPostpaidSingleProviderState extends State<PpobPostpaidSingleProvider>
               ),
               const Spacer(),
               Text(
-                "500",
-                // Helpers.currencyFormatter(
-                //     listDetail[index]["price_fixed"].toDouble()),
+                Helpers.currencyFormatter(
+                    dataCheck['bill_details']['bill_amount'].toDouble()),
                 style: TextStyle(
                   color: notifire.getdarkscolor,
                   fontFamily: 'Gilroy Medium',
@@ -539,7 +542,8 @@ class _PpobPostpaidSingleProviderState extends State<PpobPostpaidSingleProvider>
               ),
               const Spacer(),
               Text(
-                "Rp500",
+                Helpers.currencyFormatter(
+                    dataCheck['bill_details']['admin_fee'].toDouble()),
                 style: TextStyle(
                   color: notifire.getdarkscolor,
                   fontFamily: 'Gilroy Medium',
@@ -566,7 +570,7 @@ class _PpobPostpaidSingleProviderState extends State<PpobPostpaidSingleProvider>
           padding: EdgeInsets.symmetric(horizontal: width / 20),
           child: Row(
             children: [
-              Text(
+            Text(
                 "Total Bayar",
                 style: TextStyle(
                   color: Colors.grey,
@@ -576,9 +580,8 @@ class _PpobPostpaidSingleProviderState extends State<PpobPostpaidSingleProvider>
               ),
               const Spacer(),
               Text(
-                "500",
-                // Helpers.currencyFormatter(
-                //     (listDetail[index]["price_fixed"] + 500).toDouble()),
+                Helpers.currencyFormatter(
+                    dataCheck['bill_details']['total'].toDouble()),
                 style: TextStyle(
                   color: notifire.getdarkscolor,
                   fontFamily: 'Gilroy Medium',
@@ -628,7 +631,8 @@ class _PpobPostpaidSingleProviderState extends State<PpobPostpaidSingleProvider>
               ),
               const Spacer(),
               Text(
-                "0",
+                Helpers.currencyFormatter(
+                    dataCheck['user_detail']['balance'].toDouble()),
                 style: TextStyle(
                   color: notifire.getdarkscolor,
                   fontFamily: 'Gilroy Medium',
@@ -654,7 +658,7 @@ class _PpobPostpaidSingleProviderState extends State<PpobPostpaidSingleProvider>
                   onTap: () {
                     Navigator.pop(ctxBsc);
                   },
-                  child: Custombutton.button2(notifire.gettabwhitecolor, "Ubah",
+                  child: Custombutton.button2(notifire.getbackcolor, "Ubah",
                       notifire.getdarkscolor),
                 ),
               ),
@@ -663,10 +667,10 @@ class _PpobPostpaidSingleProviderState extends State<PpobPostpaidSingleProvider>
                 flex: 1,
                 child: GestureDetector(
                   onTap: () {
-                    // fetchDataAndNavigate(context, listDetail[index]);
+                    _payBill(ctxBsc, _productPay);
                   },
                   child: Custombutton.button2(
-                      notifire.getbluecolor, "Konfirmasi", Colors.white),
+                      notifire.getPrimaryPurpleColor, "Konfirmasi", Colors.white),
                 ),
               ),
             ],
@@ -680,20 +684,42 @@ class _PpobPostpaidSingleProviderState extends State<PpobPostpaidSingleProvider>
     );
   }
 
+  Map<String, dynamic> filterDataByCode(List<Map<String, dynamic>> data) {
+    final filteredData = {
+      'startsWithC': <Map<String, dynamic>>[],
+      'startsWithB': <Map<String, dynamic>>[],
+    };
+
+    for (var item in data) {
+      final code = item['code']?.toString().toLowerCase() ?? '';
+      if (code.startsWith('c')) {
+        filteredData['startsWithC']!.add(item);
+      } else if (code.startsWith('b')) {
+        filteredData['startsWithB']!.add(item);
+      }
+    }
+
+    return filteredData.map(
+        (key, value) => MapEntry(key, value.isNotEmpty ? value.first : null));
+  }
+
   Future<dynamic> _checkBill() async {
     try {
-
+      Loading.showLoadingDialog(context, _globalKey);
       Map<String, dynamic> body = {
-        "product_code": "CXL",
-        "destination": "081905616935",
+        "product_code": _productCheck['code'],
+        "destination": _txtDestination,
       };
       final client = ApiClient(Dio(BaseOptions(contentType: "application/json")));
       final dynamic post = await client.postCheckBill(
           'Bearer ${SharedPrefs().token}', jsonEncode(body));
-      print('postXX ${post}');
+      
+      Navigator.pop(context);
       if (post["status"]) {
-
+        dynamic dataCheck = post['data'];
+        
         showModalBottomSheet(
+            isDismissible: false,
             isScrollControlled: true,
             shape: const RoundedRectangleBorder(
               borderRadius: BorderRadius.only(
@@ -704,14 +730,19 @@ class _PpobPostpaidSingleProviderState extends State<PpobPostpaidSingleProvider>
             backgroundColor: notifire.getprimerycolor,
             context: context,
             builder: (context) {
-              return _bottomSheetContent(context);
+              return _bottomSheetContent(context, dataCheck);
             });
         
       } else {
-       
+        Fluttertoast.showToast(
+            msg: post["message"],
+            backgroundColor: Colors.red,
+            textColor: Colors.white,
+            fontSize: 16);
       }    
-      return await client.postCheckBill('Bearer ${SharedPrefs().token}', jsonEncode(body));
+      
     } on DioException catch (e) {
+      Navigator.pop(context);
       if (e.response != null) {
         // print(e.response?.data);
         // print(e.response?.headers);
@@ -727,5 +758,36 @@ class _PpobPostpaidSingleProviderState extends State<PpobPostpaidSingleProvider>
       }
       rethrow;
     }
+  }
+
+  Future<void> _payBill(
+      BuildContext context, dynamic productSelected) async {
+    Map<String, dynamic> formData = await _generateDataPayBill(productSelected);
+
+    Navigator.pushNamed(context, ConfirmPin.routeName,
+        arguments: ConfirmPin(formData: formData));
+  }
+
+  Future<Map<String, dynamic>> _generateDataPayBill(
+      dynamic productSelected) async {
+    await Future.delayed(const Duration(seconds: 1));
+
+    Map<String, dynamic> userData = json.decode(SharedPrefs().userData);
+    Map<String, dynamic> customerMeta = {
+      "user_id": userData["id"],
+      "code": userData["code"],
+      "name": userData["name"],
+      "phone": userData["phone"],
+      "email": userData["email"]
+    };
+
+    Map<String, dynamic> transactionData = {
+      "payment_method": "deposit",
+      "destination": _txtDestination,
+      "product_meta": productSelected,
+      "customer_meta": customerMeta,
+    };
+
+    return transactionData;
   }
 }

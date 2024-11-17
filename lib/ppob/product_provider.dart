@@ -1,6 +1,3 @@
-import 'dart:convert';
-import 'dart:developer';
-
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_form_builder/flutter_form_builder.dart';
@@ -13,6 +10,7 @@ import 'package:kumpulpay/utils/media.dart';
 import 'package:kumpulpay/utils/textfeilds.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:skeletonizer/skeletonizer.dart';
 
 class ProductProvider extends StatefulWidget {
   static String routeName = '/ppob/product/provider';
@@ -29,12 +27,28 @@ class _ProductProviderState extends State<ProductProvider> {
   late ColorNotifire notifire;
 
   ProductProvider? args;
+  late bool _loading = true;
   final _formKey = GlobalKey<FormBuilderState>();
   String? _type, _typeName;
   String? _category, _categoryName;
   List<dynamic> providerList = [];
-  List<dynamic> filteredProviderList = []; // Daftar hasil filter
-  late Future<dynamic> dataProvider;
+  List<dynamic> filteredProviderList = List.filled(4, {
+    "group_key": "group_key",
+    "category_name": "category_name",
+    "provider": "provider",
+    "provider_name": "provider_name",
+    "provider_images": "images/logo_app/disabled_kumpulpay_logo.png",
+    "child": [
+      {
+        "type": "postpaid",
+        "type_name": "Bayar Tagihan",
+        "type_short_name": "Bayar Tagihan",
+        "category": "pulsa_postpaid",
+        "category_name": "Pulsa Pascabayar",
+        "category_short_name": "Pulsa Pasca",
+      }
+    ]
+  });
 
   @override
   void initState() {
@@ -47,9 +61,9 @@ class _ProductProviderState extends State<ProductProvider> {
       _typeName = args!.typeName;
       _category = args!.category;
       _categoryName = args!.categoryName;
-    });
 
-    getdarkmodepreviousstate();
+      _fetchProviderData();
+    });
   }
 
   getdarkmodepreviousstate() async {
@@ -60,33 +74,6 @@ class _ProductProviderState extends State<ProductProvider> {
     } else {
       notifire.setIsDark = previusstate;
     }
-  }
-
-  @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
-
-    notifire = Provider.of<ColorNotifire>(context, listen: false);
-
-    final Map<String, dynamic> queries = {"type": _type, "category": _category};
-    print('queriesX ${queries}');
-    dataProvider = ApiClient(Dio(BaseOptions(contentType: "application/json")))
-        .getProduct('Bearer ${SharedPrefs().token}', queries: queries);
-  }
-
-  void _filterProviderList(String query) {
-    setState(() {
-      if (query.isEmpty) {
-        filteredProviderList = List.from(providerList);
-      } else {
-        filteredProviderList = List.from(providerList)
-            .where((provider) => provider['provider_name']
-                .toString()
-                .toLowerCase()
-                .contains(query.toLowerCase()))
-            .toList();
-      }
-    });
   }
 
   @override
@@ -152,33 +139,9 @@ class _ProductProviderState extends State<ProductProvider> {
                   SizedBox(
                     height: height / 50,
                   ),
-                  FutureBuilder(
-                    future: dataProvider,
-                    builder: (context, snapshot) {
-                      if (snapshot.connectionState == ConnectionState.waiting) {
-                        return const Center(child: CircularProgressIndicator());
-                      } else if (snapshot.hasError) {
-                        return Center(child: Text('Error: ${snapshot.error}'));
-                      } else if (snapshot.hasData) {
-                        var rawList = (snapshot.data
-                            as Map<String, dynamic>)["data"] as List<dynamic>;
 
-                        List<Map<String, dynamic>> list = rawList
-                            .map((item) => Map<String, dynamic>.from(item))
-                            .toList();
+                  _buildListAction(filteredProviderList),
 
-                        if (providerList.isEmpty) {
-                          providerList =
-                              groupDataByTypeCategoryProviderArray(list);
-                          filteredProviderList = List.from(providerList);
-                        }
-
-                        return _buildListAction(filteredProviderList);
-                      } else {
-                        return const Center(child: Text("No data available"));
-                      }
-                    },
-                  ),
                   SizedBox(
                     height: height / 50,
                   ),
@@ -191,8 +154,142 @@ class _ProductProviderState extends State<ProductProvider> {
     );
   }
 
-  List<Map<String, dynamic>> groupDataByTypeCategoryProviderArray(
-      List<Map<String, dynamic>> data) {
+  Widget _buildListAction(List<dynamic> items) {
+    return Skeletonizer(
+        enabled: _loading,
+        child: Column(
+          children: [
+            Padding(
+              padding: EdgeInsets.symmetric(horizontal: width / 20),
+              child: Container(
+                color: Colors.transparent,
+                child: ListView.builder(
+                  shrinkWrap: true,
+                  physics: const NeverScrollableScrollPhysics(),
+                  itemCount: items.length,
+                  itemBuilder: (context, index) {
+                    return Padding(
+                      padding: const EdgeInsets.symmetric(vertical: 7),
+                      child: GestureDetector(
+                        onTap: () {
+                          Navigator.pushNamed(
+                              context, PpobPostpaidSingleProvider.routeName,
+                              arguments: PpobPostpaidSingleProvider(
+                                type: _type,
+                                typeName: items[index]['category_name'],
+                                categoryName: items[index]['provider_name'],
+                                child: items[index]['child'],
+                              ));
+                        },
+                        child: Container(
+                          // height: height / 9,
+                          width: width,
+                          decoration: BoxDecoration(
+                            color: notifire.getdarkwhitecolor,
+                            // border: Border.all(
+                            //   color: Colors.grey.withOpacity(0.2),
+                            // ),
+                            borderRadius: const BorderRadius.all(
+                              Radius.circular(10),
+                            ),
+                          ),
+                          child: Padding(
+                            padding:
+                                EdgeInsets.symmetric(horizontal: width / 40),
+                            child: Row(
+                              children: [
+                                // start icon
+                                Container(
+                                  height: height / 15,
+                                  width: width / 8,
+                                  decoration: BoxDecoration(
+                                    color: notifire.gettabwhitecolor,
+                                    borderRadius: const BorderRadius.all(
+                                      Radius.circular(10),
+                                    ),
+                                  ),
+                                  child: Center(
+                                      child: _loading
+                                          ? Image.asset(
+                                              "images/logo_app/disabled_kumpulpay_logo.png", // Gambar fallback jika provider_images null atau kosong
+                                              height: height / 30,
+                                            )
+                                          : _setImage(
+                                              items[index]['provider_images'])),
+                                ),
+                                // end icon
+                                SizedBox(
+                                  width: width / 30,
+                                ),
+                                Text(
+                                  items[index]['provider_name'],
+                                  style: TextStyle(
+                                      fontFamily: "Gilroy Bold",
+                                      color: notifire.getdarkscolor,
+                                      fontSize: height / 50),
+                                ),
+                                const Spacer(),
+                                Icon(Icons.arrow_forward_ios,
+                                    color: notifire.getdarkscolor,
+                                    size: height / 40),
+                              ],
+                            ),
+                          ),
+                        ),
+                      ),
+                    );
+                  },
+                ),
+              ),
+            )
+          ],
+        ));
+  }
+
+  void _filterProviderList(String query) {
+    setState(() {
+      if (query.isEmpty) {
+        filteredProviderList = List.from(providerList);
+      } else {
+        filteredProviderList = List.from(providerList)
+            .where((provider) => provider['provider_name']
+                .toString()
+                .toLowerCase()
+                .contains(query.toLowerCase()))
+            .toList();
+      }
+    });
+  }
+
+  void _fetchProviderData() async {
+    try {
+      final Map<String, dynamic> queries = {
+        "type": _type,
+        "category": _category
+      };
+      final response =
+          await ApiClient(Dio(BaseOptions(contentType: "application/json")))
+              .getProduct('Bearer ${SharedPrefs().token}', queries: queries);
+
+      if (response['status']) {
+        setState(() {
+          providerList = groupDataByTypeCategoryProviderArray(response['data']);
+          filteredProviderList = providerList;
+          _loading = false;
+        });
+      } else {
+        setState(() {
+          filteredProviderList = [];
+        });
+      }
+    } catch (e) {
+      setState(() {
+        filteredProviderList = [];
+      });
+    }
+  }
+
+  List<dynamic> groupDataByTypeCategoryProviderArray(List<dynamic> data) {
     Map<String, List<Map<String, dynamic>>> tempGroupedData = {};
 
     for (var item in data) {
@@ -219,103 +316,43 @@ class _ProductProviderState extends State<ProductProvider> {
           entry.value.isNotEmpty ? entry.value[0]["provider"] : "";
       String categoryName =
           entry.value.isNotEmpty ? entry.value[0]["category_name"] : "";
+      dynamic providerImages =
+          entry.value.isNotEmpty ? entry.value[0]["provider_images"] : "";
 
       return {
         "group_key": entry.key,
         "category_name": categoryName,
         "provider": provider,
         "provider_name": providerName,
+        "provider_images": providerImages,
         "child": entry.value,
       };
     }).toList();
-    print('groupedDataArrayX ${jsonEncode(groupedDataArray)}');
+    // print('groupedDataArrayX ${jsonEncode(groupedDataArray)}');
     return groupedDataArray;
   }
 
-  Widget _buildListAction(List<dynamic> items) {
-    return Column(
-      children: [
-        Padding(
-          padding: EdgeInsets.symmetric(horizontal: width / 15),
-          child: Container(
-            color: Colors.transparent,
-            child: ListView.builder(
-              shrinkWrap: true,
-              physics: const NeverScrollableScrollPhysics(),
-              itemCount: items.length,
-              itemBuilder: (context, index) {
-                return Padding(
-                  padding: const EdgeInsets.symmetric(vertical: 7),
-                  child: GestureDetector(
-                    onTap: () {
-                      Navigator.pushNamed(
-                          context, PpobPostpaidSingleProvider.routeName,
-                          arguments: PpobPostpaidSingleProvider(
-                            type: _type,
-                            typeName: items[index]['category_name'],
-                            categoryName: items[index]['provider_name'],
-                            child: items[index]['child'],
-                          ));
-                    },
-                    child: Container(
-                      // height: height / 9,
-                      width: width,
-                      decoration: BoxDecoration(
-                        color: notifire.getdarkwhitecolor,
-                        // border: Border.all(
-                        //   color: Colors.grey.withOpacity(0.2),
-                        // ),
-                        borderRadius: const BorderRadius.all(
-                          Radius.circular(10),
-                        ),
-                      ),
-                      child: Padding(
-                        padding: EdgeInsets.symmetric(horizontal: width / 20),
-                        child: Row(
-                          children: [
-                            // start icon
-                            Container(
-                              height: height / 15,
-                              width: width / 8,
-                              decoration: BoxDecoration(
-                                color: notifire.gettabwhitecolor,
-                                borderRadius: const BorderRadius.all(
-                                  Radius.circular(10),
-                                ),
-                              ),
-                              child: Center(
-                                child: Image.asset(
-                                  "images/logo_app/disabled_kumpulpay_logo.png",
-                                  height: height / 20,
-                                ),
-                              ),
-                            ),
-                            // end icon
-                            SizedBox(
-                              width: width / 30,
-                            ),
-                            Text(
-                              items[index]['provider_name'],
-                              style: TextStyle(
-                                  fontFamily: "Gilroy Bold",
-                                  color: notifire.getdarkscolor,
-                                  fontSize: height / 50),
-                            ),
-                            const Spacer(),
-                            Icon(Icons.arrow_forward_ios,
-                                color: notifire.getdarkscolor,
-                                size: height / 40),
-                          ],
-                        ),
-                      ),
-                    ),
-                  ),
+  Widget _setImage(dynamic images) {
+    return Center(
+      child: images != null && images.isNotEmpty
+          ? Image.network(
+              images['image'], // URL gambar dari API
+              height: height / 20,
+              width: width / 8,
+              fit: BoxFit
+                  .contain, // Menyesuaikan ukuran gambar di dalam container
+              errorBuilder: (context, error, stackTrace) {
+                // Fallback jika gambar gagal dimuat
+                return Image.asset(
+                  "images/logo_app/disabled_kumpulpay_logo.png", // Gambar fallback
+                  height: height / 30,
                 );
               },
+            )
+          : Image.asset(
+              "images/logo_app/disabled_kumpulpay_logo.png", // Gambar fallback jika provider_images null atau kosong
+              height: height / 30,
             ),
-          ),
-        )
-      ],
     );
   }
 
@@ -335,7 +372,7 @@ class _ProductProviderState extends State<ProductProvider> {
     return Column(
       children: [
         Padding(
-            padding: EdgeInsets.symmetric(horizontal: width / 20),
+            padding: EdgeInsets.symmetric(horizontal: width / 40),
             child: FormBuilderTextFieldCustom.type1(
                 notifire.getdarkscolor,
                 Colors.grey, //hint color

@@ -131,6 +131,14 @@ abstract class ApiClient {
       {@Header('Content-Type') String contentType = 'application/json',
       @Queries() Map<String, dynamic>? queries});
   // end user
+
+  // start company faq
+  @GET(Apis.companyFaq)
+  Future<dynamic> getCompanyFaq(
+      @Header('Authorization') String authorization,
+      {@Header('Content-Type') String contentType = 'application/json',
+      @Queries() Map<String, dynamic>? queries});
+  // end company faq
 }
 
 // Future<T?> handleApiRequest<T>(Future<T> Function() apiCall) async {

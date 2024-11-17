@@ -10,6 +10,7 @@ import 'package:kumpulpay/repository/retrofit/api_client.dart';
 import 'package:kumpulpay/utils/media.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:skeletonizer/skeletonizer.dart';
 import '../utils/colornotifire.dart';
 import '../utils/string.dart';
 
@@ -24,6 +25,34 @@ class Category extends StatefulWidget {
 
 class _CategoryState extends State<Category> {
   late ColorNotifire notifire;
+  final TextEditingController _searchController = TextEditingController(); 
+  late bool _loading = true;
+  List<dynamic> categoryList = [];
+  List<dynamic> filteredCategoryList = [];
+
+  @override
+  void initState() {
+    super.initState();
+    _searchController.addListener(
+        _onSearchChanged);
+
+    dynamic fakeCategory = List.filled(7, {
+      "id": "paket_data",
+      "name": "Paket Data",
+      "short_name": "Paket Data",
+      "order": 1,
+      "count_provider": 7
+    });
+    dynamic fakeCategoryType = {
+      "id": "prepaid",
+      "name": "Isi Ulang",
+      "short_name": "Isi Ulang",
+      "order": null,
+      "child": fakeCategory
+    };
+    filteredCategoryList = List.filled(2, fakeCategoryType);
+    _fetchCategoryData();
+  }
 
   getdarkmodepreviousstate() async {
     final prefs = await SharedPreferences.getInstance();
@@ -34,7 +63,7 @@ class _CategoryState extends State<Category> {
       notifire.setIsDark = previusstate;
     }
   }
-
+  
   @override
   Widget build(BuildContext context) {
     notifire = Provider.of<ColorNotifire>(context, listen: true);
@@ -50,6 +79,19 @@ class _CategoryState extends State<Category> {
               fontSize: height / 40),
         ),
         iconTheme: IconThemeData(color: notifire.getdarkscolor),
+        bottom: PreferredSize(
+          preferredSize: const Size.fromHeight(70),
+          child: Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: serarchtextField(
+                Colors.black,
+                notifire.getdarkgreycolor,
+                notifire.getbluecolor,
+                CustomStrings.search,
+              ),
+          )
+          
+        ),
       ),
       backgroundColor: notifire.getprimerycolor,
       body: Container(
@@ -70,7 +112,9 @@ class _CategoryState extends State<Category> {
               child: SingleChildScrollView(
                 child: Column(
                   children: [
-                    _buildBody(context),
+
+                    _buildList(),
+                   
                   ],
                 ),
               ),
@@ -78,187 +122,223 @@ class _CategoryState extends State<Category> {
           ],
         ),
       ),
-      
     );
   }
 
-  FutureBuilder<dynamic> _buildBody(BuildContext context) {
-    final client = ApiClient(Dio(BaseOptions(contentType: "application/json")));
-    return FutureBuilder<dynamic>(
-      future: client.getProductCategory('Bearer ${SharedPrefs().token}'),
-      builder: (context, snapshot) {
-        try {
-      
-          if (snapshot.connectionState == ConnectionState.done) {
-         
-              List<dynamic> list = snapshot.data["data"];
-           
-              return Column(
-              children: [
-                for (var item in list)... [
-                  SizedBox(
-                    height: height / 50,
-                  ),
-                  Row(
-                    children: [
-                      SizedBox(
-                        width: width / 20,
-                      ),
-                      Text(
-                        item['short_name'],
-                        style: TextStyle(
-                            color: notifire.getdarkscolor,
-                            fontSize: height / 50,
-                            fontFamily: 'Gilroy Bold'),
-                      ),
-                    ],
-                  ),
-                  SizedBox(
-                    height: height / 40,
-                  ),
-                  Padding(
-                    padding: EdgeInsets.symmetric(horizontal: width / 20),
-                    child: Container(
-                      color: Colors.transparent,
-                      // height: height / 3.5,
-                      width: width,
-                      child: Builder(builder: (context) {
-                      
-                          List<dynamic> child2 = item["child"];
-                          return GridView.builder(
-                            physics: const NeverScrollableScrollPhysics(),
-                            shrinkWrap: true,
-                            padding: EdgeInsets.only(bottom: height / 100),
-                            gridDelegate: SliverGridDelegateWithMaxCrossAxisExtent(
-                              maxCrossAxisExtent: height / 10,
-                              mainAxisExtent: height / 8,
-                              childAspectRatio: 3 / 2,
-                              crossAxisSpacing: height / 50,
-                              mainAxisSpacing: height / 100,
-                            ),
-                            itemCount: child2.length,
-                            itemBuilder: (BuildContext ctx, index) {
-                              return GestureDetector(
-                                onTap: () {},
-                                child: Column(
-                                  children: [
-                                    GestureDetector(
-                                      onTap: () {
-                                        // print('count_providerX ${child2[index]['count_provider']}');
-                                        if (item['id'] == 'prepaid'){
-                                          Navigator.pushNamed(
-                                            context, PpobProduct.routeName,
-                                            arguments: PpobProduct(
-                                                type: item['id'],
-                                                categoryData: child2[index]));
-                                        } else if (item['id'] == 'postpaid'){
-                                          if (child2[index]['count_provider'] > 1) {
-                                            // Navigator.pushNamed(
-                                            //     context, PpobPostpaid.routeName,
-                                            //     arguments: PpobPostpaid(
-                                            //         type: item['id'],
-                                            //         categoryData:
-                                            //             child2[index]));
-                                             Navigator.pushNamed(
-                                                context, ProductProvider.routeName,
-                                                arguments: ProductProvider(
-                                                    type: item['id'],
-                                                    typeName: item['name'],
-                                                    category: child2[index]['id'],
-                                                    categoryName: child2[index]['name']));
-                                          } else {
-                                            Navigator.pushNamed(
-                                                context, PpobPostpaidSingleProvider.routeName,
-                                                arguments: PpobPostpaidSingleProvider(
-                                                    type: item['id'],
-                                                    typeName: item['name'],
-                                                    category: child2[index]['id'],
-                                                    categoryName: child2[index]['name']));
-                                          }
-                                        } else if (item['id'] == 'entertainment'){
-                                          Navigator.pushNamed(
-                                            context, PpobProduct.routeName,
-                                            arguments: PpobProduct(
-                                                type: item['id'],
-                                                categoryData: child2[index]));
-                                        }
-                                      },
-                                      child: Container(
-                                        height: height / 15,
-                                        width: width / 7,
-                                        decoration: BoxDecoration(
-                                          color: notifire.gettabwhitecolor,
-                                          borderRadius: const BorderRadius.all(
-                                            Radius.circular(10),
-                                          ),
-                                        ),
-                                        child: Center(
-                                          child: Image.asset(
-                                            // child2[index]["short_name"],
-                                            'images/logo_app/disabled_kumpulpay_logo.png',
-                                            height: height / 30,
-                                          ),
-                                        ),
-                                      ),
-                                    ),
-                                    SizedBox(
-                                      height: height / 120,
-                                    ),
-                                    Text(
-                                      child2[index]["short_name"],
-                                      textAlign: TextAlign.center,
-                                      maxLines: 2,
-                                      overflow: TextOverflow.ellipsis,
-                                      style: TextStyle(
-                                          fontFamily: "Gilroy Medium",
-                                          color: notifire.getdarkscolor,
-                                          fontSize: height / 60),
-                                    ),
-                                  ],
-                                ),
-                              );
-                            });
-                        }
-                      ),
-                      
-                    ),
-                  ),
-                  Padding(
-                    padding: EdgeInsets.symmetric(horizontal: width / 20),
-                    child: Divider(
-                      color: notifire.getdarkgreycolor.withOpacity(0.4),
-                    ),
-                  ),
-                ],  
-              ],
-            );
+  Widget serarchtextField(
+    textclr,
+    hintclr,
+    borderclr,
+    hinttext,
+  ) {
+    return Padding(
+      padding: EdgeInsets.symmetric(horizontal: width / 40),
+      child: Container(
+        color: Colors.transparent,
+        height: height / 17,
+        child: TextField(
+          controller: _searchController,
+          autofocus: false,
+          style: TextStyle(
+            fontSize: height / 50,
+            color: textclr,
+          ),
+          decoration: InputDecoration(
+            filled: true,
+            fillColor: notifire.getdarkwhitecolor,
+            hintText: hinttext,
+            prefixIcon: Icon(
+              Icons.search,
+              color: notifire.getdarkscolor,
+            ),
+            hintStyle: TextStyle(color: hintclr, fontSize: height / 60),
+            focusedBorder: OutlineInputBorder(
+              borderSide: BorderSide(color: borderclr),
+              borderRadius: BorderRadius.circular(10),
+            ),
+            enabledBorder: OutlineInputBorder(
+              borderSide: BorderSide(color: Colors.grey.withOpacity(0.3)),
+              borderRadius: BorderRadius.circular(10),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
 
-          } else {
-              // return const Center(child: Text("Loading..", textAlign: TextAlign.center));
-              return Center(
-                child: SizedBox(
-                  height: height - 100, // Membuat container dengan tinggi penuh agar indikator berada di tengah vertikal
-                  child: const Center(
-                    child: CircularProgressIndicator(),
-                  ),
-                ),
-              );
-          }
-         
-        } on DioException catch (e) {
-          if (e.response != null) {
-            // print(e.response?.data);
-            // print(e.response?.headers);
-            // print(e.response?.requestOptions);
-          } else {
-            // Something happened in setting up or sending the request that triggered an Error
-            // print(e.requestOptions);
-            // print(e.message);
+  void _onSearchChanged() {
+    String query = _searchController.text.toLowerCase();
+    setState(() {
+      filteredCategoryList = categoryList.where((category) {
+        bool isMatch = category['name'].toLowerCase().contains(query);
+
+        if (category['child'] != null) {
+          for (var child in category['child']) {
+            if (child['name'].toLowerCase().contains(query)) {
+              return true;
+            }
           }
         }
 
-        return const Text("Loading..", textAlign: TextAlign.center);
-      },
-    );
+        return isMatch;
+      }).toList();
+    });
   }
+
+  void _fetchCategoryData() async {
+    try {
+      final response =
+          await ApiClient(Dio(BaseOptions(contentType: "application/json")))
+              .getProductCategory('Bearer ${SharedPrefs().token}');
+      if (response['status']) {
+        setState(() {
+          categoryList =
+              response['data'];
+          filteredCategoryList = categoryList;
+          _loading = false;
+        });
+      } else {
+        setState(() {
+          filteredCategoryList = [];
+        });
+      }
+    } catch (e) {
+      setState(() {
+        filteredCategoryList = [];
+      });
+    }
+  }
+
+  Widget _buildList() {
+    return Skeletonizer(
+        enabled: _loading,
+        child: Column(children: [
+      for (var item in filteredCategoryList) ...[
+        SizedBox(
+          height: height / 50,
+        ),
+        Row(
+          children: [
+            SizedBox(
+              width: width / 20,
+            ),
+            Text(
+              item['short_name'],
+              style: TextStyle(
+                  color: notifire.getdarkscolor,
+                  fontSize: height / 50,
+                  fontFamily: 'Gilroy Bold'),
+            ),
+          ],
+        ),
+        SizedBox(
+          height: height / 40,
+        ),
+        Padding(
+          padding: EdgeInsets.symmetric(horizontal: width / 20),
+          child: Container(
+            color: Colors.transparent,
+            // height: height / 3.5,
+            width: width,
+            child: Builder(builder: (context) {
+              List<dynamic> child2 = item["child"];
+              return GridView.builder(
+                  physics: const NeverScrollableScrollPhysics(),
+                  shrinkWrap: true,
+                  padding: EdgeInsets.only(bottom: height / 100),
+                  gridDelegate: SliverGridDelegateWithMaxCrossAxisExtent(
+                    maxCrossAxisExtent: height / 10,
+                    mainAxisExtent: height / 8,
+                    childAspectRatio: 3 / 2,
+                    crossAxisSpacing: height / 50,
+                    mainAxisSpacing: height / 100,
+                  ),
+                  itemCount: child2.length,
+                  itemBuilder: (BuildContext ctx, index) {
+                    return GestureDetector(
+                      onTap: () {},
+                      child: Column(
+                        children: [
+                          GestureDetector(
+                            onTap: () {
+                              if (item['id'] == 'prepaid') {
+                                Navigator.pushNamed(
+                                    context, PpobProduct.routeName,
+                                    arguments: PpobProduct(
+                                        type: item['id'],
+                                        categoryData: child2[index]));
+                              } else if (item['id'] == 'postpaid') {
+                                if (child2[index]['count_provider'] > 1) {
+                                  // Navigator.pushNamed(
+                                  //     context, PpobPostpaid.routeName,
+                                  //     arguments: PpobPostpaid(
+                                  //         type: item['id'],
+                                  //         categoryData:
+                                  //             child2[index]));
+                                  Navigator.pushNamed(
+                                      context, ProductProvider.routeName,
+                                      arguments: ProductProvider(
+                                          type: item['id'],
+                                          typeName: item['name'],
+                                          category: child2[index]['id'],
+                                          categoryName: child2[index]['name']));
+                                } else {
+                                  Navigator.pushNamed(context,
+                                      PpobPostpaidSingleProvider.routeName,
+                                      arguments: PpobPostpaidSingleProvider(
+                                          type: item['id'],
+                                          typeName: item['name'],
+                                          category: child2[index]['id'],
+                                          categoryName: child2[index]['name']));
+                                }
+                              } else if (item['id'] == 'entertainment') {
+                                Navigator.pushNamed(
+                                    context, PpobProduct.routeName,
+                                    arguments: PpobProduct(
+                                        type: item['id'],
+                                        categoryData: child2[index]));
+                              }
+                            },
+                            child: Container(
+                              height: height / 15,
+                              width: width / 7,
+                              decoration: BoxDecoration(
+                                color: notifire.gettabwhitecolor,
+                                borderRadius: const BorderRadius.all(
+                                  Radius.circular(10),
+                                ),
+                              ),
+                              child: Center(
+                                child: Image.asset(
+                                  // child2[index]["short_name"],
+                                  'images/logo_app/disabled_kumpulpay_logo.png',
+                                  height: height / 30,
+                                ),
+                              ),
+                            ),
+                          ),
+                          SizedBox(
+                            height: height / 120,
+                          ),
+                          Text(
+                            child2[index]["short_name"],
+                            textAlign: TextAlign.center,
+                            maxLines: 2,
+                            overflow: TextOverflow.ellipsis,
+                            style: TextStyle(
+                                fontFamily: "Gilroy Medium",
+                                color: notifire.getdarkscolor,
+                                fontSize: height / 60),
+                          ),
+                        ],
+                      ),
+                    );
+                  });
+            }),
+          ),
+        ),
+      ],
+    ]));
+  }
+
 }

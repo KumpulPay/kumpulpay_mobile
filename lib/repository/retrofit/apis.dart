@@ -39,4 +39,7 @@ class Apis {
   // user
   static const String updateFcm = '/api/v1/user/fcm';
 
+  // company
+  static const String companyFaq = '/api/v1/company/faq';
+
 }

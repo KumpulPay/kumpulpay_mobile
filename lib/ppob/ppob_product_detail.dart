@@ -19,6 +19,7 @@ import 'package:kumpulpay/utils/media.dart';
 import 'package:kumpulpay/utils/textfeilds.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:skeletonizer/skeletonizer.dart';
 import 'package:string_capitalize/string_capitalize.dart';
 
 class PpobProductDetail extends StatefulWidget {
@@ -36,7 +37,9 @@ class PpobProductDetail extends StatefulWidget {
 }
 
 class _PpobProductDetailState extends State<PpobProductDetail> {
+
   PpobProductDetail? args;
+  late bool _loading = true;  
   late ColorNotifire notifire;
   final _formKey = GlobalKey<FormBuilderState>();
   
@@ -49,7 +52,48 @@ class _PpobProductDetailState extends State<PpobProductDetail> {
   String? title;
   Map<String, dynamic> phoneProvider = {};
   String _txtProvider = "";
+  List<dynamic> productList = [];
 
+  @override
+  void initState() {
+    super.initState();
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      args = ModalRoute.of(context)!.settings.arguments as PpobProductDetail?;
+      _type = args!.type;
+      _category = args!.category;
+      _categoryData = args!.categoryData;
+      _providerData = args!.providerData;
+      _filterCategory = '${_type}_${_category}';
+      _txtDestination =
+          _txtDestination.isEmpty ? args!.txtDestination : _txtDestination;
+      // _txtDestination = args!.txtDestination;
+      _txtProvider = args!.providerData['provider'] ?? '';
+      if (_filterCategory != 'prepaid_e_money') {
+        if (_txtDestination.isNotEmpty) {
+          phoneProvider = PhoneProvider.getProvide(_txtDestination);
+          _txtProvider = phoneProvider['provider'];
+        }
+      }
+
+      title = '${_categoryData['name']} ${_txtProvider}';
+
+      if (_filterCategory == 'prepaid_pulsa' ||
+          _filterCategory == 'prepaid_e_money') {
+        productList = List.filled(6, {
+          "name_unique": "5000",
+          "price_fixed": 0,
+        });
+      } else {
+        productList = List.filled(6, {
+          "name_unique": "BSMART",
+          "price_fixed": 0,
+        });
+      }
+
+      _fetchData();
+    });    
+  }
   getdarkmodepreviousstate() async {
     final prefs = await SharedPreferences.getInstance();
     bool? previusstate = prefs.getBool("setIsDark");
@@ -60,11 +104,7 @@ class _PpobProductDetailState extends State<PpobProductDetail> {
     }
   }
 
-  @override
-  void initState() {
-    super.initState();
-    
-  }
+ 
 
   void handleFormSubmission(String value) {
     // print('Text submitted: $value');
@@ -81,52 +121,33 @@ class _PpobProductDetailState extends State<PpobProductDetail> {
     // });
   }
 
-  // void listActionGo(String value) {
-  //   setState(() {
-  //     _txtProvider = value;
-  //   });
-  // }
-
   @override
   Widget build(BuildContext context) {
-    args = ModalRoute.of(context)!.settings.arguments as PpobProductDetail?;
-    _type = args!.type;
-    _category = args!.category;
-    _categoryData = args!.categoryData;
-    _providerData = args!.providerData;
-    _filterCategory = '${_type}_${_category}';
-    _txtDestination = _txtDestination.isEmpty ? args!.txtDestination : _txtDestination;
-    // _txtDestination = args!.txtDestination;
-    _txtProvider = args!.providerData['provider'] ?? '';
-    if (_filterCategory != 'prepaid_e_money') {
-        if (_txtDestination.isNotEmpty) {
-          phoneProvider = PhoneProvider.getProvide(_txtDestination);
-          _txtProvider = phoneProvider['provider'];
-        }
-    }
     notifire = Provider.of<ColorNotifire>(context, listen: true);
     
-    title = '${_categoryData['name']} ${_txtProvider}';
-    print('_categoryDataX ${_categoryData}');
     return Scaffold(
       appBar: AppBar(
         elevation: 0,
         iconTheme: IconThemeData(color: notifire.getdarkscolor),
         backgroundColor: notifire.getprimerycolor,
-        title: Text(
-          "${title?.capitalizeEach()}",
-          style: TextStyle(
-              color: notifire.getdarkscolor,
-              fontSize: height / 40,
-              fontFamily: 'Gilroy Bold'),
+        title: Skeletonizer(
+          enabled: _loading,
+          child: Text(
+              "${title?.capitalizeEach()}",
+              style: TextStyle(
+                  color: notifire.getdarkscolor,
+                  fontSize: height / 40,
+                  fontFamily: 'Gilroy Bold'),
+            )
         ),
         bottom: PreferredSize(
           preferredSize: const Size.fromHeight(
               70), // Set preferred height of the TextField
           child: Padding(
             padding: const EdgeInsets.all(8.0),
-            child: //start input destination
-                FormBuilder(
+            child: Skeletonizer(
+              enabled: _loading,
+              child: FormBuilder(
                   key: _formKey,
                   autovalidateMode: AutovalidateMode.onUserInteraction,
                   child: textfeildC("input_nomor", "",
@@ -134,20 +155,16 @@ class _PpobProductDetailState extends State<PpobProductDetail> {
                       initialValue: _txtDestination,
                       keyboardType: TextInputType.number,
                       textInputAction: TextInputAction.done,
-                      // maxLength: 15,
                       validator: FormBuilderValidators.compose([
                         FormBuilderValidators.required(),
                         FormBuilderValidators.minLength(9),
-                      ]),
-                      onSubmitted: (value) {
-                          if (_formKey.currentState?.validate() ?? false) {   
-                            final formValue = _formKey.currentState?.fields['input_nomor']?.value;                       
-                            // handleFormSubmission(formValue);
-                          } else {
-                            print('Form tidak valid!');
-                          }
-                      },
-                      onChanged: (value) {
+                      ]), onSubmitted: (value) {
+                        if (_formKey.currentState?.validate() ?? false) {
+                          _txtDestination = value;
+                        } else {
+                          print('Form tidak valid!');
+                        }
+                      }, onChanged: (value) {
                         if (_formKey.currentState?.validate() ?? false) {
                           _txtDestination = value;
                         }
@@ -165,8 +182,8 @@ class _PpobProductDetailState extends State<PpobProductDetail> {
                           ),
                         ),
                       )),
-                ),
-            // end input destination
+                )
+            ),
           ),
         ),
       ),
@@ -189,13 +206,12 @@ class _PpobProductDetailState extends State<PpobProductDetail> {
                 child: SingleChildScrollView(
                   child: Column(
                     children: [
+                      
+                      _buildList(),
+
                       SizedBox(
-                    height: height / 50,
-                  ),
-                  _buildList(context),
-                  SizedBox(
-                    height: height / 50,
-                  ),
+                        height: height / 50,
+                      ),
                     ],
                   ),
                 )
@@ -203,37 +219,6 @@ class _PpobProductDetailState extends State<PpobProductDetail> {
             ],
           ),
       ),
-      // SingleChildScrollView(
-      //   child: Column(
-      //     children: [
-      //       Stack(
-      //         children: [
-      //            Container(
-      //             height: height,
-      //             width: width,
-      //             color: Colors.transparent,
-      //             child: Image.asset(
-      //               "images/background.png",
-      //               fit: BoxFit.cover,
-      //             ),
-      //           ),
-      //           Column(
-      //             crossAxisAlignment: CrossAxisAlignment.start,
-      //             children: [
-      //               SizedBox(
-      //                 height: height / 50,
-      //               ),
-      //               _buildList(context),
-      //               SizedBox(
-      //                 height: height / 50,
-      //               ),
-      //             ],
-      //           )
-      //         ],
-      //       )
-      //     ],
-      //   ),
-      // ),
     );
   }
 
@@ -253,7 +238,7 @@ class _PpobProductDetailState extends State<PpobProductDetail> {
     return Column(
       children: [
         Padding(
-            padding: EdgeInsets.symmetric(horizontal: width / 20),
+            padding: EdgeInsets.symmetric(horizontal: width / 40),
             child: FormBuilderTextFieldCustom.type1(
                 notifire.getdarkscolor,
                 Colors.grey, //hint color
@@ -276,318 +261,297 @@ class _PpobProductDetailState extends State<PpobProductDetail> {
     );
   }
 
-  FutureBuilder<dynamic> _buildList(BuildContext context) {
-    final client = ApiClient(Dio(BaseOptions(contentType: "application/json")));
-    final Map<String, dynamic> queries = {"type": _type, "category": _category, "provider": _txtProvider};
-    // print('queriesX: ${queries}');
+  void _fetchData() async {
+    try {
+      final Map<String, dynamic> queries = {
+        "type": _type,
+        "category": _category,
+        "provider": _txtProvider
+      };
+      final response =
+          await ApiClient(Dio(BaseOptions(contentType: "application/json")))
+              .getProduct('Bearer ${SharedPrefs().token}', queries: queries);
 
-    return FutureBuilder<dynamic>(
-        future: client.getProduct('Bearer ${SharedPrefs().token}',
-            queries: queries),
-        builder: (context, snapshot) {
-          try {
-            if (snapshot.connectionState == ConnectionState.done) {
-              var rawList = snapshot.data["data"] as List<dynamic>;
-              List<Map<String, dynamic>> list = rawList.map((item) => Map<String, dynamic>.from(item)).toList();
-              // print('listX: ${list}');
-              
-              if (_filterCategory == 'prepaid_pulsa') {
-                return Container(
-                  color: Colors.transparent,
-                  width: width,
-                  child: Builder(builder: (context) {
-                    return _buildItemGridView(list);
-                  }),
-                );
-              } else if (_filterCategory == 'prepaid_paket_data' 
-              || _filterCategory == 'prepaid_paket_sms'
-              || _filterCategory == 'prepaid_paket_telepon'
-              ){
-                var groupedData = groupDataByTypeCategoryProviderPaketData(list);
-                // print('groupedDataX ${groupedData}');
-                return _buildItemAccordionData(groupedData);
-              } else if (_filterCategory == 'prepaid_e_money'){
-                return Container(
-                  color: Colors.transparent,
-                  width: width,
-                  child: Builder(builder: (context) {
-                    return _buildItemGridView(list);
-                  }),
-                );
-              }
-              
-            } else {
-              return const Center(child: Text('Loading...'));
-            }
-          } on DioException catch (e) {
-            if (e.response != null) {
-              // print(e.response?.data);
-              // print(e.response?.headers);
-              // print(e.response?.requestOptions);
-            } else {
-              // print(e.requestOptions);
-              // print(e.message);
-            }
-            return const Center(child: Text('Upst...'));
+      if (response['status']) {
+        setState(() {
+          if (_filterCategory == 'prepaid_pulsa' || _filterCategory == 'prepaid_e_money') {
+            productList = response['data'];
+            _loading = false;
+          } else {
+            productList =
+                groupDataByTypeCategoryProviderPaketData(response['data']);
+            _loading = false;
           }
-          return const Center(child: Text('Upst...'));
         });
+      } else {
+        setState(() {
+          productList = [];
+        });
+      }
+    } catch (e) {
+      setState(() {
+        productList = [];
+      });
+    }
+  }
+  
+  Widget _buildList(){
+    if (_filterCategory == 'prepaid_pulsa' ||
+        _filterCategory == 'prepaid_e_money') {
+      return _buildItemGridView(productList);
+    } else {
+      return _buildItemAccordionData(productList);
+    }
   }
 
   Widget _buildItemGridView(List<dynamic> listDetail) {
-    // print('listDetail: ${listDetail}');
-    return Column(
-      children: [
-        // Padding(
-        //   padding: EdgeInsets.symmetric(horizontal: width / 20),
-        //   child: Text(
-        //     "Daftar Harga $_txtLabelPriceList",
-        //     textAlign: TextAlign.start,
-        //     style: TextStyle(
-        //         color: notifire.getdarkscolor,
-        //         fontSize: height / 50,
-        //         fontFamily: 'Gilroy Bold'),
-        //   ),
-        // ),
-        Padding(
-          padding: EdgeInsets.symmetric(
-              horizontal: width / 20, vertical: height / 80),
-          child: GridView.builder(
-              physics: const NeverScrollableScrollPhysics(),
-              shrinkWrap: true,
-              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                  crossAxisCount: 2, // 2 columns
-                  crossAxisSpacing: 10.0, // Spacing between columns
-                  mainAxisSpacing: 10.0, // Spacing between rows
-                  childAspectRatio: 2.0),
-              itemCount: listDetail.length,
-              itemBuilder: (BuildContext ctxObs, index) {
-                return GestureDetector(
-                  onTap: () {
-                    if (_txtDestination.isNotEmpty) {
-                      _openBottomSheet(ctxObs, listDetail, index);
-                    } else {
-                      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-                          content: Text("Masukkan nomor terlebih dulu!")));
-                    }
-                  },
-                  child: Container(
-                      // width: double.infinity,
-                      decoration: BoxDecoration(
-                        color: notifire.gettabwhitecolor,
-                        borderRadius: const BorderRadius.all(
-                          Radius.circular(10),
-                        ),
-                      ),
-                      child: Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 10),
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Text(
-                              Helpers.currencyFormatter(
-                                  double.parse(listDetail[index]["name_unique"]),
-                                  symbol: ""),
-                              textAlign: TextAlign.end,
-                              style: TextStyle(
-                                  color: notifire.getdarkscolor,
-                                  fontSize: height / 30,
-                                  fontFamily: 'Gilroy Light'),
-                            ),
-                            SizedBox(
-                              height: height / 80,
-                            ),
-                            Row(
-                              children: [
-                                const Expanded(flex: 1, child: Text("Harga")),
-                                Expanded(
-                                    flex: 2,
-                                    child: Text(
-                                      Helpers.currencyFormatter(
-                                          listDetail[index]
-                                                  ["price_fixed"]
-                                              .toDouble()),
-                                      textAlign: TextAlign.end,
-                                      style: TextStyle(
-                                          color: notifire.getPrimaryPurpleColor,
-                                          fontSize: height / 60,
-                                          fontFamily: 'Gilroy Bold'),
-                                    ))
-                              ],
-                            ),
-                          ],
-                        ),
-                      )),
-                );
-              }),
-        )
-      ],
+    return Skeletonizer(
+      enabled: _loading,
+      child: Container(
+            color: Colors.transparent,
+            width: width,
+            child: Builder(builder: (context) {
+              return Column(
+                children: [
+                   SizedBox(
+                    height: height / 50,
+                  ),
+                  Padding(
+                    padding: EdgeInsets.symmetric(
+                        horizontal: width / 20, vertical: height / 80),
+                    child: GridView.builder(
+                        physics: const NeverScrollableScrollPhysics(),
+                        shrinkWrap: true,
+                        gridDelegate:
+                            const SliverGridDelegateWithFixedCrossAxisCount(
+                                crossAxisCount: 2, // 2 columns
+                                crossAxisSpacing:
+                                    10.0, // Spacing between columns
+                                mainAxisSpacing: 10.0, // Spacing between rows
+                                childAspectRatio: 2.0),
+                        itemCount: listDetail.length,
+                        itemBuilder: (BuildContext ctxObs, index) {
+                          return GestureDetector(
+                            onTap: () {
+                              // if (_txtDestination.isNotEmpty) {
+                              //   _openBottomSheet(ctxObs, listDetail, index);
+                              // } else {
+                              //   ScaffoldMessenger.of(context).showSnackBar(
+                              //       const SnackBar(
+                              //           content: Text(
+                              //               "Masukkan nomor terlebih dulu!")));
+                              // }
+                            },
+                            child: Container(
+                                // width: double.infinity,
+                                decoration: BoxDecoration(
+                                  color: notifire.gettabwhitecolor,
+                                  borderRadius: const BorderRadius.all(
+                                    Radius.circular(10),
+                                  ),
+                                ),
+                                child: Padding(
+                                  padding: const EdgeInsets.symmetric(
+                                      horizontal: 10),
+                                  child: Column(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: [
+                                      Text(
+                                        Helpers.currencyFormatter(
+                                            double.parse(listDetail[index]
+                                                ["name_unique"]),
+                                            symbol: ""),
+                                        textAlign: TextAlign.end,
+                                        style: TextStyle(
+                                            color: notifire.getdarkscolor,
+                                            fontSize: height / 30,
+                                            fontFamily: 'Gilroy Light'),
+                                      ),
+                                      SizedBox(
+                                        height: height / 80,
+                                      ),
+                                      Row(
+                                        children: [
+                                          const Expanded(
+                                              flex: 1, child: Text("Harga")),
+                                          Expanded(
+                                              flex: 2,
+                                              child: Text(
+                                                Helpers.currencyFormatter(
+                                                    listDetail[index]
+                                                            ["price_fixed"]
+                                                        .toDouble()),
+                                                textAlign: TextAlign.end,
+                                                style: TextStyle(
+                                                    color: notifire
+                                                        .getPrimaryPurpleColor,
+                                                    fontSize: height / 60,
+                                                    fontFamily: 'Gilroy Bold'),
+                                              ))
+                                        ],
+                                      ),
+                                    ],
+                                  ),
+                                )),
+                          );
+                        }),
+                  )
+                ],
+              );
+            }))
     );
   }
 
-  Widget _buildItemAccordionData(List<Map<String, dynamic>> group1) {
-    // print('group1X ${group1}');
-    return Column(
-      children: [
-        Padding(
-            padding: EdgeInsets.symmetric(horizontal: width / 40),
-            child: Accordion(
-                // rightIcon: Transform.rotate(
-                //     angle: 45 * 3.14159 / 90,
-                //     child: Icon(Icons.arrow_forward_ios,
-                //         color: notifire.getdarkscolor, size: height / 50)),
-                disableScrolling: true,
-                flipRightIconIfOpen: true,
-                contentVerticalPadding: 0,
-                contentBorderColor: Colors.transparent,
-                scrollIntoViewOfItems: ScrollIntoViewOfItems.fast,
-                maxOpenSections: 1,
-                headerBackgroundColor: notifire.getdarkwhitecolor,
-                // headerBackgroundColorOpened: Colors.blue,
-                // contentBorderWidth: 1,
-                // contentBorderRadius: 20,
-                // contentBorderColor: notifire.getdarkgreycolor.withOpacity(0.1),
-                headerPadding:
-                    const EdgeInsets.symmetric(vertical: 7, horizontal: 15),
-                children: [
-                  for (var item in group1) ...[
-                    AccordionSection(
-                        // flipRightIconIfOpen: true,
-                        header: Text(
-                          item["name"],
-                          style: TextStyle(
-                              fontFamily: "Gilroy Bold",
-                              color: notifire.getdarkscolor,
-                              fontSize: height / 55),
-                        ),
-                        // contentBackgroundColor: Colors.transparent,
-                        contentHorizontalPadding: 20,
-                        content: Builder(builder: (context) {
-                          List<dynamic> group2 = item["child"];
+  Widget _buildItemAccordionData(List<dynamic> group1) {
+    return Skeletonizer(
+      enabled: _loading,
+      child: Column(
+          children: [
+            Padding(
+                padding: EdgeInsets.symmetric(horizontal: width / 40),
+                child: Accordion(
+                    disableScrolling: true,
+                    flipRightIconIfOpen: true,
+                    contentVerticalPadding: 0,
+                    contentBorderColor: Colors.transparent,
+                    scrollIntoViewOfItems: ScrollIntoViewOfItems.fast,
+                    maxOpenSections: 1,
+                    headerBackgroundColor: notifire.getdarkwhitecolor,
+                    headerPadding:
+                        const EdgeInsets.symmetric(vertical: 7, horizontal: 15),
+                    children: [
+                      for (var item in group1) ...[
+                        AccordionSection(
+                            header: Text(
+                              item["name"],
+                              style: TextStyle(
+                                  fontFamily: "Gilroy Bold",
+                                  color: notifire.getdarkscolor,
+                                  fontSize: height / 55),
+                            ),
+                            contentHorizontalPadding: 20,
+                            content: Builder(builder: (context) {
+                              List<dynamic> group2 = item["child"];
 
-                          return ListView.builder(
-                              shrinkWrap: true,
-                              physics: const NeverScrollableScrollPhysics(),
-                              padding: EdgeInsets.zero,
-                              itemCount: group2.length,
-                              itemBuilder: (context, index) {
-                                return Column(
-                                  children: [
-                                    Padding(
-                                        padding: EdgeInsets.symmetric(
-                                            vertical: height / 100),
-                                        child: GestureDetector(
-                                          onTap: () {
-                                            showModalBottomSheet(
-                                                isScrollControlled: true,
-                                                shape:
-                                                    const RoundedRectangleBorder(
+                              return ListView.builder(
+                                  shrinkWrap: true,
+                                  physics: const NeverScrollableScrollPhysics(),
+                                  padding: EdgeInsets.zero,
+                                  itemCount: group2.length,
+                                  itemBuilder: (context, index) {
+                                    return Column(
+                                      children: [
+                                        Padding(
+                                            padding: EdgeInsets.symmetric(
+                                                vertical: height / 100),
+                                            child: GestureDetector(
+                                              onTap: () {
+                                                showModalBottomSheet(
+                                                    isScrollControlled: true,
+                                                    shape:
+                                                        const RoundedRectangleBorder(
+                                                      borderRadius:
+                                                          BorderRadius.only(
+                                                        topLeft:
+                                                            Radius.circular(20),
+                                                        topRight:
+                                                            Radius.circular(20),
+                                                      ),
+                                                    ),
+                                                    backgroundColor: notifire
+                                                        .getprimerycolor,
+                                                    context: context,
+                                                    builder:
+                                                        (BuildContext context) {
+                                                      return _bottomSheetContent(
+                                                          context,
+                                                          group2,
+                                                          index);
+                                                    });
+                                              },
+                                              child: Container(
+                                                decoration: const BoxDecoration(
+                                                  // color: notifire.getdarkwhitecolor,
                                                   borderRadius:
-                                                      BorderRadius.only(
-                                                    topLeft:
-                                                        Radius.circular(20),
-                                                    topRight:
-                                                        Radius.circular(20),
+                                                      BorderRadius.all(
+                                                    Radius.circular(10),
                                                   ),
                                                 ),
-                                                backgroundColor:
-                                                    notifire.getprimerycolor,
-                                                context: context,
-                                                builder: (BuildContext context) {
-                                                  return _bottomSheetContent(
-                                                      context, group2, index);
-                                                });
-                                          },
-                                          child: Container(
-                                            decoration: const BoxDecoration(
-                                              // color: notifire.getdarkwhitecolor,
-                                              borderRadius: BorderRadius.all(
-                                                Radius.circular(10),
-                                              ),
-                                            ),
-                                            child: Padding(
-                                              padding: EdgeInsets.symmetric(
-                                                  horizontal: width / 30,
-                                                  vertical: height / 60),
-                                              child: Column(
-                                                crossAxisAlignment:
-                                                    CrossAxisAlignment.start,
-                                                children: [
-                                                  // Text(
-                                                  //     group2[index]["provider"],
-                                                  //     maxLines: 1,
-                                                  //     overflow:
-                                                  //         TextOverflow.ellipsis,
-                                                  //     style: TextStyle(
-                                                  //         fontFamily:
-                                                  //             "Gilroy Bold",
-                                                  //         color: notifire
-                                                  //             .getdarkscolor,
-                                                  //         fontSize:
-                                                  //             height / 50)),
-                                                  // SizedBox(height: height / 90),
-                                                  Text(group2[index]["name"],
-                                                      maxLines: 3,
-                                                      overflow:
-                                                          TextOverflow.ellipsis,
-                                                      style: TextStyle(
-                                                          fontFamily:
-                                                              "Gilroy Medium",
-                                                          color: notifire
-                                                              .getdarkgreycolor,
-                                                              // .withOpacity(0.6),
-                                                          fontSize:
-                                                              height / 50)),
-                                                  SizedBox(height: height / 50),
-                                                  Row(
+                                                child: Padding(
+                                                  padding: EdgeInsets.symmetric(
+                                                      horizontal: width / 30,
+                                                      vertical: height / 60),
+                                                  child: Column(
+                                                    crossAxisAlignment:
+                                                        CrossAxisAlignment
+                                                            .start,
                                                     children: [
                                                       Text(
-                                                        "Harga",
-                                                        style: TextStyle(
-                                                          fontFamily:
-                                                              "Gilroy Medium",
-                                                          fontSize:
-                                                                height / 50,
-                                                        ),
-                                                      ),
-                                                      const Spacer(),
-                                                      Text(
-                                                          Helpers.currencyFormatter(
-                                                              group2[index][
-                                                                      "price_fixed"]
-                                                                  .toDouble()),
+                                                          group2[index]["name"],
+                                                          maxLines: 3,
+                                                          overflow: TextOverflow
+                                                              .ellipsis,
                                                           style: TextStyle(
                                                               fontFamily:
-                                                                  "Gilroy Bold",
-                                                              color: notifire.getPrimaryPurpleColor,
+                                                                  "Gilroy Medium",
+                                                              color: notifire
+                                                                  .getdarkgreycolor,
+                                                              // .withOpacity(0.6),
                                                               fontSize:
                                                                   height / 50)),
+                                                      SizedBox(
+                                                          height: height / 50),
+                                                      Row(
+                                                        children: [
+                                                          Text(
+                                                            "Harga",
+                                                            style: TextStyle(
+                                                              fontFamily:
+                                                                  "Gilroy Medium",
+                                                              fontSize:
+                                                                  height / 50,
+                                                            ),
+                                                          ),
+                                                          const Spacer(),
+                                                          Text(
+                                                              Helpers.currencyFormatter(
+                                                                  group2[index][
+                                                                          "price_fixed"]
+                                                                      .toDouble()),
+                                                              style: TextStyle(
+                                                                  fontFamily:
+                                                                      "Gilroy Bold",
+                                                                  color: notifire
+                                                                      .getPrimaryPurpleColor,
+                                                                  fontSize:
+                                                                      height /
+                                                                          50)),
+                                                        ],
+                                                      )
                                                     ],
-                                                  )
-                                                ],
+                                                  ),
+                                                ),
                                               ),
-                                            ),
-                                          ),
-                                        )),
-                                    // Padding(
-                                    //   padding: const EdgeInsets.symmetric(),
-                                    //   child: Divider(
-                                    //     color: notifire.getdarkgreycolor
-                                    //         .withOpacity(0.1),
-                                    //   ),
-                                    // ),
-                                  ],
-                                );
-                              });
-                        }))
-                  ]
-                ]))
-      ],
+                                            )),
+                                        // Padding(
+                                        //   padding: const EdgeInsets.symmetric(),
+                                        //   child: Divider(
+                                        //     color: notifire.getdarkgreycolor
+                                        //         .withOpacity(0.1),
+                                        //   ),
+                                        // ),
+                                      ],
+                                    );
+                                  });
+                            }))
+                      ]
+                    ]))
+          ],
+        )
     );
   }
 
   Widget _bottomSheetContent(BuildContext ctxBsc, List<dynamic> listDetail, int index) {
-    // String? title = _category?.capitalizeEach();
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
@@ -881,34 +845,6 @@ class _PpobProductDetailState extends State<PpobProductDetail> {
             ),
           ],
         ),
-        // SizedBox(
-        //   height: height / 60,
-        // ),
-        // Padding(
-        //   padding: EdgeInsets.symmetric(horizontal: width / 20),
-        //   child: Row(
-        //     children: [
-        //       Text(
-        //         "Paylater",
-        //         style: TextStyle(
-        //           color: Colors.grey,
-        //           fontFamily: 'Gilroy Medium',
-        //           fontSize: height / 60,
-        //         ),
-        //       ),
-        //       const Spacer(),
-        //       Text(
-        //         Helpers.currencyFormatter(SharedPrefs().limitsAvailable,
-        //             decimalDigits: 0),
-        //         style: TextStyle(
-        //           color: notifire.getdarkscolor,
-        //           fontFamily: 'Gilroy Medium',
-        //           fontSize: height / 60,
-        //         ),
-        //       ),
-        //     ],
-        //   ),
-        // ),
         SizedBox(
           height: height / 80,
         ),
@@ -1029,8 +965,8 @@ class _PpobProductDetailState extends State<PpobProductDetail> {
     return transactionData;
   }
 
-  List<Map<String, dynamic>> groupDataByTypeCategoryProviderPaketData(
-      List<Map<String, dynamic>> data) {
+  List<dynamic> groupDataByTypeCategoryProviderPaketData(
+      List<dynamic> data) {
     Map<String, List<Map<String, dynamic>>> tempGroupedData = {};
 
     for (var item in data) {
@@ -1054,7 +990,6 @@ class _PpobProductDetailState extends State<PpobProductDetail> {
       
       var splitDesc = entry.value.isNotEmpty ? entry.value[0]["description"].split(" | ") : ""; 
       var provider =entry.value[0]["provider"]; 
-      // provider = RegExp.escape(provider) + ' Data';
 
       String providerName = splitDesc[0];
       String name = providerName
