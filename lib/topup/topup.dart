@@ -99,21 +99,21 @@ class _TopupState extends State<Topup> {
           ),
         ),
         centerTitle: false,
-        actions: [
-          Container(
-              height: 40,
-              width: 40,
-              margin: const EdgeInsets.all(8),
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(10),
-                border: Border.all(color: Colors.grey.withOpacity(0.4)),
-              ),
-              child: Image.asset(
-                'images/info.png',
-                color: notifire.getdarkscolor,
-                scale: 4.5,
-              )),
-        ],
+        // actions: [
+        //   Container(
+        //       height: 40,
+        //       width: 40,
+        //       margin: const EdgeInsets.all(8),
+        //       decoration: BoxDecoration(
+        //         borderRadius: BorderRadius.circular(10),
+        //         border: Border.all(color: Colors.grey.withOpacity(0.4)),
+        //       ),
+        //       child: Image.asset(
+        //         'images/info.png',
+        //         color: notifire.getdarkscolor,
+        //         scale: 4.5,
+        //       )),
+        // ],
       ),
       backgroundColor: notifire.getprimerycolor,
       body: SingleChildScrollView(
@@ -209,7 +209,7 @@ class _TopupState extends State<Topup> {
                                       ),
                                       child: Center(
                                         child: Image.asset(
-                                          "images/no-image-2.png",
+                                          "images/lockdown.png",
                                           height: height / 30,
                                         ),
                                       ),

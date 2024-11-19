@@ -89,7 +89,6 @@ class _HistoryAllState extends State<HistoryAll> {
   @override
   Widget build(BuildContext context) {
     notifire = Provider.of<ColorNotifire>(context, listen: true);
-    print('groupedTransactionsX ${groupedTransactions}');
     return Scaffold(
       appBar: AppBar(
         centerTitle: true,

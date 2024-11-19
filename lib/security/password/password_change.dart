@@ -221,7 +221,7 @@ class _PasswordChangeState extends State<PasswordChange> {
                 ),
               ),
               Positioned(
-                  bottom: height / 50,
+                  bottom: height / 20,
                   left: 0,
                   right: 0,
                   child: Padding(

@@ -7,11 +7,11 @@ import 'package:kumpulpay/ppob/ppob_postpaid_single_provider.dart';
 import 'package:kumpulpay/ppob/ppob_product.dart';
 import 'package:kumpulpay/ppob/product_provider.dart';
 import 'package:kumpulpay/repository/retrofit/api_client.dart';
+import 'package:kumpulpay/utils/helpers.dart';
 import 'package:kumpulpay/utils/media.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:skeletonizer/skeletonizer.dart';
-import 'package:cached_network_image/cached_network_image.dart';
 import '../utils/colornotifire.dart';
 import '../utils/string.dart';
 
@@ -150,7 +150,7 @@ class _CategoryState extends State<Category> {
             hintText: hinttext,
             prefixIcon: Icon(
               Icons.search,
-              color: notifire.getdarkscolor,
+              color: notifire.getdarkgreycolor,
             ),
             hintStyle: TextStyle(color: hintclr, fontSize: height / 60),
             focusedBorder: OutlineInputBorder(
@@ -311,7 +311,11 @@ class _CategoryState extends State<Category> {
                                               "images/logo_app/disabled_kumpulpay_logo.png", // Gambar fallback jika provider_images null atau kosong
                                               height: height / 30,
                                             )
-                                          : _setImage(child2[index]['images'])
+                                          : Helpers.setCachedNetworkImage(
+                                              child2[index]['images']['image'],
+                                              Image.asset(
+                                                  "images/logo_app/disabled_kumpulpay_logo.png", // Gambar fallback jika provider_images null atau kosong
+                                                  height: height / 30), height_: height / 30)
                                      
                               ),
                             ),
@@ -322,7 +326,7 @@ class _CategoryState extends State<Category> {
                           Text(
                             child2[index]["short_name"],
                             textAlign: TextAlign.center,
-                            maxLines: 1,
+                            maxLines: 2,
                             overflow: TextOverflow.ellipsis,
                             style: TextStyle(
                                 fontFamily: "Gilroy Medium",
@@ -370,46 +374,4 @@ class _CategoryState extends State<Category> {
   //   );
   // }
 
-  // Widget _setImage(dynamic images) {
-  //   return Center(
-  //     child: images != null && images.isNotEmpty
-  //         ? CachedNetworkImage(
-  //             imageUrl: images['image'],
-  //             height: height / 30,
-  //             errorWidget: (context, url, error) {
-  //               return Image.asset(
-  //                 "images/logo_app/disabled_kumpulpay_logo.png", // Gambar fallback
-  //                 height: height / 30,
-  //               );
-  //             },
-  //           ) 
-  //         : Image.asset(
-  //             "images/logo_app/disabled_kumpulpay_logo.png", // Gambar fallback jika provider_images null atau kosong
-  //             height: height / 30,
-  //           ),
-  //   );
-  // }
-  Widget _setImage(dynamic images) {
-    return Center(
-      child: images != null && images.isNotEmpty
-          ? Image.network(
-              images['image'], // URL gambar dari API
-              height: height / 30,
-              // width: width / 8,
-              fit: BoxFit
-                  .contain, // Menyesuaikan ukuran gambar di dalam container
-              errorBuilder: (context, error, stackTrace) {
-                // Fallback jika gambar gagal dimuat
-                return Image.asset(
-                  "images/logo_app/disabled_kumpulpay_logo.png", // Gambar fallback
-                  height: height / 30,
-                );
-              },
-            )
-          : Image.asset(
-              "images/logo_app/disabled_kumpulpay_logo.png", // Gambar fallback jika provider_images null atau kosong
-              height: height / 30,
-            ),
-    );
-  }
 }

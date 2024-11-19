@@ -48,7 +48,7 @@ class _HomeState extends State<Home> {
   void initState() {
     super.initState();
 
-    listFavoritService = List.filled(8, {
+    listFavoritService = List.filled(7, {
       "category_images": {
         "image": "images/logo_app/disabled_kumpulpay_logo.png"
       },
@@ -474,7 +474,7 @@ class _HomeState extends State<Home> {
                                 height: height / 60,
                               ),
                               Text(
-                                "Tarik Tunai",
+                                "Withdraw",
                                 style: TextStyle(
                                     fontFamily: "Gilroy Bold",
                                     color: notifire.getdarkscolor,

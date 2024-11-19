@@ -32,92 +32,101 @@ class _LegalPolicyState extends State<LegalPolicy> {
   Widget build(BuildContext context) {
     notifire = Provider.of<ColorNotifire>(context, listen: true);
     return Scaffold(
-      appBar: AppBar(
-        iconTheme: IconThemeData(color: notifire.getdarkscolor),
-        elevation: 0,
-        backgroundColor: notifire.getprimerycolor,
-        title: Text(
-          widget.title,
-          style: TextStyle(
-            color: notifire.getdarkscolor,
-            fontSize: MediaQuery.of(context).size.height / 40,
-            fontFamily: 'Gilroy Bold',
+        appBar: AppBar(
+          iconTheme: IconThemeData(color: notifire.getdarkscolor),
+          elevation: 0,
+          backgroundColor: notifire.getprimerycolor,
+          title: Text(
+            widget.title,
+            style: TextStyle(
+              color: notifire.getdarkscolor,
+              fontSize: MediaQuery.of(context).size.height / 40,
+              fontFamily: 'Gilroy Bold',
+            ),
           ),
         ),
-      ),
-      backgroundColor: notifire.getprimerycolor,
-      body: SingleChildScrollView(
-        child: Stack(
-          children: [
-            Container(
-              height: MediaQuery.of(context).size.height * 0.9,
-              width: MediaQuery.of(context).size.width,
-              color: Colors.transparent,
-              child: Image.asset(
+        backgroundColor: notifire.getprimerycolor,
+        body: Container(
+          height: height,
+          width: width,
+          decoration: const BoxDecoration(
+            color: Colors.transparent,
+            image: DecorationImage(
+              image: AssetImage(
                 "images/background.png",
-                fit: BoxFit.cover,
               ),
+              fit: BoxFit.cover,
             ),
-            Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    privacyPolicy.title,
-                    style: TextStyle(
-                      color: notifire.getdarkscolor,
-                      fontSize: 24,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                  SizedBox(height: 8),
-                  Text(
-                    privacyPolicy.welcomeMessage,
-                    style: TextStyle(
-                      color: notifire.getdarkscolor,
-                      fontSize: 16,
-                    ),
-                  ),
-                  SizedBox(height: 16),
-                  ...privacyPolicy.sections.map((section) {
-                    return Padding(
-                      padding: const EdgeInsets.only(bottom: 16.0),
+          ),
+          child: Column(
+            children: [
+              Expanded(
+                  child: SingleChildScrollView(
+                child: Column(
+                  children: [
+                    Padding(
+                      padding: const EdgeInsets.all(16.0),
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            section.title,
+                            privacyPolicy.title,
                             style: TextStyle(
                               color: notifire.getdarkscolor,
-                              fontSize: 18,
+                              fontSize: 24,
                               fontWeight: FontWeight.bold,
                             ),
                           ),
-                          SizedBox(height: 8),
-                          ...section.content.map((content) {
+                          const SizedBox(height: 8),
+                          Text(
+                            privacyPolicy.welcomeMessage,
+                            style: TextStyle(
+                              color: notifire.getdarkscolor,
+                              fontSize: 16,
+                            ),
+                          ),
+                          const SizedBox(height: 16),
+                          ...privacyPolicy.sections.map((section) {
                             return Padding(
-                              padding: const EdgeInsets.only(bottom: 4.0),
-                              child: Text(
-                                content,
-                                style: TextStyle(
-                                  color: notifire.getdarkscolor,
-                                  fontSize: 16,
-                                ),
+                              padding: const EdgeInsets.only(bottom: 16.0),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    section.title,
+                                    style: TextStyle(
+                                      color: notifire.getdarkscolor,
+                                      fontSize: 18,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                  const SizedBox(height: 8),
+                                  ...section.content.map((content) {
+                                    return Padding(
+                                      padding:
+                                          const EdgeInsets.only(bottom: 4.0),
+                                      child: Text(
+                                        content,
+                                        style: TextStyle(
+                                          color: notifire.getdarkscolor,
+                                          fontSize: 16,
+                                        ),
+                                      ),
+                                    );
+                                  }),
+                                ],
                               ),
                             );
-                          }).toList(),
+                          }),
                         ],
                       ),
-                    );
-                  }).toList(),
-                ],
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
+                    ),
+                  ],
+                ),
+              ))
+            ],
+          ),
+        ));
   }
 }
 

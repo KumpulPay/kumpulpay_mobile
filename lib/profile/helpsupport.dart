@@ -203,7 +203,7 @@ class _HelpSupportState extends State<HelpSupport> {
             hintText: hinttext,
             prefixIcon: Icon(
               Icons.search,
-              color: notifire.getdarkscolor,
+              color: notifire.getdarkgreycolor,
             ),
             hintStyle: TextStyle(color: hintclr, fontSize: height / 60),
             focusedBorder: OutlineInputBorder(
