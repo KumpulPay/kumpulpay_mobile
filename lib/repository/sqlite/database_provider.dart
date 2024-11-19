@@ -14,6 +14,7 @@ class DatabaseProvider {
     final database = await _initDatabase();
     getIt.registerLazySingleton<AppDatabase>(() => database);
     getIt.registerLazySingleton(() => database.notificationDao);
+    getIt.registerLazySingleton(() => database.customerNumberDao);
   }
 
   static Future<AppDatabase> _initDatabase() async {

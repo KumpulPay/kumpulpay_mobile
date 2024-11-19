@@ -158,7 +158,7 @@ class CustomStrings {
   static const String transfermoney = 'Transfer Money';
   static const String sendmoney = 'Send money';
   static const String ewallet = 'E-wallet';
-  static const String search = 'Search';
+  static const String search = 'Cari data..';
   static const String requestpayment = 'Request Payment';
   static const String amount = 'Amount';
   static const String citibankvisacard = 'Citi Bank Visa Card';

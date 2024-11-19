@@ -71,6 +71,8 @@ dependencies:
   get_it: ^7.7.0
   sqflite: ^2.3.3
   skeletonizer: ^1.4.2
+  flutter_svg: ^2.0.7
+  cached_network_image: ^3.2.3
 
 
 #  flutter_localizations:
@@ -110,6 +112,7 @@ flutter:
   assets:
     - images/
     - images/logo_app/
+    - images/ic_kumpulpay/
 
   # To add assets to your application, add an assets section, like this:
   # assets:

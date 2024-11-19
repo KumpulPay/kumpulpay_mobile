@@ -177,6 +177,7 @@ class _ProductProviderState extends State<ProductProvider> {
                               arguments: PpobPostpaidSingleProvider(
                                 type: _type,
                                 typeName: items[index]['category_name'],
+                                category: _category,
                                 categoryName: items[index]['provider_name'],
                                 child: items[index]['child'],
                               ));

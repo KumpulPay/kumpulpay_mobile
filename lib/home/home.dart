@@ -2,14 +2,14 @@ import 'dart:convert';
 
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
-import 'package:kumpulpay/card/mycard.dart';
 import 'package:kumpulpay/category/category.dart';
 import 'package:kumpulpay/data/shared_prefs.dart';
-import 'package:kumpulpay/home/notifications.dart';
 import 'package:kumpulpay/notification/notification_list.dart';
+import 'package:kumpulpay/ppob/ppob_postpaid_single_provider.dart';
 import 'package:kumpulpay/ppob/ppob_product.dart';
 import 'package:kumpulpay/home/request/request.dart';
 import 'package:kumpulpay/home/scanpay/scan.dart';
+import 'package:kumpulpay/ppob/product_provider.dart';
 import 'package:kumpulpay/repository/retrofit/api_client.dart';
 import 'package:kumpulpay/topup/topup.dart';
 import 'package:kumpulpay/transaction/history.dart';
@@ -49,8 +49,11 @@ class _HomeState extends State<Home> {
     super.initState();
 
     listFavoritService = List.filled(8, {
-      "image_mobile": "images/logo_app/disabled_kumpulpay_logo.png",
-      "name": "item1",
+      "category_images": {
+        "image": "images/logo_app/disabled_kumpulpay_logo.png"
+      },
+      "category_name": "item1",
+      "category_short_name": "item1",
     });
     
     _getDataHome();
@@ -99,21 +102,6 @@ class _HomeState extends State<Home> {
   ];
   bool selection = true;
 
-  List<dynamic> listCardBalance = [
-    {
-      "id": "paylater",
-      "name": "Limit Paylater",
-      "color": blueColor,
-      "balance": 0,
-    },
-    {
-      "id": "deposit",
-      "name": "Saldo Deposit",
-      "color": const Color(0xff8978fa),
-      "balance": 0,
-    }
-  ];
-
   @override
   Widget build(BuildContext context) {
     notifire = Provider.of<ColorNotifire>(context, listen: true);
@@ -142,21 +130,21 @@ class _HomeState extends State<Home> {
           ],
         ),
         actions: [
-          GestureDetector(
-            onTap: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => const MyCard(),
-                ),
-              );
-            },
-            child: Image.asset(
-              "images/message1.png",
-              color: notifire.getdarkscolor,
-              scale: 4,
-            ),
-          ),
+          // GestureDetector(
+          //   onTap: () {
+          //     Navigator.push(
+          //       context,
+          //       MaterialPageRoute(
+          //         builder: (context) => const MyCard(),
+          //       ),
+          //     );
+          //   },
+          //   child: Image.asset(
+          //     "images/message1.png",
+          //     color: notifire.getdarkscolor,
+          //     scale: 4,
+          //   ),
+          // ),
           const SizedBox(
             width: 15,
           ),
@@ -396,7 +384,7 @@ class _HomeState extends State<Home> {
                                   ),
                                   child: Center(
                                     child: Image.asset(
-                                      "images/scanpay.png",
+                                      "images/ic_kumpulpay/scanqr.png",
                                       height: height / 20,
                                     ),
                                   ),
@@ -436,7 +424,7 @@ class _HomeState extends State<Home> {
                                   ),
                                   child: Center(
                                     child: Image.asset(
-                                      "images/transfer.png",
+                                      "images/ic_kumpulpay/transfer.png",
                                       height: height / 20,
                                     ),
                                   ),
@@ -476,7 +464,7 @@ class _HomeState extends State<Home> {
                                   ),
                                   child: Center(
                                     child: Image.asset(
-                                      "images/request.png",
+                                      "images/ic_kumpulpay/withdraw.png",
                                       height: height / 20,
                                     ),
                                   ),
@@ -511,7 +499,7 @@ class _HomeState extends State<Home> {
                                   ),
                                   child: Center(
                                     child: Image.asset(
-                                      "images/topup.png",
+                                      "images/ic_kumpulpay/deposit.png",
                                       height: height / 20,
                                     ),
                                   ),
@@ -602,14 +590,88 @@ class _HomeState extends State<Home> {
                     crossAxisSpacing: height / 50,
                     mainAxisSpacing: height / 100,
                   ),
-                  itemCount: listFavoritService.length,
+                  itemCount: listFavoritService.length + 1,
                   itemBuilder: (BuildContext ctx, index) {
+                    if (index == listFavoritService.length) {
+                      return GestureDetector(
+                            onTap: () {
+
+                            },
+                            child: Column(
+                              children: [
+                                Container(
+                                  height: height / 15,
+                                  width: width / 7,
+                                  decoration: BoxDecoration(
+                                    color: notifire.gettabwhitecolor,
+                                    borderRadius: const BorderRadius.all(
+                                      Radius.circular(10),
+                                    ),
+                                  ),
+                                  child: Center(
+                                    child: Image.asset(
+                                      "images/ic_kumpulpay/view_more.png",
+                                      height: height / 30,
+                                    ),
+                                  ),
+                                ),
+                                SizedBox(
+                                  height: height / 120,
+                                ),
+                                Center(
+                                  child: Text(
+                                    "Lainnya",
+                                    textAlign: TextAlign.center,
+                                    style: TextStyle(
+                                        fontFamily: "Gilroy Medium",
+                                        color: notifire.getdarkscolor,
+                                        fontSize: height / 60),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          );
+                    }
                     return GestureDetector(
                       onTap: () {
-                        Navigator.pushNamed(context, PpobProduct.routeName,
-                            arguments: PpobProduct(
-                                type: listFavoritService[index]["name_unique"],
-                                categoryData: listFavoritService[index]));
+                        if (listFavoritService[index]['type'] == 'prepaid') {
+                          dynamic categoryData = {
+                            "id": listFavoritService[index]['category'],
+                            "name": listFavoritService[index]['category_name'],
+                            "short_name": listFavoritService[index]['category_short_name'],
+                            "images": listFavoritService[index]['category_images']
+                          };
+                          Navigator.pushNamed(
+                              context, PpobProduct.routeName,
+                              arguments: PpobProduct(
+                                  type: listFavoritService[index]['type'],
+                                  categoryData: categoryData));
+                        } else if (listFavoritService[index]['type'] == 'postpaid') {
+                          if (listFavoritService[index]['count_provider'] > 1) {
+                            Navigator.pushNamed(
+                                context, ProductProvider.routeName,
+                                arguments: ProductProvider(
+                                    type: listFavoritService[index]['type'],
+                                    typeName: listFavoritService[index]['type_name'],
+                                    category: listFavoritService[index]['category'],
+                                    categoryName: listFavoritService[index]['category_name']));
+                          } else {
+                            Navigator.pushNamed(context,
+                                PpobPostpaidSingleProvider.routeName,
+                                arguments: PpobPostpaidSingleProvider(
+                                    type: listFavoritService[index]['type'],
+                                    typeName: listFavoritService[index]['type_name'],
+                                    category: listFavoritService[index]['category'],
+                                    categoryName: listFavoritService[index]['category_name'],
+                                    child: listFavoritService[index]['child']));
+                          }
+                        } else if (listFavoritService[index]['type'] == 'entertainment') {
+                          Navigator.pushNamed(
+                              context, PpobProduct.routeName,
+                              arguments: PpobProduct(
+                                  type: listFavoritService[index]['type'],
+                                  categoryData: listFavoritService[index]));
+                        }
                       },
                       child: Column(
                         children: [
@@ -623,10 +685,13 @@ class _HomeState extends State<Home> {
                               ),
                             ),
                             child: Center(
-                              child: Image.asset(
-                                listFavoritService[index]["image_mobile"],
-                                height: height / 30,
-                              ),
+                              child: _loading
+                                      ? Image.asset(
+                                          "images/logo_app/disabled_kumpulpay_logo.png", // Gambar fallback jika provider_images null atau kosong
+                                          height: height / 30,
+                                        )
+                                      : _setImage(
+                                          listFavoritService[index]['category_images']),
                             ),
                           ),
                           SizedBox(
@@ -634,7 +699,7 @@ class _HomeState extends State<Home> {
                           ),
                           Center(
                             child: Text(
-                              listFavoritService[index]["name"],
+                              listFavoritService[index]["category_short_name"],
                               textAlign: TextAlign.center,
                               style: TextStyle(
                                   fontFamily: "Gilroy Medium",
@@ -939,19 +1004,42 @@ class _HomeState extends State<Home> {
     );
   }
 
+  Widget _setImage(dynamic images) {
+    return Center(
+      child: images != null && images.isNotEmpty
+          ? Image.network(
+              images['image'], // URL gambar dari API
+              height: height / 30,
+              // width: width / 8,
+              fit: BoxFit
+                  .contain, // Menyesuaikan ukuran gambar di dalam container
+              errorBuilder: (context, error, stackTrace) {
+                // Fallback jika gambar gagal dimuat
+                return Image.asset(
+                  "images/logo_app/disabled_kumpulpay_logo.png", // Gambar fallback
+                  height: height / 30,
+                );
+              },
+            )
+          : Image.asset(
+              "images/logo_app/disabled_kumpulpay_logo.png", // Gambar fallback jika provider_images null atau kosong
+              height: height / 30,
+            ),
+    );
+  }
+
   void _getDataHome() async {
     try {
       final response = await ApiClient(Dio(BaseOptions(contentType: "application/json")))
       .getHome('Bearer ${SharedPrefs().token}');
       if (response['status']) {
         setState(() {
-          _loading = false;
           balanceAvailable = response["data"]["balance"].toDouble();
           SharedPrefs().balanceAvailable = balanceAvailable;
 
           listFavoritService = response["data"]["favorit_sevice"];
           listLastTransaction = response["data"]["last_transaction"];
-          
+          _loading = false;
         });
 
       } else {

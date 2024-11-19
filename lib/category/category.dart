@@ -11,6 +11,7 @@ import 'package:kumpulpay/utils/media.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:skeletonizer/skeletonizer.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 import '../utils/colornotifire.dart';
 import '../utils/string.dart';
 
@@ -269,12 +270,6 @@ class _CategoryState extends State<Category> {
                                         categoryData: child2[index]));
                               } else if (item['id'] == 'postpaid') {
                                 if (child2[index]['count_provider'] > 1) {
-                                  // Navigator.pushNamed(
-                                  //     context, PpobPostpaid.routeName,
-                                  //     arguments: PpobPostpaid(
-                                  //         type: item['id'],
-                                  //         categoryData:
-                                  //             child2[index]));
                                   Navigator.pushNamed(
                                       context, ProductProvider.routeName,
                                       arguments: ProductProvider(
@@ -283,13 +278,15 @@ class _CategoryState extends State<Category> {
                                           category: child2[index]['id'],
                                           categoryName: child2[index]['name']));
                                 } else {
+                                  
                                   Navigator.pushNamed(context,
                                       PpobPostpaidSingleProvider.routeName,
                                       arguments: PpobPostpaidSingleProvider(
                                           type: item['id'],
                                           typeName: item['name'],
                                           category: child2[index]['id'],
-                                          categoryName: child2[index]['name']));
+                                          categoryName: child2[index]['name'],
+                                          child: child2[index]['child']));
                                 }
                               } else if (item['id'] == 'entertainment') {
                                 Navigator.pushNamed(
@@ -309,11 +306,13 @@ class _CategoryState extends State<Category> {
                                 ),
                               ),
                               child: Center(
-                                child: Image.asset(
-                                  // child2[index]["short_name"],
-                                  'images/logo_app/disabled_kumpulpay_logo.png',
-                                  height: height / 30,
-                                ),
+                                      child: _loading
+                                          ? Image.asset(
+                                              "images/logo_app/disabled_kumpulpay_logo.png", // Gambar fallback jika provider_images null atau kosong
+                                              height: height / 30,
+                                            )
+                                          : _setImage(child2[index]['images'])
+                                     
                               ),
                             ),
                           ),
@@ -323,7 +322,7 @@ class _CategoryState extends State<Category> {
                           Text(
                             child2[index]["short_name"],
                             textAlign: TextAlign.center,
-                            maxLines: 2,
+                            maxLines: 1,
                             overflow: TextOverflow.ellipsis,
                             style: TextStyle(
                                 fontFamily: "Gilroy Medium",
@@ -341,4 +340,76 @@ class _CategoryState extends State<Category> {
     ]));
   }
 
+  // Widget _setImage(dynamic images) {
+  //   String image = "images/logo_app/disabled_kumpulpay_logo.png";
+  //   if (images != null && images.isNotEmpty) {
+  //     String fileName = Uri.parse(images['image']).pathSegments.last;
+  //     image = "images/product/category/${fileName}";
+  //   }
+  //   return Center(
+  //     child: SvgPicture.asset(
+  //       image,
+  //       height: height / 30,
+  //     ),
+  //   );
+  // }
+
+  // Widget _setImage(dynamic images) {
+  //   return Center(
+  //     child: images != null && images.isNotEmpty
+  //         ? SvgPicture.network(
+  //             images['image'], // URL gambar SVG
+  //             height: height / 20,
+  //             width: width / 8,
+  //             fit: BoxFit.contain,
+  //           )
+  //         : Image.asset(
+  //             "images/logo_app/disabled_kumpulpay_logo.png", // Gambar fallback
+  //             height: height / 30,
+  //           ),
+  //   );
+  // }
+
+  // Widget _setImage(dynamic images) {
+  //   return Center(
+  //     child: images != null && images.isNotEmpty
+  //         ? CachedNetworkImage(
+  //             imageUrl: images['image'],
+  //             height: height / 30,
+  //             errorWidget: (context, url, error) {
+  //               return Image.asset(
+  //                 "images/logo_app/disabled_kumpulpay_logo.png", // Gambar fallback
+  //                 height: height / 30,
+  //               );
+  //             },
+  //           ) 
+  //         : Image.asset(
+  //             "images/logo_app/disabled_kumpulpay_logo.png", // Gambar fallback jika provider_images null atau kosong
+  //             height: height / 30,
+  //           ),
+  //   );
+  // }
+  Widget _setImage(dynamic images) {
+    return Center(
+      child: images != null && images.isNotEmpty
+          ? Image.network(
+              images['image'], // URL gambar dari API
+              height: height / 30,
+              // width: width / 8,
+              fit: BoxFit
+                  .contain, // Menyesuaikan ukuran gambar di dalam container
+              errorBuilder: (context, error, stackTrace) {
+                // Fallback jika gambar gagal dimuat
+                return Image.asset(
+                  "images/logo_app/disabled_kumpulpay_logo.png", // Gambar fallback
+                  height: height / 30,
+                );
+              },
+            )
+          : Image.asset(
+              "images/logo_app/disabled_kumpulpay_logo.png", // Gambar fallback jika provider_images null atau kosong
+              height: height / 30,
+            ),
+    );
+  }
 }

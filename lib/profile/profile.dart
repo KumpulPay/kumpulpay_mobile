@@ -8,6 +8,7 @@ import 'package:kumpulpay/profile/editprofile.dart';
 import 'package:kumpulpay/security/password/password.dart';
 import 'package:kumpulpay/security/pin/pin.dart';
 import 'package:kumpulpay/transaction/history.dart';
+import 'package:kumpulpay/transaction/history_all.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../utils/colornotifire.dart';
@@ -154,7 +155,8 @@ class _ProfileState extends State<Profile> {
                     SizedBox(height: height / 80),
                     GestureDetector(
                       onTap: () {
-                        Navigator.pushNamed(context, History.routeName);
+                        // Navigator.pushNamed(context, History.routeName);
+                        Navigator.pushNamed(context, HistoryAll.routeName);
                       },
                       child: settingtype("images/history.png",
                           CustomStrings.historytransaction),
@@ -264,29 +266,29 @@ class _ProfileState extends State<Profile> {
                     ),
 
                     // Start Pemberitahuan
-                    SizedBox(
-                      height: height / 50,
-                    ),
-                    GestureDetector(
-                      onTap: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => const Notifications(),
-                          ),
-                        );
-                      },
-                      child: settingtype("images/notification.png",
-                          CustomStrings.notification),
-                    ),
-                    SizedBox(height: height / 80),
-                    Padding(
-                      padding: EdgeInsets.symmetric(horizontal: width / 20),
-                      child: Divider(
-                        thickness: 0.6,
-                        color: Colors.grey.withOpacity(0.4),
-                      ),
-                    ),
+                    // SizedBox(
+                    //   height: height / 50,
+                    // ),
+                    // GestureDetector(
+                    //   onTap: () {
+                    //     Navigator.push(
+                    //       context,
+                    //       MaterialPageRoute(
+                    //         builder: (context) => const Notifications(),
+                    //       ),
+                    //     );
+                    //   },
+                    //   child: settingtype("images/notification.png",
+                    //       CustomStrings.notification),
+                    // ),
+                    // SizedBox(height: height / 80),
+                    // Padding(
+                    //   padding: EdgeInsets.symmetric(horizontal: width / 20),
+                    //   child: Divider(
+                    //     thickness: 0.6,
+                    //     color: Colors.grey.withOpacity(0.4),
+                    //   ),
+                    // ),
                     // End Pemberitahuan
                     
                     // Start Bantuan

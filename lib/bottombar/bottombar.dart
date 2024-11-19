@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:kumpulpay/home/home.dart';
+import 'package:kumpulpay/notification/notification_list.dart';
 import 'package:kumpulpay/test.dart';
+import 'package:kumpulpay/transaction/history_all.dart';
 import 'package:kumpulpay/utils/colornotifire.dart';
 import 'package:kumpulpay/utils/media.dart';
 import 'package:kumpulpay/wallet/wallets.dart';
@@ -122,7 +124,7 @@ class _BottombarState extends State<Bottombar> {
                     onTap: () {
                       setState(
                         () {
-                          currentScreen = const Analytics();
+                          currentScreen = const HistoryAll();
                           currentTab = 1;
                         },
                       );
@@ -132,11 +134,11 @@ class _BottombarState extends State<Bottombar> {
                       children: [
                         currentTab == 1
                             ? Image.asset(
-                                "images/order1.png",
+                                "images/activity.png",
                                 height: height / 33,
                                 color: notifire.getPrimaryPurpleColor,
                               )
-                            : Image.asset("images/variant.png",
+                            : Image.asset("images/activity.png",
                                 height: height / 33,
                                 color: notifire.getdarkscolor),
                       ],
@@ -151,7 +153,7 @@ class _BottombarState extends State<Bottombar> {
                     onTap: () {
                       setState(
                         () {
-                          currentScreen = const Wallets();
+                          currentScreen = const NotificationList();
                           currentTab = 3;
                         },
                       );
@@ -161,11 +163,11 @@ class _BottombarState extends State<Bottombar> {
                       children: [
                         currentTab == 3
                             ? Image.asset(
-                                "images/wallet.png",
+                                "images/notification.png",
                                 height: height / 30,
                                 color: notifire.getPrimaryPurpleColor,
                               )
-                            : Image.asset("images/message1.png",
+                            : Image.asset("images/notification.png",
                                 height: height / 30,
                                 color: notifire.getdarkscolor),
                       ],

@@ -358,10 +358,14 @@ class _PpobProductState extends State<PpobProduct>
                             childAspectRatio: 2.0),
                     itemCount: listDetail.length,
                     itemBuilder: (BuildContext ctx, index) {
+                      double priceList = listDetail[index]["price"].toDouble() +
+                          listDetail[index]["margin"].toDouble() -
+                          listDetail[index]["discount"].toDouble();
                       return GestureDetector(
                         onTap: () {
                           if (_txtDestination.isNotEmpty) {
                             showModalBottomSheet(
+                                isDismissible: false,
                                 isScrollControlled: true,
                                 shape: const RoundedRectangleBorder(
                                   borderRadius: BorderRadius.only(
@@ -420,8 +424,7 @@ class _PpobProductState extends State<PpobProduct>
                                           flex: 2,
                                           child: Text(
                                             Helpers.currencyFormatter(
-                                                listDetail[index]["price_fixed"]
-                                                    .toDouble()),
+                                                priceList),
                                             textAlign: TextAlign.end,
                                             style: TextStyle(
                                                 color: notifire.getPrimaryPurpleColor,
@@ -495,7 +498,8 @@ class _PpobProductState extends State<PpobProduct>
                                               height: height / 30,
                                             )
                                           : _setImage(
-                                              items[index]['provider_images'])),
+                                              items[index]['provider_images'])
+                                  ),
                                 ),
                                 // end icon
                                 SizedBox(
@@ -704,7 +708,8 @@ class _PpobProductState extends State<PpobProduct>
               const Spacer(),
               Text(
                 Helpers.currencyFormatter(
-                    listDetail[index]["price_fixed"].toDouble()),
+                    listDetail[index]["price"].toDouble() +
+                        listDetail[index]["margin"].toDouble()),
                 style: TextStyle(
                   color: notifire.getdarkscolor,
                   fontFamily: 'Gilroy Medium',
@@ -714,6 +719,8 @@ class _PpobProductState extends State<PpobProduct>
             ],
           ),
         ),
+
+        // Start Discount
         SizedBox(
           height: height / 80,
         ),
@@ -722,7 +729,7 @@ class _PpobProductState extends State<PpobProduct>
           child: Row(
             children: [
               Text(
-                "Admin",
+                "Diskon",
                 style: TextStyle(
                   color: Colors.grey,
                   fontFamily: 'Gilroy Medium',
@@ -731,7 +738,7 @@ class _PpobProductState extends State<PpobProduct>
               ),
               const Spacer(),
               Text(
-                "Rp500",
+                "-${Helpers.currencyFormatter(listDetail[index]["discount"].toDouble())}",
                 style: TextStyle(
                   color: notifire.getdarkscolor,
                   fontFamily: 'Gilroy Medium',
@@ -741,6 +748,38 @@ class _PpobProductState extends State<PpobProduct>
             ],
           ),
         ),
+        // End Discount
+
+        // Start Admin
+        SizedBox(
+          height: height / 80,
+        ),
+        Padding(
+          padding: EdgeInsets.symmetric(horizontal: width / 20),
+          child: Row(
+            children: [
+              Text(
+                "Biaya Layanan",
+                style: TextStyle(
+                  color: Colors.grey,
+                  fontFamily: 'Gilroy Medium',
+                  fontSize: height / 60,
+                ),
+              ),
+              const Spacer(),
+              Text(
+                Helpers.currencyFormatter(
+                    listDetail[index]["admin_fee"].toDouble()),
+                style: TextStyle(
+                  color: notifire.getdarkscolor,
+                  fontFamily: 'Gilroy Medium',
+                  fontSize: height / 60,
+                ),
+              ),
+            ],
+          ),
+        ),
+        // End Admin
 
         Padding(
           padding: EdgeInsets.symmetric(
@@ -769,8 +808,7 @@ class _PpobProductState extends State<PpobProduct>
               const Spacer(),
               Text(
                 Helpers.currencyFormatter(
-                    (listDetail[index]["price_fixed"] + 500)
-                        .toDouble()),
+                    listDetail[index]["price_fixed"].toDouble()),
                 style: TextStyle(
                   color: notifire.getdarkscolor,
                   fontFamily: 'Gilroy Medium',
@@ -817,7 +855,7 @@ class _PpobProductState extends State<PpobProduct>
               ),
               const Spacer(),
               Text(
-                "0",
+                Helpers.currencyFormatter(SharedPrefs().balanceAvailable),
                 style: TextStyle(
                   color: notifire.getdarkscolor,
                   fontFamily: 'Gilroy Medium',

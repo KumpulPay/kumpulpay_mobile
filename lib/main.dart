@@ -26,6 +26,7 @@ import 'package:kumpulpay/topup/topup.dart';
 import 'package:kumpulpay/topup/topup_transfer_manual.dart';
 import 'package:kumpulpay/transaction/confirm_pin.dart';
 import 'package:kumpulpay/transaction/history.dart';
+import 'package:kumpulpay/transaction/history_all.dart';
 import 'package:kumpulpay/utils/colornotifire.dart';
 import 'package:provider/provider.dart';
 
@@ -73,7 +74,9 @@ FutureOr<void> main() async {
           PpobPostpaid.routeName: (context) => const PpobPostpaid(),
           PpobPostpaidSingleProvider.routeName: (context) => const PpobPostpaidSingleProvider(),
 
+          HistoryAll.routeName: (context) => const HistoryAll(),
           History.routeName: (context) => const History(),
+          HistoryAll.routeName: (context) => const HistoryAll(),
           ConfirmPin.routeName: (context) => const ConfirmPin(),
 
           EditProfile.routeName: (context) => const EditProfile(),

@@ -34,6 +34,7 @@ class _NotificationListState extends State<NotificationList> {
   final int itemsPerPage = 10;
   int currentPage = 0;
   List<NotificationEntity> notifList = [];
+  Map<String, List<NotificationEntity>> groupedNotifications = {};
 
   @override
   void initState() {
@@ -50,25 +51,41 @@ class _NotificationListState extends State<NotificationList> {
 
   Future<void> _loadData() async {
     if (_isLoading) return;
+
     setState(() {
       _isLoading = true;
     });
-    final NotificationDao dao = GetIt.instance.get<NotificationDao>();
-    // final offset = currentPage * itemsPerPage;
 
+    final NotificationDao dao = GetIt.instance.get<NotificationDao>();
     final results = await dao.findAll(itemsPerPage, currentPage);
 
     setState(() {
       notifList.addAll(results);
+      groupedNotifications = _groupNotificationsByDate(notifList);
       currentPage += itemsPerPage;
       _isLoading = false;
     });
   }
 
+  Map<String, List<NotificationEntity>> _groupNotificationsByDate(
+      List<NotificationEntity> notifications) {
+    Map<String, List<NotificationEntity>> grouped = {};
+    for (var notif in notifications) {
+      String dateKey = Helpers.dateTimeToFormat(
+        notif.timestamp.toString(),
+        format: "dd MMM yyyy",
+      );
+      if (!grouped.containsKey(dateKey)) {
+        grouped[dateKey] = [];
+      }
+      grouped[dateKey]!.add(notif);
+    }
+    return grouped;
+  }
+
   @override
   Widget build(BuildContext context) {
     notifire = Provider.of<ColorNotifire>(context, listen: true);
-    print('print: ${notifList.length}');
     return Scaffold(
       appBar: AppBar(
         elevation: 0,
@@ -97,107 +114,117 @@ class _NotificationListState extends State<NotificationList> {
             ),
           ),
           child: Padding(
-            padding: EdgeInsets.only(left: width / 20, right: width / 20, top: height / 40),
+            padding: EdgeInsets.only(left: width / 20, right: width / 20, top: height / 60),
+            child: _buildNotificationList(),
+          )),
+    );
+  }
+
+  Widget _buildNotificationList() {
+    if (_isLoading && notifList.isEmpty) {
+      return const Center(child: CircularProgressIndicator());
+    }
+
+    return ListView.builder(
+      controller: _scrollController,
+      itemCount: groupedNotifications.length + (_isLoading ? 1 : 0),
+      itemBuilder: (context, index) {
+        if (index < groupedNotifications.length) {
+          String dateKey = groupedNotifications.keys.elementAt(index);
+          List<NotificationEntity> items = groupedNotifications[dateKey]!;
+
+          return _buildNotificationSection(dateKey, items);
+        } else {
+          return const Center(child: CircularProgressIndicator());
+        }
+      },
+    );
+  }
+
+  Widget _buildNotificationSection(
+      String dateKey, List<NotificationEntity> items) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        // Section Header
+        Padding(
+          padding: const EdgeInsets.symmetric(vertical: 8.0),
+          child: Text(
+            dateKey,
+            style: TextStyle(
+              fontSize: 16,
+              fontWeight: FontWeight.bold,
+              color: notifire.getdarkscolor,
+            ),
+          ),
+        ),
+        // const Divider(),
+
+        // Section Items
+        Column(
+          children: items.map((notif) {
+            return _buildNotificationItem(notif);
+          }).toList(),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildNotificationItem(NotificationEntity item) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 8.0),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // Icon or Image
+          SizedBox(
+            height: MediaQuery.of(context).size.height / 20,
+            width: MediaQuery.of(context).size.width / 10,
+            child: Image.asset("images/logo_app/disabled_kumpulpay_logo.png"),
+          ),
+          const SizedBox(width: 8.0),
+
+          // Notification Content
+          Expanded(
             child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Expanded(
-                    child: ListView.builder(
-                        controller: _scrollController,
-                        shrinkWrap: true,
-                        // physics: const NeverScrollableScrollPhysics(),
-                        itemCount: notifList.length + (_isLoading ? 1 : 0),
-                        padding: EdgeInsets.zero,
-                        itemBuilder: (context, index) {
-                          if (index < notifList.length) {
-                            final item = notifList[index];
-                            return Column(
-                              children: [
-                                Container(
-                                  width: width,
-                                  color: Colors.transparent,
-                                  child: Row(
-                                    crossAxisAlignment: CrossAxisAlignment.start,
-                                    children: [
-                                      Container(
-                                        // color: Colors.amber,
-                                        height: height / 20,
-                                        width: width / 10,
-                                        child:  Padding(
-                                          padding: const EdgeInsets.all(0),
-                                          child: Image.asset(
-                                              "images/successfull.png"),
-                                        ),
-                                      ),
-                                      SizedBox(
-                                        width: width / 30,
-                                      ),
-                                      Expanded(
-                                        child: Column(
-                                          crossAxisAlignment:
-                                              CrossAxisAlignment.start,
-                                          children: [
-                                            Text(
-                                              item.title,
-                                              maxLines: 1,
-                                              overflow: TextOverflow.ellipsis,
-                                              softWrap: false,
-                                              style: TextStyle(
-                                                  color: notifire.getdarkscolor,
-                                                  fontFamily: 'Gilroy Bold',
-                                                  fontSize: height / 54),
-                                            ),
-                                            SizedBox(
-                                              height: height / 100,
-                                            ),
-                                            Text(
-                                              item.subtitle,
-                                              style: TextStyle(
-                                                  color: Colors.grey,
-                                                  fontFamily: 'Gilroy Medium',
-                                                  fontSize: height / 55),
-                                            ),
-                                            const SizedBox(
-                                              height: 3,
-                                            ),
-                                            Text(
-                                              Helpers.dateTimeToFormat(
-                                                  item.timestamp.toString(),
-                                                  format:
-                                                      "dd MMM yy | hh:mm:ss"),
-                                              style: TextStyle(
-                                                  color: Colors.grey,
-                                                  fontSize: height / 60,
-                                                  fontFamily: 'Gilroy Medium'),
-                                            ),
-                                          ],
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                                SizedBox(
-                                  height: height / 100,
-                                ),
-                                Padding(
-                                  padding: const EdgeInsets.symmetric(),
-                                  child: Divider(
-                                    color: notifire.getdarkgreycolor
-                                        .withOpacity(0.1),
-                                  ),
-                                ),
-                                SizedBox(
-                                  height: height / 100,
-                                ),
-                              ],
-                            );
-                          } else {
-                            return const Center(
-                                child: Text('Please wait its loading...'));
-                          }
-                        }))
+                Text(
+                  item.title,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: TextStyle(
+                    color: notifire.getdarkscolor,
+                    fontFamily: 'Gilroy Bold',
+                    fontSize: MediaQuery.of(context).size.height / 54,
+                  ),
+                ),
+                const SizedBox(height: 4.0),
+                Text(
+                  item.subtitle,
+                  style: TextStyle(
+                    color: Colors.grey,
+                    fontFamily: 'Gilroy Medium',
+                    fontSize: MediaQuery.of(context).size.height / 55,
+                  ),
+                ),
+                const SizedBox(height: 4.0),
+                Text(
+                  Helpers.dateTimeToFormat(
+                    item.timestamp.toString(),
+                    format: "hh:mm:ss",
+                  ),
+                  style: TextStyle(
+                    color: Colors.grey,
+                    fontSize: MediaQuery.of(context).size.height / 60,
+                    fontFamily: 'Gilroy Medium',
+                  ),
+                ),
               ],
             ),
-          )),
+          ),
+        ],
+      ),
     );
   }
 

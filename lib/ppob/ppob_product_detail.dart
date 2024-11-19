@@ -94,6 +94,7 @@ class _PpobProductDetailState extends State<PpobProductDetail> {
       _fetchData();
     });    
   }
+
   getdarkmodepreviousstate() async {
     final prefs = await SharedPreferences.getInstance();
     bool? previusstate = prefs.getBool("setIsDark");
@@ -331,16 +332,20 @@ class _PpobProductDetailState extends State<PpobProductDetail> {
                                 childAspectRatio: 2.0),
                         itemCount: listDetail.length,
                         itemBuilder: (BuildContext ctxObs, index) {
+                          double priceList = listDetail[index]["price"].toDouble() +
+                              listDetail[index]["margin"].toDouble() -
+                              listDetail[index]["discount"].toDouble();
+                            
                           return GestureDetector(
                             onTap: () {
-                              // if (_txtDestination.isNotEmpty) {
-                              //   _openBottomSheet(ctxObs, listDetail, index);
-                              // } else {
-                              //   ScaffoldMessenger.of(context).showSnackBar(
-                              //       const SnackBar(
-                              //           content: Text(
-                              //               "Masukkan nomor terlebih dulu!")));
-                              // }
+                              if (_txtDestination.isNotEmpty) {
+                                _openBottomSheet(ctxObs, listDetail, index);
+                              } else {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                    const SnackBar(
+                                        content: Text(
+                                            "Masukkan nomor terlebih dulu!")));
+                              }
                             },
                             child: Container(
                                 // width: double.infinity,
@@ -377,10 +382,7 @@ class _PpobProductDetailState extends State<PpobProductDetail> {
                                           Expanded(
                                               flex: 2,
                                               child: Text(
-                                                Helpers.currencyFormatter(
-                                                    listDetail[index]
-                                                            ["price_fixed"]
-                                                        .toDouble()),
+                                                Helpers.currencyFormatter(priceList),
                                                 textAlign: TextAlign.end,
                                                 style: TextStyle(
                                                     color: notifire
@@ -446,28 +448,14 @@ class _PpobProductDetailState extends State<PpobProductDetail> {
                                                 vertical: height / 100),
                                             child: GestureDetector(
                                               onTap: () {
-                                                showModalBottomSheet(
-                                                    isScrollControlled: true,
-                                                    shape:
-                                                        const RoundedRectangleBorder(
-                                                      borderRadius:
-                                                          BorderRadius.only(
-                                                        topLeft:
-                                                            Radius.circular(20),
-                                                        topRight:
-                                                            Radius.circular(20),
-                                                      ),
-                                                    ),
-                                                    backgroundColor: notifire
-                                                        .getprimerycolor,
-                                                    context: context,
-                                                    builder:
-                                                        (BuildContext context) {
-                                                      return _bottomSheetContent(
-                                                          context,
-                                                          group2,
-                                                          index);
-                                                    });
+                                                if (_txtDestination.isNotEmpty) {
+                                                  _openBottomSheet(context,group2, index);
+                                                } else {
+                                                  ScaffoldMessenger.of(context)
+                                                      .showSnackBar(const SnackBar(
+                                                          content: Text(
+                                                              "Masukkan nomor terlebih dulu!")));
+                                                }
                                               },
                                               child: Container(
                                                 decoration: const BoxDecoration(
@@ -552,6 +540,14 @@ class _PpobProductDetailState extends State<PpobProductDetail> {
   }
 
   Widget _bottomSheetContent(BuildContext ctxBsc, List<dynamic> listDetail, int index) {
+    String productCode = listDetail[index]["name_unique"];
+    if (_filterCategory == 'prepaid_pulsa' ||
+          _filterCategory == 'prepaid_e_money') {
+            productCode = Helpers.currencyFormatter(
+                    double.parse(productCode),
+                    symbol: "");
+    }
+    
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
@@ -618,9 +614,7 @@ class _PpobProductDetailState extends State<PpobProductDetail> {
               ),
               const Spacer(),
               Text(
-                Helpers.currencyFormatter(
-                    double.parse(listDetail[index]["name_unique"]),
-                    symbol: ""),
+                productCode,
                 style: TextStyle(
                   color: notifire.getdarkscolor,
                   fontFamily: 'Gilroy Medium',
@@ -716,7 +710,9 @@ class _PpobProductDetailState extends State<PpobProductDetail> {
               ),
               const Spacer(),
               Text(
-                Helpers.currencyFormatter(listDetail[index]["price_fixed"].toDouble()),
+                Helpers.currencyFormatter(
+                    listDetail[index]["price"].toDouble() +
+                        listDetail[index]["margin"].toDouble()),
                 style: TextStyle(
                   color: notifire.getdarkscolor,
                   fontFamily: 'Gilroy Medium',
@@ -726,36 +722,6 @@ class _PpobProductDetailState extends State<PpobProductDetail> {
             ],
           ),
         ),
-
-        // Start Admin
-        SizedBox(
-          height: height / 80,
-        ),
-        Padding(
-          padding: EdgeInsets.symmetric(horizontal: width / 20),
-          child: Row(
-            children: [
-              Text(
-                "Admin",
-                style: TextStyle(
-                  color: Colors.grey,
-                  fontFamily: 'Gilroy Medium',
-                  fontSize: height / 60,
-                ),
-              ),
-              const Spacer(),
-              Text(
-                "Rp500",
-                style: TextStyle(
-                  color: notifire.getdarkscolor,
-                  fontFamily: 'Gilroy Medium',
-                  fontSize: height / 60,
-                ),
-              ),
-            ],
-          ),
-        ),
-        // End Admin
 
         // Start Discount
         SizedBox(
@@ -775,8 +741,7 @@ class _PpobProductDetailState extends State<PpobProductDetail> {
               ),
               const Spacer(),
               Text(
-                Helpers.currencyFormatter(
-                  double.tryParse(listDetail[index]["discount"] ?? '0') ?? 0.0),
+                "-${Helpers.currencyFormatter(listDetail[index]["discount"].toDouble())}",
                 style: TextStyle(
                   color: notifire.getdarkscolor,
                   fontFamily: 'Gilroy Medium',
@@ -787,6 +752,37 @@ class _PpobProductDetailState extends State<PpobProductDetail> {
           ),
         ),
         // End Discount
+
+        // Start Admin
+        SizedBox(
+          height: height / 80,
+        ),
+        Padding(
+          padding: EdgeInsets.symmetric(horizontal: width / 20),
+          child: Row(
+            children: [
+              Text(
+                "Biaya Layanan",
+                style: TextStyle(
+                  color: Colors.grey,
+                  fontFamily: 'Gilroy Medium',
+                  fontSize: height / 60,
+                ),
+              ),
+              const Spacer(),
+              Text(
+                Helpers.currencyFormatter(
+                    listDetail[index]["admin_fee"].toDouble()),
+                style: TextStyle(
+                  color: notifire.getdarkscolor,
+                  fontFamily: 'Gilroy Medium',
+                  fontSize: height / 60,
+                ),
+              ),
+            ],
+          ),
+        ),
+        // End Admin
 
         Padding(
           padding: EdgeInsets.symmetric(
