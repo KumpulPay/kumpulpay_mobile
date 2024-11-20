@@ -86,7 +86,7 @@ class _ProductProviderState extends State<ProductProvider> {
         iconTheme: IconThemeData(color: notifire.getdarkscolor),
         backgroundColor: notifire.getprimerycolor,
         title: Text(
-          "Pilih Provider",
+         _categoryName ??'',
           style: TextStyle(
               color: notifire.getdarkscolor,
               fontSize: height / 40,

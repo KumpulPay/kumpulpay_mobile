@@ -243,7 +243,7 @@ class _ConfirmPinState extends State<ConfirmPin> {
       Map<String, dynamic> body = {"pin_transaction": txtPinTransaction};
       body.addAll(_formData);
       String jsonString = json.encode(body);
-      print(jsonString);
+      // print('jsonStringXX ${jsonString}');
       Loading.showLoadingDialog(context, _globalKey);
       final client =
           ApiClient(Dio(BaseOptions(contentType: "application/json")));
@@ -259,7 +259,7 @@ class _ConfirmPinState extends State<ConfirmPin> {
       }
     } on DioException catch (e) {
       Navigator.pop(context);
-      print("error: ${e}");
+      // print("error: ${e}");
       if (e.response != null) {
         // print(e.response?.data);
         // print(e.response?.headers);

@@ -1,11 +1,17 @@
+import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:kumpulpay/data/shared_prefs.dart';
+import 'package:kumpulpay/repository/retrofit/api_client.dart';
 import 'package:kumpulpay/utils/button.dart';
 import 'package:kumpulpay/utils/colornotifire.dart';
+import 'package:kumpulpay/utils/helper_data_json.dart';
+import 'package:kumpulpay/utils/helpers.dart';
 import 'package:kumpulpay/utils/media.dart';
 import 'package:kumpulpay/utils/string.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:skeletonizer/skeletonizer.dart';
 
 class HistoryAll extends StatefulWidget {
   static String routeName = '/ppob/transaction/history';
@@ -18,7 +24,13 @@ class HistoryAll extends StatefulWidget {
 class _HistoryAllState extends State<HistoryAll> {
   late ColorNotifire notifire;
   final TextEditingController _searchController = TextEditingController(); 
-  final List<Map<String, dynamic>> transactions = [
+  final ScrollController _scrollController = ScrollController();
+  List<dynamic> transactionList = [];
+  // List<dynamic> filteredTransactionList = [];
+  bool _isLoading = false;
+  int _page = 1;
+  final int _perPage = 10;
+  List<dynamic> filteredTransactionList = [
     {
       "title": "Kirim Uang",
       "amount": -10000,
@@ -27,54 +39,67 @@ class _HistoryAllState extends State<HistoryAll> {
     },
     {
       "title": "Isi Saldo dari LOKET",
-      "amount": 19500,
-      "date": DateTime(2024, 11, 16, 8, 7),
-      "icon": Icons.account_balance_wallet,
+      "price_fixed": 19500,
+      "updated_at": DateTime(2024, 11, 16, 8, 7),
+      // "icon": Icons.account_balance_wallet,
     },
     {
       "title": "Kirim Uang",
       "amount": -99500,
       "date": DateTime(2024, 11, 15, 8, 15),
-      "icon": Icons.send,
+      // "icon": Icons.send,
     },
     {
       "title": "Isi Saldo",
       "amount": 99500,
       "date": DateTime(2024, 11, 15, 8, 5),
-      "icon": Icons.add_circle,
+      // "icon": Icons.add_circle,
     },
     {
       "title": "Kirim Uang",
       "amount": -89500,
       "date": DateTime(2024, 10, 25, 23, 19),
-      "icon": Icons.send,
+      // "icon": Icons.send,
     },
     {
       "title": "Isi Saldo",
       "amount": 89500,
       "date": DateTime(2024, 10, 25, 23, 19),
-      "icon": Icons.add_circle,
+      // "icon": Icons.add_circle,
     },
   ];
 
-  Map<String, List<Map<String, dynamic>>> groupedTransactions = {};
+  Map<String, List<dynamic>> groupedTransactions = {};
   String selectedFilter = "Semua"; // Default filter
 
   @override
   void initState() {
     super.initState();
-    _groupTransactionsByMonth();
+    _loadData();
+    // Tambahkan listener untuk pagination
+    _scrollController.addListener(() {
+      if (_scrollController.position.pixels >=
+              _scrollController.position.maxScrollExtent &&
+          !_isLoading) {
+        _loadData(); // Muat data baru saat mencapai akhir daftar
+      }
+    });
   }
 
   void _groupTransactionsByMonth() {
-    for (var transaction in transactions) {
-      String month = DateFormat.yMMMM().format(transaction['date']);
-      if (groupedTransactions[month] == null) {
+    groupedTransactions.clear(); // Kosongkan grup sebelum memperbarui
+
+    for (var transaction in filteredTransactionList) {
+      DateTime updatedAt = DateTime.parse(transaction['updated_at']);
+      String month = DateFormat.yMMMM().format(updatedAt);
+
+      if (!groupedTransactions.containsKey(month)) {
         groupedTransactions[month] = [];
       }
       groupedTransactions[month]!.add(transaction);
     }
   }
+
 
   getdarkmodepreviousstate() async {
     final prefs = await SharedPreferences.getInstance();
@@ -138,16 +163,25 @@ class _HistoryAllState extends State<HistoryAll> {
             fit: BoxFit.cover,
           ),
         ),
-        child: ListView.builder(
-          padding: const EdgeInsets.all(16.0),
-          itemCount: groupedTransactions.keys.length,
-          itemBuilder: (context, index) {
-            String month = groupedTransactions.keys.elementAt(index);
-            List<Map<String, dynamic>> monthTransactions =
-                groupedTransactions[month]!;
-            return _buildMonthSection(month, monthTransactions);
-          },
-        ),
+        child: _isLoading && _page == 1
+            ? Center(child: CircularProgressIndicator()) // Loading awal
+            : ListView.builder(
+                controller: _scrollController,
+                padding: const EdgeInsets.all(16.0),
+                itemCount: groupedTransactions.keys.length + 1,
+                itemBuilder: (context, index) {
+                  if (index == groupedTransactions.keys.length) {
+                    return _isLoading
+                        ? Center(child: CircularProgressIndicator())
+                        : SizedBox.shrink();
+                  }
+
+                  String month = groupedTransactions.keys.elementAt(index);
+                  List<dynamic> monthTransactions = groupedTransactions[month]!;
+                  return _buildMonthSection(month, monthTransactions);
+                },
+              ),
+        
       ),
     );
   }
@@ -358,10 +392,49 @@ class _HistoryAllState extends State<HistoryAll> {
     );
   }
 
+  void _loadData() async {
+    if (_isLoading) return; // Hindari pemuatan ulang saat sedang memuat
+    setState(() {
+      _isLoading = true;
+    });
+
+    try {
+      // Tambahkan parameter `page` untuk pagination
+      Map<String, dynamic> queries = {"page": _page, "per_page": _perPage};
+
+      final response =
+          await ApiClient(Dio(BaseOptions(contentType: "application/json")))
+              .getHistoryTransaction('Bearer ${SharedPrefs().token}',
+                  queries: queries);
+
+      if (response['status']) {
+        setState(() {
+          // Tambahkan data baru ke daftar transaksi
+          transactionList.addAll(response['data']);
+          filteredTransactionList = transactionList;
+
+          // Kelompokkan ulang transaksi berdasarkan bulan
+          _groupTransactionsByMonth();
+
+          _isLoading = false;
+          _page++; // Tambah nomor halaman
+        });
+      } else {
+        setState(() {
+          _isLoading = false;
+        });
+      }
+    } catch (e) {
+      setState(() {
+        _isLoading = false;
+      });
+    }
+  }
+
   Widget _buildMonthSection(
-      String month, List<Map<String, dynamic>> transactions) {
+      String month, List<dynamic> transactions) {
     int total = transactions.fold(
-        0, (sum, transaction) => sum + transaction['amount'] as int);
+        0, (sum, transaction) => sum + transaction['price_fixed_view'] as int);
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -379,7 +452,8 @@ class _HistoryAllState extends State<HistoryAll> {
                     fontSize: height / 50),
               ),
               Text(
-                "Rp${total.abs()}",
+                Helpers.currencyFormatter(total.toDouble()),
+                // "Rp${total.abs()}",
                 style: TextStyle(
                   fontFamily: "Gilroy Bold",
                   fontSize: height / 55,
@@ -397,6 +471,7 @@ class _HistoryAllState extends State<HistoryAll> {
   }
 
   Widget _buildTransactionItem(Map<String, dynamic> transaction) {
+    DateTime updatedAt = DateTime.parse(transaction['updated_at']);
     return Card(
       elevation: 0,
       shadowColor: Colors.transparent,
@@ -411,7 +486,7 @@ class _HistoryAllState extends State<HistoryAll> {
           ),
         ),
         title: Text(
-          transaction['title'],
+          HelpersDataJson.product(transaction["product_meta"],"product_name"),
           style: TextStyle(
                 fontFamily: "Gilroy Bold",
                 color: notifire.getdarkscolor,
@@ -419,7 +494,7 @@ class _HistoryAllState extends State<HistoryAll> {
         ),
         subtitle:
             Text(
-              DateFormat('dd MMM yyyy • HH:mm').format(transaction['date']),
+              DateFormat('dd MMM yyyy • HH:mm').format(updatedAt),
               style: TextStyle(
                 fontFamily: "Gilroy Medium",
                 color: notifire.getdarkgreycolor.withOpacity(0.6),
@@ -427,13 +502,11 @@ class _HistoryAllState extends State<HistoryAll> {
             ),
             
         trailing: Text(
-          transaction['amount'] > 0
-              ? "+Rp${transaction['amount'].abs()}"
-              : "-Rp${transaction['amount'].abs()}",
+          Helpers.currencyFormatter(transaction['price_fixed_view'].toDouble()),
           style: TextStyle(
             fontFamily: "Gilroy Bold",
             fontSize: height / 55,
-            color: transaction['amount'] > 0 ?
+            color: transaction['price_fixed_view'] > 0 ?
              Colors.green : 
              Colors.red,
           ),

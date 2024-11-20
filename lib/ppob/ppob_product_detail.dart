@@ -832,7 +832,7 @@ class _PpobProductDetailState extends State<PpobProductDetail> {
               width: width / 20,
             ),
             Text(
-              "Informasi Saldo",
+              "Informasi Deposit",
               style: TextStyle(
                 color: notifire.getdarkscolor,
                 fontFamily: 'Gilroy Bold',
@@ -849,7 +849,7 @@ class _PpobProductDetailState extends State<PpobProductDetail> {
           child: Row(
             children: [
               Text(
-                "Saldo",
+                "Deposit",
                 style: TextStyle(
                   color: Colors.grey,
                   fontFamily: 'Gilroy Medium',
@@ -940,22 +940,32 @@ class _PpobProductDetailState extends State<PpobProductDetail> {
       dynamic productSelected) async {
     await Future.delayed(const Duration(seconds: 1));
 
-    Map<String, dynamic> userData = json.decode(SharedPrefs().userData);
-    Map<String, dynamic> customerMeta = {
-      "user_id": userData["id"],
-      "code": userData["code"],
-      "name": userData["name"],
-      "first_name": userData["first_name"],
-      "last_name": userData["last_name"],
-      "phone": userData["phone"],
-      "email": userData["email"]
+    // Map<String, dynamic> userData = json.decode(SharedPrefs().userData);
+    // Map<String, dynamic> customerMeta = {
+    //   "user_id": userData["id"],
+    //   "code": userData["code"],
+    //   "name": userData["name"],
+    //   "first_name": userData["first_name"],
+    //   "last_name": userData["last_name"],
+    //   "phone": userData["phone"],
+    //   "email": userData["email"]
+    // };
+
+    Map<String, dynamic> orderDetail = {
+      "destination": _txtDestination,
+      "price": productSelected['price'],
+      "margin": productSelected['margin'],
+      "discount": productSelected['discount'],
+      "admin_fee": productSelected['admin_fee'],
+      "price_fixed": productSelected['price_fixed']
     };
 
     Map<String, dynamic> transactionData = {
-      "payment_method": "balance",
-      "destination": _txtDestination,
+      "transaction_type": "purchase",
+      "payment_method": "deposit",
+      "order_detail": orderDetail,
       "product_meta": productSelected,
-      "customer_meta": customerMeta,
+      // "customer_meta": customerMeta,
     };
 
     return transactionData;

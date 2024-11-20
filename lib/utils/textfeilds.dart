@@ -279,6 +279,7 @@ class CustomtextFormBuilderfilds {
                     child: Image.asset(
                       img,
                       height: height / 30,
+                      color: const Color(0xFF8318D6),
                     ),
                   )
                 : null,

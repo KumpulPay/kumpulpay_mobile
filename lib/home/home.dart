@@ -883,123 +883,112 @@ class _HomeState extends State<Home> {
           height: height / 50,
         ),
         Container(
-          height: height / 3,
           color: Colors.transparent,
-          child: ListView.builder(
-            physics: const NeverScrollableScrollPhysics(),
-            padding: EdgeInsets.zero,
-            itemCount: listLastTransaction.length,
-            itemBuilder: (context, index) => Padding(
-              padding: EdgeInsets.symmetric(
-                  horizontal: width / 20, vertical: height / 100),
-              child: Container(
-                height: height / 11,
-                width: width,
-                decoration: BoxDecoration(
-                  color: notifire.getdarkwhitecolor,
-                  // border: Border.all(
-                  //   color: Colors.grey.withOpacity(0.2),
-                  // ),
-                  borderRadius: const BorderRadius.all(
-                    Radius.circular(10),
-                  ),
+          child: Column(
+            children: List.generate(
+              listLastTransaction.length,
+              (index) => Padding(
+                padding: EdgeInsets.symmetric(
+                  horizontal: width / 20,
+                  vertical: height / 100,
                 ),
-                child: Padding(
-                  padding: EdgeInsets.symmetric(horizontal: width / 30),
-                  child: Row(
-                    children: [
-                      Container(
-                        height: height / 15,
-                        width: width / 7,
-                        decoration: BoxDecoration(
-                          color: notifire.gettabwhitecolor,
-                          borderRadius: const BorderRadius.all(
-                            Radius.circular(10),
+                child: Container(
+                  height: height / 11,
+                  width: width,
+                  decoration: BoxDecoration(
+                    color: notifire.getdarkwhitecolor,
+                    borderRadius: const BorderRadius.all(
+                      Radius.circular(10),
+                    ),
+                  ),
+                  child: Padding(
+                    padding: EdgeInsets.symmetric(horizontal: width / 30),
+                    child: Row(
+                      children: [
+                        Container(
+                          height: height / 15,
+                          width: width / 7,
+                          decoration: BoxDecoration(
+                            color: notifire.gettabwhitecolor,
+                            borderRadius: const BorderRadius.all(
+                              Radius.circular(10),
+                            ),
+                          ),
+                          child: Center(
+                            child: Image.asset(
+                              "images/logo_app/disabled_kumpulpay_logo.png",
+                              height: height / 20,
+                            ),
                           ),
                         ),
-                        child: Center(
-                          child: Image.asset(
-                            "images/logo_app/disabled_kumpulpay_logo.png",
-                            height: height / 20,
-                          ),
-                        ),
-                      ),
-                      SizedBox(
-                        width: width / 40,
-                      ),
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          SizedBox(
-                            height: height / 70,
-                          ),
-                          Row(
-                            children: [
-                              Text(
-                                HelpersDataJson.product(
-                                    listLastTransaction[index]["product_meta"],
-                                    "product_name"),
-                                style: TextStyle(
-                                    fontFamily: "Gilroy Bold",
-                                    color: notifire.getdarkscolor,
-                                    fontSize: height / 52),
-                              ),
-                              // SizedBox(width: width / 7,),
-                            ],
-                          ),
-                          SizedBox(
-                            height: height / 100,
-                          ),
-                          Row(
-                            children: [
-                              Text(
-                                Helpers.dateTimeToFormat(
-                                    listLastTransaction[index]["updated_at"],
-                                    format: "d MMM y"),
-                                style: TextStyle(
-                                    fontFamily: "Gilroy Medium",
-                                    color: notifire.getdarkgreycolor
-                                        .withOpacity(0.6),
-                                    fontSize: height / 60),
-                              ),
-                            ],
-                          ),
-                        ],
-                      ),
-                      const Spacer(flex: 20),
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.end,
-                        children: [
-                          SizedBox(
-                            height: height / 70,
-                          ),
-                          Text(
-                            listLastTransaction[index]["product_price_fixed"],
-                            style: TextStyle(
+                        SizedBox(width: width / 40),
+                        Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Text(
+                              HelpersDataJson.product(
+                                  listLastTransaction[index]["product_meta"],
+                                  "product_name"),
+                              style: TextStyle(
                                 fontFamily: "Gilroy Bold",
-                                // color: transactioncolor[index],
-                                fontSize: height / 45),
-                          ),
-                          SizedBox(
-                            height: height / 100,
-                          ),
-                          Text(
-                            listLastTransaction[index]["code"],
-                            style: TextStyle(
+                                color: notifire.getdarkscolor,
+                                fontSize: height / 52,
+                              ),
+                            ),
+                            const SizedBox(height: 5),
+                            Text(
+                              Helpers.dateTimeToFormat(
+                                listLastTransaction[index]["updated_at"],
+                                format: "d MMM y",
+                              ),
+                              style: TextStyle(
                                 fontFamily: "Gilroy Medium",
                                 color:
                                     notifire.getdarkgreycolor.withOpacity(0.6),
-                                fontSize: height / 60),
-                          ),
-                        ],
-                      ),
-                    ],
+                                fontSize: height / 60,
+                              ),
+                            ),
+                          ],
+                        ),
+                        const Spacer(flex: 20),
+                        Column(
+                          crossAxisAlignment: CrossAxisAlignment.end,
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Text(
+                              Helpers.currencyFormatter(
+                                listLastTransaction[index]["price_fixed_view"].toDouble(),
+                              ),
+                              style: TextStyle(
+                                fontFamily: "Gilroy Bold",
+                                color: listLastTransaction[index]['price_fixed_view'] > 0
+                                    ? Colors.green
+                                    : Colors.red,
+                                fontSize: height / 52,
+                              ),
+                            ),
+                            const SizedBox(height: 5),
+                            Text(
+                              listLastTransaction[index]["code"],
+                              style: TextStyle(
+                                fontFamily: "Gilroy Medium",
+                                color:
+                                    notifire.getdarkgreycolor.withOpacity(0.6),
+                                fontSize: height / 60,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
                   ),
                 ),
               ),
             ),
           ),
-        ),
+        )
+
       ],
     );
   }

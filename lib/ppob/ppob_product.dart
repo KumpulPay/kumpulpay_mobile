@@ -497,8 +497,14 @@ class _PpobProductState extends State<PpobProduct>
                                               "images/logo_app/disabled_kumpulpay_logo.png", // Gambar fallback jika provider_images null atau kosong
                                               height: height / 30,
                                             )
-                                          : _setImage(
-                                              items[index]['provider_images'])
+                                          : items[index]['provider_images'] != null ? Helpers.setNetWorkImage(
+                                              items[index]['provider_images']['image'], Image.asset(
+                                                "images/logo_app/disabled_kumpulpay_logo.png", // Gambar fallback jika provider_images null atau kosong
+                                                height: height / 30,
+                                              ), height_: height/30) : Image.asset(
+                                                  "images/logo_app/disabled_kumpulpay_logo.png", // Gambar fallback jika provider_images null atau kosong
+                                                  height: height / 30,
+                                                )
                                   ),
                                 ),
                                 // end icon
@@ -991,11 +997,13 @@ class _PpobProductState extends State<PpobProduct>
       // Ambil nama provider dari salah satu item di dalam grup
       String providerName = entry.value.isNotEmpty ? entry.value[0]["provider_name"] : "";
       String provider = entry.value.isNotEmpty ? entry.value[0]["provider"] : "";
+      dynamic providerImages = entry.value.isNotEmpty ? entry.value[0]["provider_images"] : "";
 
       return {
         "group_key": entry.key,
         "provider": provider,
         "provider_name": providerName,
+        "provider_images": providerImages,
         "child": entry.value,
       };
     }).toList();

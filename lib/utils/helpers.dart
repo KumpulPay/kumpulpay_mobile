@@ -82,4 +82,32 @@ class Helpers {
     );
   }
 
+  static String shortenNumber_(double number) {
+    if (number >= 1000000000) {
+      // Jika angka lebih dari atau sama dengan 1 miliar
+      return "${(number / 1000000000).toStringAsFixed(1)}B";
+    } else if (number >= 1000000) {
+      // Jika angka lebih dari atau sama dengan 1 juta
+      return "${(number / 1000000).toStringAsFixed(1)}M";
+    } else if (number >= 1000) {
+      // Jika angka lebih dari atau sama dengan 1 ribu
+      return "${(number / 1000).toStringAsFixed(1)}K";
+    } else {
+      // Jika angka kurang dari 1 ribu
+      return number.toString();
+    }
+  }
+
+  static String shortenNumber(double number) {
+    if (number >= 1000000000) {
+      return "${number ~/ 1000000000}m"; // Menggunakan operator ~/ untuk pembagian integer
+    } else if (number >= 1000000) {
+      return "${number ~/ 1000000}jt";
+    } else if (number >= 1000) {
+      return "${number ~/ 1000}rb";
+    } else {
+      return number.toString();
+    }
+  }
+
 }
