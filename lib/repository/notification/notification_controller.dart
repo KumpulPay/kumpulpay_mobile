@@ -86,8 +86,9 @@ class NotificationController extends ChangeNotifier {
   static Future<void> initializeRemoteNotifications(
       {required bool debug}) async {
     // print('print initializeRemoteNotifications');
-    await Firebase.initializeApp(
-        options: DefaultFirebaseOptions.currentPlatform);
+    // await Firebase.initializeApp(
+    //     options: DefaultFirebaseOptions.currentPlatform);
+
     final FirebaseMessaging firebaseMessaging =
         FirebaseMessaging.instance;
     firebaseMessaging.requestPermission(
