@@ -3,7 +3,9 @@ import 'dart:convert';
 
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:kumpulpay/data/shared_prefs.dart';
+import 'package:kumpulpay/repository/app_config.dart';
 import 'package:kumpulpay/repository/retrofit/api_client.dart';
 import 'package:kumpulpay/topup/topup_transfer_manual.dart';
 import 'package:kumpulpay/utils/helpers.dart';
@@ -403,46 +405,30 @@ class _TopupState extends State<Topup> {
   }
 
   Future<void> _handleSubmit() async {
-    try {
-        // Loading.showLoadingDialog(context, _globalKey);
 
-        Map<String, dynamic> body = {
-          "amount": Helpers.removeCurrencyFormatter(_ctrAmount.text)
-        };
-        String jsonString = json.encode(body);
-      
-        final client =
-          ApiClient(Dio(BaseOptions(contentType: "application/json")));
-        final dynamic post = await client.postWalletDeposit('Bearer ${SharedPrefs().token}', jsonString);
-       
-        if (post["status"]) {
-          
-            Navigator.pushNamed(context, TopupTransferManual.routeName, arguments: TopupTransferManual(data: post['data']));
-           
+    Map<String, dynamic> body = {
+      "amount": Helpers.removeCurrencyFormatter(_ctrAmount.text)
+    };
+    // String jsonString = json.encode(body);
+
+    final response = await ApiClient(AppConfig().configDio()).postWalletDeposit(
+        authorization: 'Bearer ${SharedPrefs().token}', body: body);
+    try {
+
+        if (response.success) {
+            Navigator.pushNamed(context, TopupTransferManual.routeName, arguments: TopupTransferManual(data: response.data));
         } else {
-          // Navigator.pop(context);
           ScaffoldMessenger.of(context)
-              .showSnackBar(SnackBar(content: Text(post["message"])));
+              .showSnackBar(SnackBar(content: Text(response.message)));
         }
-    } on DioException catch (e) {
-        // Navigator.pop(context);
-        ScaffoldMessenger.of(context)
-          .showSnackBar(SnackBar(content: Text(e.message.toString())));
-        // print("error: ${e}");
-        if (e.response != null) {
-          // print(e.response?.data);
-          // print(e.response?.headers);
-          // print(e.response?.requestOptions);
-          bool status = e.response?.data["status"];
-          if (status) {
-            // return Center(child: Text('Upst...'));
-            // return e.response;
-          }
-        } else {
-          // print(e.requestOptions);
-          // print(e.message);
-        }
-        // rethrow;
+    } catch (e) {
+      Fluttertoast.showToast(
+        msg: e.toString(),
+        backgroundColor: Colors.red,
+        textColor: Colors.white,
+        fontSize: 16,
+      );
+      rethrow;
     }
   }
 

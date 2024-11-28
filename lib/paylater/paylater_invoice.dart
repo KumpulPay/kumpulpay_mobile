@@ -170,21 +170,21 @@ class _PaylaterInvoiceState extends State<PaylaterInvoice> {
         _isLoading = true;
       });
 
-      Map<String, dynamic> queries = {"page": _page, "per_page": _perPage};
+      // Map<String, dynamic> queries = {"page": _page, "per_page": _perPage};
 
-      final client =
-          ApiClient(Dio(BaseOptions(contentType: "application/json")));
-      final dynamic get = await client.getPaylaterInvoice(
-          'Bearer ${SharedPrefs().token}',
-          queries: queries);
+      // final client =
+      //     ApiClient(Dio(BaseOptions(contentType: "application/json")));
+      // final dynamic get = await client.getPaylaterInvoice(
+      //     'Bearer ${SharedPrefs().token}',
+      //     queries: queries);
 
-      List<dynamic> newData = get["data"];
-      print(newData);
-      setState(() {
-        _data.addAll(newData);
-        _page++;
-        _isLoading = false;
-      });
+      // List<dynamic> newData = get["data"];
+      // print(newData);
+      // setState(() {
+      //   _data.addAll(newData);
+      //   _page++;
+      //   _isLoading = false;
+      // });
     } on DioException catch (e) {
       if (e.response != null) {
         // print(e.response?.data);

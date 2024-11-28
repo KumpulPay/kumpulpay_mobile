@@ -2,6 +2,7 @@ import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:kumpulpay/data/shared_prefs.dart';
+import 'package:kumpulpay/repository/app_config.dart';
 import 'package:kumpulpay/repository/retrofit/api_client.dart';
 import 'package:kumpulpay/utils/button.dart';
 import 'package:kumpulpay/utils/colornotifire.dart';
@@ -11,7 +12,7 @@ import 'package:kumpulpay/utils/media.dart';
 import 'package:kumpulpay/utils/string.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:skeletonizer/skeletonizer.dart';
+// import 'package:skeletonizer/skeletonizer.dart';
 
 class HistoryAll extends StatefulWidget {
   static String routeName = '/ppob/transaction/history';
@@ -26,7 +27,7 @@ class _HistoryAllState extends State<HistoryAll> {
   final TextEditingController _searchController = TextEditingController(); 
   final ScrollController _scrollController = ScrollController();
   List<dynamic> transactionList = [];
-  // List<dynamic> filteredTransactionList = [];
+  
   bool _isLoading = false;
   int _page = 1;
   final int _perPage = 10;
@@ -201,11 +202,13 @@ class _HistoryAllState extends State<HistoryAll> {
         List<String> selectedCategories = ["Semua"];
         final List<String> categories = [
           "Semua",
+          "Deposit",
+          "Withdraw",
+          "Transfer",
+          "Pembelian",
           "Pembayaran",
           "Refund",
-          "Isi Saldo",
           "Cashback",
-          "Kirim Uang"
         ];
 
         return DraggableScrollableSheet(
@@ -398,19 +401,18 @@ class _HistoryAllState extends State<HistoryAll> {
       _isLoading = true;
     });
 
+    Map<String, dynamic> queries = {"page": _page, "per_page": _perPage};
+
+    final client = ApiClient(AppConfig().configDio());
+    final response = await client.getHistoryTransaction(
+        authorization: 'Bearer ${SharedPrefs().token}', queries: queries);
+
     try {
-      // Tambahkan parameter `page` untuk pagination
-      Map<String, dynamic> queries = {"page": _page, "per_page": _perPage};
-
-      final response =
-          await ApiClient(Dio(BaseOptions(contentType: "application/json")))
-              .getHistoryTransaction('Bearer ${SharedPrefs().token}',
-                  queries: queries);
-
-      if (response['status']) {
+      
+      if (response.success) {
         setState(() {
           // Tambahkan data baru ke daftar transaksi
-          transactionList.addAll(response['data']);
+          transactionList.addAll(response.data);
           filteredTransactionList = transactionList;
 
           // Kelompokkan ulang transaksi berdasarkan bulan
@@ -471,6 +473,106 @@ class _HistoryAllState extends State<HistoryAll> {
   }
 
   Widget _buildTransactionItem(Map<String, dynamic> transaction) {
+    return Padding(
+      padding: EdgeInsets.symmetric(
+        // horizontal: width / 20,
+        vertical: height / 100,
+      ),
+      child: Container(
+        height: height / 11,
+        width: width,
+        decoration: BoxDecoration(
+          color: notifire.getdarkwhitecolor,
+          borderRadius: const BorderRadius.all(
+            Radius.circular(10),
+          ),
+        ),
+        child: Padding(
+          padding: EdgeInsets.symmetric(horizontal: width / 30),
+          child: Row(
+            children: [
+              Container(
+                height: height / 15,
+                width: width / 7,
+                decoration: BoxDecoration(
+                  color: notifire.gettabwhitecolor,
+                  borderRadius: const BorderRadius.all(
+                    Radius.circular(10),
+                  ),
+                ),
+                child: Center(
+                  child: transaction["product_meta"]['provider_images'] != null
+                      ? Helpers.setCachedNetworkImage(transaction["product_meta"]['provider_images']['image'],height_: height / 26)
+                      : Image.asset(
+                          "images/logo_app/disabled_kumpulpay_logo.png",
+                          height: height / 20,
+                        ),
+                ),
+              ),
+              SizedBox(width: width / 40),
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text(
+                    HelpersDataJson.product(
+                        transaction["product_meta"], "product_name"),
+                    style: TextStyle(
+                      fontFamily: "Gilroy Bold",
+                      color: notifire.getdarkscolor,
+                      fontSize: height / 52,
+                    ),
+                  ),
+                  const SizedBox(height: 5),
+                  Text(
+                    Helpers.dateTimeToFormat(
+                      transaction["updated_at"],
+                      format: "d MMM y",
+                    ),
+                    style: TextStyle(
+                      fontFamily: "Gilroy Medium",
+                      color: notifire.getdarkgreycolor.withOpacity(0.6),
+                      fontSize: height / 60,
+                    ),
+                  ),
+                ],
+              ),
+              const Spacer(flex: 20),
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.end,
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text(
+                    Helpers.currencyFormatter(
+                      transaction["price_fixed_view"].toDouble(),
+                    ),
+                    style: TextStyle(
+                      fontFamily: "Gilroy Bold",
+                      color: transaction['price_fixed_view'] > 0
+                          ? Colors.green
+                          : Colors.red,
+                      fontSize: height / 52,
+                    ),
+                  ),
+                  const SizedBox(height: 5),
+                  Text(
+                    transaction["status"],
+                    style: TextStyle(
+                      fontFamily: "Gilroy Medium",
+                      color: notifire.getdarkgreycolor.withOpacity(0.6),
+                      fontSize: height / 60,
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+  
+  Widget _XbuildTransactionItem(Map<String, dynamic> transaction) {
     DateTime updatedAt = DateTime.parse(transaction['updated_at']);
     return Card(
       elevation: 0,

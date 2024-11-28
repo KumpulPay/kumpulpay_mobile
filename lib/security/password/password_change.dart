@@ -3,8 +3,10 @@ import 'dart:convert';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_form_builder/flutter_form_builder.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:form_builder_validators/form_builder_validators.dart';
 import 'package:kumpulpay/data/shared_prefs.dart';
+import 'package:kumpulpay/repository/app_config.dart';
 import 'package:kumpulpay/repository/retrofit/api_client.dart';
 import 'package:kumpulpay/utils/colornotifire.dart';
 import 'package:kumpulpay/utils/loading.dart';
@@ -313,50 +315,31 @@ class _PasswordChangeState extends State<PasswordChange> {
   }
 
   Future<void> _submitForm(dynamic formData) async {
+    Loading.showLoadingDialog(context, _globalKey);
+
+    final response = await ApiClient(AppConfig().configDio()).postPasswordChange(
+        authorization: 'Bearer ${SharedPrefs().token}', body: formData);
+
+    Navigator.pop(context);
+
     try {
-      Map<String, dynamic> body = {};
-      body.addAll(formData);
-      String jsonString = json.encode(body);
-
-      Loading.showLoadingDialog(context, _globalKey);
-      final client =
-          ApiClient(Dio(BaseOptions(contentType: "application/json")));
-      final dynamic post = await client.postPasswordChange('Bearer ${SharedPrefs().token}', jsonString);
-      // print(post);
-      if (post["status"]) {
-        // Navigator.push(
-        //   context,
-        //   MaterialPageRoute(
-        //     builder: (context) => const Login(),
-        //   ),
-        // );
-         
-      } else {
-        // Navigator.pop(context);
+      
+      if (response.success) {
        
-      }
-
-      ScaffoldMessenger.of(context)
-          .showSnackBar(SnackBar(content: Text(post["message"])));
-
-      Navigator.pop(context);
-
-    } on DioException catch (e) {
-      Navigator.pop(context);
-      // print("error: ${e}");
-      if (e.response != null) {
-        // print(e.response?.data);
-        // print(e.response?.headers);
-        // print(e.response?.requestOptions);
-        bool status = e.response?.data["status"];
-        if (status) {
-          // return Center(child: Text('Upst...'));
-          // return e.response;
-        }
       } else {
-        // print(e.requestOptions);
-        // print(e.message);
+       ScaffoldMessenger.of(context)
+            .showSnackBar(SnackBar(content: Text(response.message)));
       }
+
+    } catch (e) {
+      Navigator.pop(context);
+      Fluttertoast.showToast(
+        msg: e.toString(),
+        backgroundColor: Colors.red,
+        textColor: Colors.white,
+        fontSize: 16,
+      );
+      rethrow;
     }
   }
 }

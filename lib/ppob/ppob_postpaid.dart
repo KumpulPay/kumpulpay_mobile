@@ -7,6 +7,7 @@ import 'package:flutter_form_builder/flutter_form_builder.dart';
 import 'package:form_builder_validators/form_builder_validators.dart';
 import 'package:kumpulpay/data/shared_prefs.dart';
 import 'package:kumpulpay/ppob/product_provider.dart';
+import 'package:kumpulpay/repository/app_config.dart';
 import 'package:kumpulpay/repository/retrofit/api_client.dart';
 import 'package:kumpulpay/utils/button.dart';
 import 'package:kumpulpay/utils/colornotifire.dart';
@@ -210,13 +211,12 @@ class _PpobPostpaidState extends State<PpobPostpaid> {
   }
 
   FutureBuilder<dynamic> _buildBody(BuildContext context) {
-    final client = ApiClient(Dio(BaseOptions(contentType: "application/json")));
+    final client = ApiClient(AppConfig().configDio());
     final Map<String, dynamic> queries = {"type": _type, "category": _category};
-    print('queriesX ${queries}');
 
     return FutureBuilder<dynamic>(
       future:
-          client.getProduct('Bearer ${SharedPrefs().token}', queries: queries),
+          client.getProduct(authorization: 'Bearer ${SharedPrefs().token}', queries: queries),
       builder: (context, snapshot) {
         try {
           if (snapshot.connectionState == ConnectionState.waiting) {
@@ -238,15 +238,7 @@ class _PpobPostpaidState extends State<PpobPostpaid> {
               return const Center(child: Text('Data tidak ditemukan'));
             }
           }
-        } on DioException catch (e) {
-          if (e.response != null) {
-            // print(e.response?.data);
-            // print(e.response?.headers);
-            // print(e.response?.requestOptions);
-          } else {
-            // print(e.requestOptions);
-            // print(e.message);
-          }
+        } catch (e) {
           return const Center(child: Text('Upst...'));
         }
         return const Center(child: Text('Upst...'));

@@ -6,6 +6,11 @@ import 'package:kumpulpay/data/shared_prefs.dart';
 import 'package:kumpulpay/home/home.dart';
 import 'package:kumpulpay/login/login.dart';
 import 'package:kumpulpay/login/register.dart';
+import 'package:kumpulpay/login/setupprofile.dart';
+import 'package:kumpulpay/login/confirmpin.dart' as cplogin;
+import 'package:kumpulpay/login/setyourpin.dart';
+import 'package:kumpulpay/login/verify.dart';
+
 import 'package:kumpulpay/notification/notification_list.dart';
 import 'package:kumpulpay/onbonding.dart';
 import 'package:kumpulpay/ppob/ppob_postpaid_single_provider.dart';
@@ -24,10 +29,11 @@ import 'package:kumpulpay/security/pin/pin_create.dart';
 import 'package:kumpulpay/splashscreen.dart';
 import 'package:kumpulpay/topup/topup.dart';
 import 'package:kumpulpay/topup/topup_transfer_manual.dart';
-import 'package:kumpulpay/transaction/confirm_pin.dart';
+import 'package:kumpulpay/transaction/confirm_pin.dart' as cptransaction;
 import 'package:kumpulpay/transaction/history.dart';
 import 'package:kumpulpay/transaction/history_all.dart';
 import 'package:kumpulpay/utils/colornotifire.dart';
+import 'package:kumpulpay/verification/verificationdone.dart';
 import 'package:provider/provider.dart';
 
 final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
@@ -56,8 +62,16 @@ FutureOr<void> main() async {
         routes: {
           Splashscreen.routeName: (context) => const Splashscreen(),
           Onbonding.routeName: (context) => const Onbonding(),
+
           Login.routeName: (context) => const Login(),
           Register.routeName: (context) => const Register(),
+          Verify.routeName: (context) => const Verify(),
+         
+          SetupProfile.routeName: (context) => const SetupProfile(),
+          Setyourpin.routeName: (context) => const Setyourpin(),
+          cplogin.ConfirmPin.routeName: (context) => const cplogin.ConfirmPin(),
+          VerificationDone.routeName: (context) => const VerificationDone(),
+
           Home.routeName: (context) => const Home(),
           Bottombar.routeName: (context) => const Bottombar(),
           NotificationList.routeName: (context) => const NotificationList(),
@@ -77,9 +91,11 @@ FutureOr<void> main() async {
           HistoryAll.routeName: (context) => const HistoryAll(),
           History.routeName: (context) => const History(),
           HistoryAll.routeName: (context) => const HistoryAll(),
-          ConfirmPin.routeName: (context) => const ConfirmPin(),
+          cptransaction.ConfirmPin.routeName: (context) => const cptransaction.ConfirmPin(),
 
+          
           EditProfile.routeName: (context) => const EditProfile(),
+          
           Pin.routeName: (context) => const Pin(),
           PinCreate.routeName: (context) => const PinCreate(),
           Password.routeName: (context) => const Password(),

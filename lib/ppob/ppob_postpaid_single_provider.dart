@@ -8,6 +8,7 @@ import 'package:fluttertoast/fluttertoast.dart';
 import 'package:form_builder_validators/form_builder_validators.dart';
 import 'package:get_it/get_it.dart';
 import 'package:kumpulpay/data/shared_prefs.dart';
+import 'package:kumpulpay/repository/app_config.dart';
 import 'package:kumpulpay/repository/retrofit/api_client.dart';
 import 'package:kumpulpay/repository/sqlite/customer_number_dao.dart';
 import 'package:kumpulpay/repository/sqlite/customer_number_entity.dart';
@@ -24,10 +25,10 @@ import 'package:string_capitalize/string_capitalize.dart';
 
 class PpobPostpaidSingleProvider extends StatefulWidget {
   static String routeName = '/ppob/product_single_provider/index';
-  final String? type, typeName, category, categoryName, provider;
+  final String? type, typeName, category, categoryName, provider, providerImage;
   final dynamic child;
 
-  const PpobPostpaidSingleProvider({Key? key, this.type, this.typeName, this.category, this.categoryName, this.provider, this.child}) : super(key: key);
+  const PpobPostpaidSingleProvider({Key? key, this.type, this.typeName, this.category, this.categoryName, this.provider, this.providerImage, this.child}) : super(key: key);
 
   @override
   State<PpobPostpaidSingleProvider> createState() => _PpobPostpaidSingleProviderState();
@@ -43,7 +44,7 @@ class _PpobPostpaidSingleProviderState extends State<PpobPostpaidSingleProvider>
   String? title;
   String? _type, _typeName;
   String? _category, _categoryName;
-  String? _provider;
+  String? _provider, _providerImage;
   dynamic _productCheck, _productPay;
   String _txtDestination = "";
   bool isButtonEnabled = false;
@@ -100,6 +101,7 @@ class _PpobPostpaidSingleProviderState extends State<PpobPostpaidSingleProvider>
         _category = args!.category;
         _categoryName = args!.categoryName;
         _provider = args!.provider;
+        _providerImage = args!.providerImage;
        
         final filteredData = filterDataByCode(args!.child);
         _productCheck = filteredData['startsWithC'];
@@ -178,18 +180,24 @@ class _PpobPostpaidSingleProviderState extends State<PpobPostpaidSingleProvider>
   Widget _buildProviderSection() {
     return Row(
       children: [
-        const CircleAvatar(
-          backgroundImage:
-              AssetImage('assets/indovision_logo.png'),
+        CircleAvatar(
+          backgroundImage: setNetWorkImage(_providerImage),
           radius: 24,
         ),
-        SizedBox(width: 12),
+        const SizedBox(width: 12),
         Text(
           _categoryName??'',
           style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
         ),
       ],
     );
+  }
+
+  ImageProvider setNetWorkImage(String? images) {
+    if (images == null || images.isEmpty) {
+      return AssetImage("images/logo_app/disabled_kumpulpay_logo.png");
+    }
+    return NetworkImage(images);
   }
 
   Widget _buildCustomerNumberField() {
@@ -770,26 +778,19 @@ class _PpobPostpaidSingleProviderState extends State<PpobPostpaidSingleProvider>
   }
 
   Future<dynamic> _checkBill() async {
+    Loading.showLoadingDialog(context, _globalKey);
+
+    Map<String, dynamic> body = {
+      "product_code": _productCheck['code'],
+      "destination": _txtDestination,
+    };
+
+    final response = await ApiClient(AppConfig().configDio()).postCheckBill(authorization: 'Bearer ${SharedPrefs().token}', body: body);
+
+    Navigator.pop(context);
     try {
-      // Menampilkan dialog loading
-      Loading.showLoadingDialog(context, _globalKey);
-
-      Map<String, dynamic> body = {
-        "product_code": _productCheck['code'],
-        "destination": _txtDestination,
-      };
-
-      // Memanggil API menggunakan Dio
-      final client =
-          ApiClient(Dio(BaseOptions(contentType: "application/json")));
-      final dynamic post = await client.postCheckBill(
-          'Bearer ${SharedPrefs().token}', jsonEncode(body));
-
-      // Menutup dialog loading
-      Navigator.pop(context);
-
-      if (post["status"]) {
-        dynamic dataCheck = post['data'];
+      if (response.success) {
+        dynamic dataCheck = response.data;
 
         await _storeNotification(dataCheck);
 
@@ -811,26 +812,21 @@ class _PpobPostpaidSingleProviderState extends State<PpobPostpaidSingleProvider>
         );
       } else {
         Fluttertoast.showToast(
-          msg: post["message"],
+          msg: response.message,
           backgroundColor: Colors.red,
           textColor: Colors.white,
           fontSize: 16,
         );
       }
-    } on DioException catch (e) {
-      Navigator.pop(context);
+    } catch (e) {
       Fluttertoast.showToast(
-        msg: e.response != null
-            ? e.response?.data["message"] ?? "Terjadi kesalahan pada server."
-            : "Koneksi gagal, periksa jaringan Anda.",
+        msg: e.toString(),
         backgroundColor: Colors.red,
         textColor: Colors.white,
         fontSize: 16,
       );
       rethrow;
-    }  finally {
-        if (isLoading) Navigator.pop(context); // Pastikan dialog ditutup di akhir
-      }
+    }
   }
 
   Future<void> _storeNotification(dynamic formData) async {

@@ -4,6 +4,7 @@ import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_form_builder/flutter_form_builder.dart';
 import 'package:form_builder_validators/form_builder_validators.dart';
+import 'package:kumpulpay/bottombar/bottombar.dart';
 import 'package:kumpulpay/data/shared_prefs.dart';
 import 'package:kumpulpay/repository/retrofit/api_client.dart';
 import 'package:kumpulpay/utils/colornotifire.dart';
@@ -191,31 +192,31 @@ class _PinCreateState extends State<PinCreate> {
                                     color: Colors.grey,
                                   ))),
 
-                    SizedBox(
-                      height: height / 50,
-                    ),
-                    Row(
-                      children: [
-                        SizedBox(
-                          width: width / 20,
-                        ),
-                        Image.asset(
-                          "images/match.png",
-                          height: height / 40,
-                        ),
-                        SizedBox(
-                          width: width / 100,
-                        ),
-                        Text(
-                          CustomStrings.passwordmatch,
-                          style: TextStyle(
-                            color: const Color(0xff00BF71),
-                            fontFamily: 'Gilroy Medium',
-                            fontSize: height / 60,
-                          ),
-                        ),
-                      ],
-                    ),
+                    // SizedBox(
+                    //   height: height / 50,
+                    // ),
+                    // Row(
+                    //   children: [
+                    //     SizedBox(
+                    //       width: width / 20,
+                    //     ),
+                    //     Image.asset(
+                    //       "images/match.png",
+                    //       height: height / 40,
+                    //     ),
+                    //     SizedBox(
+                    //       width: width / 100,
+                    //     ),
+                    //     Text(
+                    //       CustomStrings.passwordmatch,
+                    //       style: TextStyle(
+                    //         color: const Color(0xff00BF71),
+                    //         fontFamily: 'Gilroy Medium',
+                    //         fontSize: height / 60,
+                    //       ),
+                    //     ),
+                    //   ],
+                    // ),
 
                   ],
                 ),
@@ -230,7 +231,6 @@ class _PinCreateState extends State<PinCreate> {
                       onTap: () {
                         if (_formKey.currentState!.saveAndValidate()) {
                           final formData = _formKey.currentState?.value;
-                          // print('print: ${formData}');
                           _submitForm(formData);
                         }
                       },
@@ -314,41 +314,119 @@ class _PinCreateState extends State<PinCreate> {
 
   Future<void> _submitForm(dynamic formData) async {
     try {
-      Map<String, dynamic> body = {};
-      body.addAll(formData);
-      String jsonString = json.encode(body);
-      // print("print: ${jsonString}");
-
+      
       Loading.showLoadingDialog(context, _globalKey);
-      final client =
-          ApiClient(Dio(BaseOptions(contentType: "application/json")));
-      final dynamic post = await client.postPinCreate('Bearer ${SharedPrefs().token}', jsonString);
-      // print(post);
-      if (post["status"]) {
-
-          ScaffoldMessenger.of(context)
-            .showSnackBar(SnackBar(content: Text(post["message"])));
+      final client = ApiClient(Dio(BaseOptions(contentType: "application/json")));
+      final post = await client.postPinCreate(authorization: 'Bearer ${SharedPrefs().token}', body: jsonEncode(formData));
+      
+      Navigator.pop(context);
+      if (post.status) {
+        _showMyDialog();
       } else {
           ScaffoldMessenger.of(context)
-            .showSnackBar(SnackBar(content: Text(post["message"])));
+            .showSnackBar(SnackBar(content: Text(post.message.toString())));
       }
+      
+    } catch (e) {
       Navigator.pop(context);
-    } on DioException catch (e) {
-      Navigator.pop(context);
-      // print("error: ${e}");
-      if (e.response != null) {
-        // print(e.response?.data);
-        // print(e.response?.headers);
-        // print(e.response?.requestOptions);
-        bool status = e.response?.data["status"];
-        if (status) {
-          // return Center(child: Text('Upst...'));
-          // return e.response;
-        }
-      } else {
-        // print(e.requestOptions);
-        // print(e.message);
-      }
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Error: ${e.toString()}')),
+      );
     }
+  }
+
+  Future<void> _showMyDialog() async {
+    return showDialog<void>(
+      barrierDismissible: false,
+      context: context,
+      builder: (BuildContext context) {
+        return PopScope(
+            canPop: false,
+            // onPopInvoked: (didPop) => Navigator.pushNamedAndRemoveUntil(context,
+            //     History.routeName, ModalRoute.withName(PpobProduct.routeName)),
+            child: Dialog(
+              shape: const RoundedRectangleBorder(
+                borderRadius: BorderRadius.all(
+                  Radius.circular(32.0),
+                ),
+              ),
+              child: Container(
+                decoration: BoxDecoration(
+                  color: notifire.gettabwhitecolor,
+                  borderRadius: const BorderRadius.all(
+                    Radius.circular(20),
+                  ),
+                ),
+                height: height / 2,
+                child: Column(
+                  children: [
+                    SizedBox(
+                      height: height / 40,
+                    ),
+                    Image.asset(
+                      "images/verificationdone.png",
+                      height: height / 4,
+                    ),
+                    SizedBox(
+                      height: height / 40,
+                    ),
+                    Text(
+                      "Success!",
+                      style: TextStyle(
+                        color: notifire.getbluecolor,
+                        fontFamily: 'Gilroy Bold',
+                        fontSize: height / 40,
+                      ),
+                    ),
+                    SizedBox(
+                      height: height / 100,
+                    ),
+                    Text(
+                      "Proses Berhasil!",
+                      style: TextStyle(
+                        color: notifire.getdarkgreycolor,
+                        fontFamily: 'Gilroy Bold',
+                        fontSize: height / 60,
+                      ),
+                    ),
+                    SizedBox(
+                      height: height / 30,
+                    ),
+                    GestureDetector(
+                      onTap: () {
+                        Navigator.pushNamedAndRemoveUntil(
+                            context,
+                            Bottombar.routeName,
+                            ModalRoute.withName(Bottombar.routeName));
+                      },
+                      child: buttons(notifire.getbluecolor, "Home",
+                          Colors.white),
+                    ),
+                  ],
+                ),
+              ),
+            ));
+      },
+    );
+  }
+
+  Widget buttons(clr, txt, clr2) {
+    return Container(
+      height: height / 20,
+      width: width / 2,
+      decoration: BoxDecoration(
+        color: clr,
+        borderRadius: const BorderRadius.all(
+          Radius.circular(30),
+        ),
+      ),
+      child: Center(
+        child: Text(
+          txt,
+          style: TextStyle(
+              color: clr2, fontSize: height / 60, fontFamily: 'Gilroy Bold'),
+        ),
+      ),
+    );
   }
 }

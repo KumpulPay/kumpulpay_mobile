@@ -1,6 +1,8 @@
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:kumpulpay/data/shared_prefs.dart';
+import 'package:kumpulpay/repository/app_config.dart';
 import 'package:kumpulpay/repository/retrofit/api_client.dart';
 import 'package:kumpulpay/utils/helper_data_json.dart';
 import 'package:kumpulpay/utils/helpers.dart';
@@ -228,44 +230,35 @@ class _HistoryPpobState extends State<HistoryPpob> {
   }
 
   Future<void> _loadData() async {
+
+    Map<String, dynamic> queries = {"page": _page, "per_page": _perPage};
+
+    final client = ApiClient(AppConfig().configDio());
+    final response = await client.getHistoryTransaction(
+        authorization: 'Bearer ${SharedPrefs().token}', queries: queries);
+
     try {
       if (_isLoading) return;
       setState(() {
         _isLoading = true;
       });
 
-      Map<String, dynamic> queries = {
-        "page": _page,
-        "per_page": _perPage
-      };
-
-      final client =
-          ApiClient(Dio(BaseOptions(contentType: "application/json")));
-      final dynamic get = await client.getHistoryTransaction(
-          'Bearer ${SharedPrefs().token}',
-          queries: queries);
-    
-      List<dynamic> newData = get["data"];
-     
-      setState(() {
-        _data.addAll(newData);
-        _page++;
-        _isLoading = false;
-      });
-    } on DioException catch (e) {
-      if (e.response != null) {
-        // print(e.response?.data);
-        // print(e.response?.headers);
-        // print(e.response?.requestOptions);
-        bool status = e.response?.data["status"];
-        if (status) {
-          // return Center(child: Text('Upst...'));
-          // return e.response;
-        }
-      } else {
-        // print(e.requestOptions);
-        // print(e.message);
+      if (response.success) {
+        List<dynamic> newData = response.data;
+        setState(() {
+          _data.addAll(newData);
+          _page++;
+          _isLoading = false;
+        });
       }
+     
+    } catch (e) {
+      Fluttertoast.showToast(
+        msg: e.toString(),
+        backgroundColor: Colors.red,
+        textColor: Colors.white,
+        fontSize: 16,
+      );
       rethrow;
     }
   }

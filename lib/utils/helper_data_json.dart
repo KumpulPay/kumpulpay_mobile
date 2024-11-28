@@ -6,7 +6,7 @@ class HelpersDataJson {
     print('dataX ${data}');
     String output = "";
     if (param == "product_name") {
-      if ("${data["type"]}-${data["category"]}" == "prepaid-pulsa") {
+      if ("${data["type"]}-${data["category"]}" == "prepaid-pulsa" || "${data["type"]}-${data["category"]}" == "prepaid-pln_prepaid") {
         var nameUnique = Helpers.shortenNumber(double.parse(data["name_unique"]));
         output = "${data["category_short_name"]} ${nameUnique}";
         output = output.toLowerCase();

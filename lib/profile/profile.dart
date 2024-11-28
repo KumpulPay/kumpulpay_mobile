@@ -7,19 +7,15 @@ import 'package:kumpulpay/login/login.dart';
 import 'package:kumpulpay/profile/editprofile.dart';
 import 'package:kumpulpay/security/password/password.dart';
 import 'package:kumpulpay/security/pin/pin.dart';
-import 'package:kumpulpay/transaction/history.dart';
 import 'package:kumpulpay/transaction/history_all.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:kumpulpay/utils/helpers.dart';
 import '../utils/colornotifire.dart';
 import '../utils/media.dart';
 import '../utils/string.dart';
-import 'changepassword.dart';
-import 'forgotpassword.dart';
 import 'helpsupport.dart';
-import 'language.dart';
 import 'legalandpolicy.dart';
-import 'notification.dart';
 
 class Profile extends StatefulWidget {
   const Profile({Key? key}) : super(key: key);
@@ -32,6 +28,7 @@ class _ProfileState extends State<Profile> {
   late ColorNotifire notifire;
   bool _switchValue = false;
   Map<String, dynamic> userData = jsonDecode(SharedPrefs().userData);
+  String avatar = '';
 
   getdarkmodepreviousstate() async {
     final prefs = await SharedPreferences.getInstance();
@@ -47,6 +44,7 @@ class _ProfileState extends State<Profile> {
   void initState() {
     super.initState();
     getdarkmodepreviousstate();
+    avatar = userData['avatar']??'';
   }
 
   @override
@@ -89,13 +87,23 @@ class _ProfileState extends State<Profile> {
                       height: height / 40,
                     ),
                     Container(
-                      height: height / 8,
+                      // height: height / 8,
                       width: width / 4,
-                      decoration: const BoxDecoration(
+                      decoration: BoxDecoration(
                         color: Colors.transparent,
                         shape: BoxShape.circle,
+                        border: Border.all(
+                          color: avatar.isEmpty ? Colors.transparent : notifire.getbackcolor,
+                          width: 2.0,
+                        ),
                       ),
-                      child: Image.asset("images/profile.png"),
+                      child: ClipOval(
+                        child: Helpers.setCachedNetworkImage(
+                          avatar,
+                          placeholder:  Image.asset("images/profile.png"),
+                          height_: height / 9,
+                        ),
+                      ),
                     ),
                     SizedBox(
                       height: height / 30,

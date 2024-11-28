@@ -33,7 +33,6 @@ class _SplashscreenState extends State<Splashscreen> {
   }
 
   getInit() async {
-    // print('_token: ${SharedPrefs().token}');
     if (SharedPrefs().token.isEmpty) {
         Timer(
           const Duration(seconds: 3),

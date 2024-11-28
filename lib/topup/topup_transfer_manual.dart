@@ -4,6 +4,7 @@ import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:kumpulpay/bottombar/bottombar.dart';
 import 'package:kumpulpay/data/shared_prefs.dart';
+import 'package:kumpulpay/repository/app_config.dart';
 import 'package:kumpulpay/repository/retrofit/api_client.dart';
 import 'package:kumpulpay/transaction/history.dart';
 import 'package:kumpulpay/utils/helpers.dart';
@@ -314,9 +315,8 @@ class _TopupTransferManualState extends State<TopupTransferManual> {
                         ),
 
                         FutureBuilder(
-                          future: ApiClient(Dio(
-                                  BaseOptions(contentType: "application/json")))
-                              .getCompanyBank('Bearer ${SharedPrefs().token}'),
+                          future: ApiClient(AppConfig().configDio())
+                              .getCompanyBank(authorization: 'Bearer ${SharedPrefs().token}'),
                           builder: (context, dynamic snapshot) {
                             // print('print: $snapshot');
                             if (snapshot.connectionState ==

@@ -2,11 +2,13 @@ import 'dart:convert';
 
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:kumpulpay/bottombar/bottombar.dart';
+import 'package:kumpulpay/category/category.dart';
 import 'package:kumpulpay/data/shared_prefs.dart';
-import 'package:kumpulpay/ppob/ppob_product.dart';
+import 'package:kumpulpay/repository/app_config.dart';
 import 'package:kumpulpay/repository/retrofit/api_client.dart';
-import 'package:kumpulpay/transaction/history.dart';
+import 'package:kumpulpay/transaction/history_all.dart';
 import 'package:kumpulpay/utils/colornotifire.dart';
 import 'package:kumpulpay/utils/loading.dart';
 import 'package:kumpulpay/utils/media.dart';
@@ -91,7 +93,7 @@ class _ConfirmPinState extends State<ConfirmPin> {
               _submitForm(_txtPinTransaction);
             },
             child: Custombutton.button(
-                notifire.getbluecolor, "Konfirmasi", width / 1.1),
+                notifire.getPrimaryPurpleColor, "Konfirmasi", width / 1.1),
           ),
           const SizedBox(height: 15),
         ],
@@ -107,7 +109,7 @@ class _ConfirmPinState extends State<ConfirmPin> {
         return PopScope(
             canPop: false,
             onPopInvoked: (didPop) => Navigator.pushNamedAndRemoveUntil(context,
-                History.routeName, ModalRoute.withName(PpobProduct.routeName)),
+                HistoryAll.routeName, ModalRoute.withName(Category.routeName)),
             child: Dialog(
               shape: const RoundedRectangleBorder(
                 borderRadius: BorderRadius.all(
@@ -137,7 +139,7 @@ class _ConfirmPinState extends State<ConfirmPin> {
                     Text(
                       "Transaksi Berhasil!",
                       style: TextStyle(
-                        color: notifire.getbluecolor,
+                        color: notifire.getPrimaryPurpleColor,
                         fontFamily: 'Gilroy Bold',
                         fontSize: height / 40,
                       ),
@@ -160,10 +162,10 @@ class _ConfirmPinState extends State<ConfirmPin> {
                       onTap: () {
                         Navigator.pushNamedAndRemoveUntil(
                             context,
-                            History.routeName,
-                            ModalRoute.withName(PpobProduct.routeName));
+                            HistoryAll.routeName,
+                            ModalRoute.withName(Category.routeName));
                       },
-                      child: buttons(notifire.getbluecolor, "Lihat Transaksi",
+                      child: buttons(notifire.getPrimaryPurpleColor, "Lihat Transaksi",
                           Colors.white),
                     ),
                     SizedBox(
@@ -175,7 +177,7 @@ class _ConfirmPinState extends State<ConfirmPin> {
                             context, Bottombar.routeName, (route) => false);
                       },
                       child: buttons(const Color(0xffd3d3d3),
-                          CustomStrings.home, notifire.getbluecolor),
+                          CustomStrings.home, notifire.getPrimaryPurpleColor),
                     ),
                   ],
                 ),
@@ -239,41 +241,34 @@ class _ConfirmPinState extends State<ConfirmPin> {
       return;
     }
 
+    Loading.showLoadingDialog(context, _globalKey);
+
+    Map<String, dynamic> body = {"pin_transaction": txtPinTransaction};
+    body.addAll(_formData);
+    // String jsonString = json.encode(body);
+   
+    final response = await ApiClient(AppConfig().configDio()).postPpobTransaction(
+        authorization: 'Bearer ${SharedPrefs().token}', body: body);
+
+    Navigator.pop(context);
+
     try {
-      Map<String, dynamic> body = {"pin_transaction": txtPinTransaction};
-      body.addAll(_formData);
-      String jsonString = json.encode(body);
-      // print('jsonStringXX ${jsonString}');
-      Loading.showLoadingDialog(context, _globalKey);
-      final client =
-          ApiClient(Dio(BaseOptions(contentType: "application/json")));
-      final dynamic post = await client.postPpobTransaction(
-          'Bearer ${SharedPrefs().token}', jsonString);
-      if (post["status"]) {
-        Navigator.pop(context);
+      
+      if (response.success) {
         _showMyDialog();
       } else {
-        Navigator.pop(context);
         ScaffoldMessenger.of(context)
-            .showSnackBar(SnackBar(content: Text(post["message"])));
+            .showSnackBar(SnackBar(content: Text(response.message)));
       }
-    } on DioException catch (e) {
+    } catch (e) {
       Navigator.pop(context);
-      // print("error: ${e}");
-      if (e.response != null) {
-        // print(e.response?.data);
-        // print(e.response?.headers);
-        // print(e.response?.requestOptions);
-        bool status = e.response?.data["status"];
-        if (status) {
-          // return Center(child: Text('Upst...'));
-          // return e.response;
-        }
-      } else {
-        // print(e.requestOptions);
-        // print(e.message);
-      }
-      // rethrow;
+      Fluttertoast.showToast(
+        msg: e.toString(),
+        backgroundColor: Colors.red,
+        textColor: Colors.white,
+        fontSize: 16,
+      );
+      rethrow;
     }
   }
 }

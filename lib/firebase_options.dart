@@ -54,22 +54,19 @@ class DefaultFirebaseOptions {
   }
 
   static const FirebaseOptions android = FirebaseOptions(
-    apiKey: 'AIzaSyDMBndK3qWj1bg7M6Bbxqu7lRXHEcxZI-0',
-    appId: '1:498627715273:android:ce935378e415049202ed18',
-    messagingSenderId: '498627715273',
-    projectId: 'harmoni-living',
-    databaseURL: 'https://harmoni-living.firebaseio.com',
-    storageBucket: 'harmoni-living.appspot.com',
+    apiKey: 'AIzaSyAeddHoT5UHii3m_xBZ9ikyWlHSmCkyj6w',
+    appId: '1:123617566983:android:cbf299a8058c68635725a2',
+    messagingSenderId: '123617566983',
+    projectId: 'kumpulpay-bee68',
+    storageBucket: 'kumpulpay-bee68.firebasestorage.app',
   );
 
   static const FirebaseOptions ios = FirebaseOptions(
-    apiKey: 'AIzaSyAfPh43MiEw9777mpDbHodWsl3zBCEliwI',
-    appId: '1:498627715273:ios:c35765c1ca3ca61502ed18',
-    messagingSenderId: '498627715273',
-    projectId: 'harmoni-living',
-    databaseURL: 'https://harmoni-living.firebaseio.com',
-    storageBucket: 'harmoni-living.appspot.com',
-    androidClientId: '498627715273-01s451i38k6taisb4mr6ph82rp70onmb.apps.googleusercontent.com',
+    apiKey: 'AIzaSyCHhkJ7LUoXoT0YM-gyQbuafWBisNhLZY0',
+    appId: '1:123617566983:ios:b864077754d7ecd35725a2',
+    messagingSenderId: '123617566983',
+    projectId: 'kumpulpay-bee68',
+    storageBucket: 'kumpulpay-bee68.firebasestorage.app',
     iosBundleId: 'com.example.kumpulpay',
   );
 

@@ -6,6 +6,7 @@ import 'package:kumpulpay/data/shared_prefs.dart';
 import 'package:kumpulpay/ppob/ppob_postpaid_single_provider.dart';
 import 'package:kumpulpay/ppob/ppob_product.dart';
 import 'package:kumpulpay/ppob/product_provider.dart';
+import 'package:kumpulpay/repository/app_config.dart';
 import 'package:kumpulpay/repository/retrofit/api_client.dart';
 import 'package:kumpulpay/utils/helpers.dart';
 import 'package:kumpulpay/utils/media.dart';
@@ -187,14 +188,14 @@ class _CategoryState extends State<Category> {
   }
 
   void _fetchCategoryData() async {
+    final response = await ApiClient(AppConfig().configDio()).getProductCategory(
+        authorization: 'Bearer ${SharedPrefs().token}');
+
     try {
-      final response =
-          await ApiClient(Dio(BaseOptions(contentType: "application/json")))
-              .getProductCategory('Bearer ${SharedPrefs().token}');
-      if (response['status']) {
+      if (response.success) {
         setState(() {
           categoryList =
-              response['data'];
+              response.data;
           filteredCategoryList = categoryList;
           _loading = false;
         });
@@ -308,14 +309,10 @@ class _CategoryState extends State<Category> {
                               child: Center(
                                       child: _loading
                                           ? Image.asset(
-                                              "images/logo_app/disabled_kumpulpay_logo.png", // Gambar fallback jika provider_images null atau kosong
+                                              "images/logo_app/disabled_kumpulpay_logo.png",
                                               height: height / 30,
                                             )
-                                          : Helpers.setCachedNetworkImage(
-                                              child2[index]['images']['image'],
-                                              Image.asset(
-                                                  "images/logo_app/disabled_kumpulpay_logo.png", // Gambar fallback jika provider_images null atau kosong
-                                                  height: height / 30), height_: height / 30)
+                                          : Helpers.setNetWorkImage(child2[index]['images']['image'], height_: height / 30)
                                      
                               ),
                             ),
@@ -343,35 +340,4 @@ class _CategoryState extends State<Category> {
       ],
     ]));
   }
-
-  // Widget _setImage(dynamic images) {
-  //   String image = "images/logo_app/disabled_kumpulpay_logo.png";
-  //   if (images != null && images.isNotEmpty) {
-  //     String fileName = Uri.parse(images['image']).pathSegments.last;
-  //     image = "images/product/category/${fileName}";
-  //   }
-  //   return Center(
-  //     child: SvgPicture.asset(
-  //       image,
-  //       height: height / 30,
-  //     ),
-  //   );
-  // }
-
-  // Widget _setImage(dynamic images) {
-  //   return Center(
-  //     child: images != null && images.isNotEmpty
-  //         ? SvgPicture.network(
-  //             images['image'], // URL gambar SVG
-  //             height: height / 20,
-  //             width: width / 8,
-  //             fit: BoxFit.contain,
-  //           )
-  //         : Image.asset(
-  //             "images/logo_app/disabled_kumpulpay_logo.png", // Gambar fallback
-  //             height: height / 30,
-  //           ),
-  //   );
-  // }
-
 }

@@ -12,6 +12,7 @@ import 'package:fluttertoast/fluttertoast.dart';
 import 'package:get_it/get_it.dart';
 import 'package:kumpulpay/data/shared_prefs.dart';
 import 'package:kumpulpay/firebase_options.dart';
+import 'package:kumpulpay/repository/app_config.dart';
 import 'package:kumpulpay/repository/retrofit/api_client.dart';
 import 'package:kumpulpay/repository/sqlite/notification_dao.dart';
 import 'package:kumpulpay/repository/sqlite/notification_entity.dart';
@@ -86,8 +87,8 @@ class NotificationController extends ChangeNotifier {
   static Future<void> initializeRemoteNotifications(
       {required bool debug}) async {
     // print('print initializeRemoteNotifications');
-    // await Firebase.initializeApp(
-    //     options: DefaultFirebaseOptions.currentPlatform);
+    await Firebase.initializeApp(
+        options: DefaultFirebaseOptions.currentPlatform);
 
     final FirebaseMessaging firebaseMessaging =
         FirebaseMessaging.instance;
@@ -515,11 +516,11 @@ Future<void> sendTokenFcmToServer(String token) async {
     Map<String, dynamic> body = {"fcm_token_mobile": token};
     String jsonString = json.encode(body);
 
-    final client = ApiClient(Dio(BaseOptions(contentType: "application/json")));
-    final dynamic post = await client.postUpdateFcm(
-        'Bearer ${SharedPrefs().token}', jsonString);
-    print('sendTokenFcmToServer: $post');
-    if (!post["status"]) {
+    final client = ApiClient(AppConfig().configDio());
+    final post = await client.postUpdateFcm(
+        authorization: 'Bearer ${SharedPrefs().token}', body: jsonString);
+
+    if (!post.success) {
         Fluttertoast.showToast(
             msg: 'Fcm token gagal di update!',
             backgroundColor: Colors.red,
@@ -528,20 +529,6 @@ Future<void> sendTokenFcmToServer(String token) async {
     }
 
   } on DioException catch (e) {
-    // print("error: ${e}");
-    if (e.response != null) {
-      // print(e.response?.data);
-      // print(e.response?.headers);
-      // print(e.response?.requestOptions);
-      bool status = e.response?.data["status"];
-      if (status) {
-        // return Center(child: Text('Upst...'));
-        // return e.response;
-      }
-    } else {
-      // print(e.requestOptions);
-      // print(e.message);
-    }
     rethrow;
   }
 }

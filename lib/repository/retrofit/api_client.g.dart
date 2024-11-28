@@ -13,9 +13,7 @@ class _ApiClient implements ApiClient {
     this._dio, {
     this.baseUrl,
     this.errorLogger,
-  }) {
-    baseUrl ??= 'https://dev-api.kumpulpay.com';
-  }
+  });
 
   final Dio _dio;
 
@@ -51,7 +49,44 @@ class _ApiClient implements ApiClient {
   }
 
   @override
-  Future<AuthRes> postAuth(Map<String, dynamic> params) async {
+  Future<DefaultResponse<dynamic>> postAuth(Map<String, dynamic> params) async {
+    final _extra = <String, dynamic>{};
+    final queryParameters = <String, dynamic>{};
+    final _headers = <String, dynamic>{};
+    final _data = <String, dynamic>{};
+    _data.addAll(params);
+    final _options = _setStreamType<DefaultResponse<dynamic>>(Options(
+      method: 'POST',
+      headers: _headers,
+      extra: _extra,
+    )
+        .compose(
+          _dio.options,
+          '/api/v1/auth/login',
+          queryParameters: queryParameters,
+          data: _data,
+        )
+        .copyWith(
+            baseUrl: _combineBaseUrls(
+          _dio.options.baseUrl,
+          baseUrl,
+        )));
+    final _result = await _dio.fetch<Map<String, dynamic>>(_options);
+    late DefaultResponse<dynamic> _value;
+    try {
+      _value = DefaultResponse<dynamic>.fromJson(
+        _result.data!,
+        (json) => json as dynamic,
+      );
+    } on Object catch (e, s) {
+      errorLogger?.logError(e, s, _options);
+      rethrow;
+    }
+    return _value;
+  }
+
+  @override
+  Future<AuthRes> postAuthWithGoogle(Map<String, dynamic> params) async {
     final _extra = <String, dynamic>{};
     final queryParameters = <String, dynamic>{};
     final _headers = <String, dynamic>{};
@@ -64,7 +99,7 @@ class _ApiClient implements ApiClient {
     )
         .compose(
           _dio.options,
-          '/api/v1/auth/login',
+          '/api/v1/auth/with-google',
           queryParameters: queryParameters,
           data: _data,
         )
@@ -85,23 +120,20 @@ class _ApiClient implements ApiClient {
   }
 
   @override
-  Future<dynamic> postRegister(
-    String body, {
-    String contentType = 'application/json',
+  Future<dynamic> postRegister({
+    required String body,
     Map<String, dynamic>? queries,
   }) async {
     final _extra = <String, dynamic>{};
     final queryParameters = <String, dynamic>{};
     queryParameters.addAll(queries ?? <String, dynamic>{});
     queryParameters.removeWhere((k, v) => v == null);
-    final _headers = <String, dynamic>{r'Content-Type': contentType};
-    _headers.removeWhere((k, v) => v == null);
+    final _headers = <String, dynamic>{};
     final _data = body;
     final _options = _setStreamType<dynamic>(Options(
       method: 'POST',
       headers: _headers,
       extra: _extra,
-      contentType: contentType,
     )
         .compose(
           _dio.options,
@@ -120,13 +152,57 @@ class _ApiClient implements ApiClient {
   }
 
   @override
-  Future<dynamic> getHome(String authorization) async {
+  Future<DefaultResponse<dynamic>> patchProfile({
+    required String authorization,
+    required dynamic body,
+    Map<String, dynamic>? queries,
+  }) async {
+    final _extra = <String, dynamic>{};
+    final queryParameters = <String, dynamic>{};
+    queryParameters.addAll(queries ?? <String, dynamic>{});
+    queryParameters.removeWhere((k, v) => v == null);
+    final _headers = <String, dynamic>{r'Authorization': authorization};
+    _headers.removeWhere((k, v) => v == null);
+    final _data = body;
+    final _options = _setStreamType<DefaultResponse<dynamic>>(Options(
+      method: 'PATCH',
+      headers: _headers,
+      extra: _extra,
+    )
+        .compose(
+          _dio.options,
+          '/api/v1/user/profile',
+          queryParameters: queryParameters,
+          data: _data,
+        )
+        .copyWith(
+            baseUrl: _combineBaseUrls(
+          _dio.options.baseUrl,
+          baseUrl,
+        )));
+    final _result = await _dio.fetch<Map<String, dynamic>>(_options);
+    late DefaultResponse<dynamic> _value;
+    try {
+      _value = DefaultResponse<dynamic>.fromJson(
+        _result.data!,
+        (json) => json as dynamic,
+      );
+    } on Object catch (e, s) {
+      errorLogger?.logError(e, s, _options);
+      rethrow;
+    }
+    return _value;
+  }
+
+  @override
+  Future<DefaultResponse<dynamic>> getHome(
+      {required String authorization}) async {
     final _extra = <String, dynamic>{};
     final queryParameters = <String, dynamic>{};
     final _headers = <String, dynamic>{r'Authorization': authorization};
     _headers.removeWhere((k, v) => v == null);
     const Map<String, dynamic>? _data = null;
-    final _options = _setStreamType<dynamic>(Options(
+    final _options = _setStreamType<DefaultResponse<dynamic>>(Options(
       method: 'GET',
       headers: _headers,
       extra: _extra,
@@ -142,32 +218,36 @@ class _ApiClient implements ApiClient {
           _dio.options.baseUrl,
           baseUrl,
         )));
-    final _result = await _dio.fetch(_options);
-    final _value = _result.data;
+    final _result = await _dio.fetch<Map<String, dynamic>>(_options);
+    late DefaultResponse<dynamic> _value;
+    try {
+      _value = DefaultResponse<dynamic>.fromJson(
+        _result.data!,
+        (json) => json as dynamic,
+      );
+    } on Object catch (e, s) {
+      errorLogger?.logError(e, s, _options);
+      rethrow;
+    }
     return _value;
   }
 
   @override
-  Future<dynamic> getProductCategory(
-    String authorization, {
-    String contentType = 'application/json',
+  Future<DefaultResponse<dynamic>> getProductCategory({
+    required String authorization,
     Map<String, dynamic>? queries,
   }) async {
     final _extra = <String, dynamic>{};
     final queryParameters = <String, dynamic>{};
     queryParameters.addAll(queries ?? <String, dynamic>{});
     queryParameters.removeWhere((k, v) => v == null);
-    final _headers = <String, dynamic>{
-      r'Authorization': authorization,
-      r'Content-Type': contentType,
-    };
+    final _headers = <String, dynamic>{r'Authorization': authorization};
     _headers.removeWhere((k, v) => v == null);
     const Map<String, dynamic>? _data = null;
-    final _options = _setStreamType<dynamic>(Options(
+    final _options = _setStreamType<DefaultResponse<dynamic>>(Options(
       method: 'GET',
       headers: _headers,
       extra: _extra,
-      contentType: contentType,
     )
         .compose(
           _dio.options,
@@ -180,32 +260,36 @@ class _ApiClient implements ApiClient {
           _dio.options.baseUrl,
           baseUrl,
         )));
-    final _result = await _dio.fetch(_options);
-    final _value = _result.data;
+    final _result = await _dio.fetch<Map<String, dynamic>>(_options);
+    late DefaultResponse<dynamic> _value;
+    try {
+      _value = DefaultResponse<dynamic>.fromJson(
+        _result.data!,
+        (json) => json as dynamic,
+      );
+    } on Object catch (e, s) {
+      errorLogger?.logError(e, s, _options);
+      rethrow;
+    }
     return _value;
   }
 
   @override
-  Future<dynamic> getProduct(
-    String authorization, {
-    String contentType = 'application/json',
+  Future<DefaultResponse<dynamic>> getProduct({
+    required String authorization,
     Map<String, dynamic>? queries,
   }) async {
     final _extra = <String, dynamic>{};
     final queryParameters = <String, dynamic>{};
     queryParameters.addAll(queries ?? <String, dynamic>{});
     queryParameters.removeWhere((k, v) => v == null);
-    final _headers = <String, dynamic>{
-      r'Authorization': authorization,
-      r'Content-Type': contentType,
-    };
+    final _headers = <String, dynamic>{r'Authorization': authorization};
     _headers.removeWhere((k, v) => v == null);
     const Map<String, dynamic>? _data = null;
-    final _options = _setStreamType<dynamic>(Options(
+    final _options = _setStreamType<DefaultResponse<dynamic>>(Options(
       method: 'GET',
       headers: _headers,
       extra: _extra,
-      contentType: contentType,
     )
         .compose(
           _dio.options,
@@ -218,32 +302,36 @@ class _ApiClient implements ApiClient {
           _dio.options.baseUrl,
           baseUrl,
         )));
-    final _result = await _dio.fetch(_options);
-    final _value = _result.data;
+    final _result = await _dio.fetch<Map<String, dynamic>>(_options);
+    late DefaultResponse<dynamic> _value;
+    try {
+      _value = DefaultResponse<dynamic>.fromJson(
+        _result.data!,
+        (json) => json as dynamic,
+      );
+    } on Object catch (e, s) {
+      errorLogger?.logError(e, s, _options);
+      rethrow;
+    }
     return _value;
   }
 
   @override
-  Future<dynamic> getProductProvider(
-    String authorization, {
-    String contentType = 'application/json',
+  Future<DefaultResponse<dynamic>> getProductProvider({
+    required String authorization,
     Map<String, dynamic>? queries,
   }) async {
     final _extra = <String, dynamic>{};
     final queryParameters = <String, dynamic>{};
     queryParameters.addAll(queries ?? <String, dynamic>{});
     queryParameters.removeWhere((k, v) => v == null);
-    final _headers = <String, dynamic>{
-      r'Authorization': authorization,
-      r'Content-Type': contentType,
-    };
+    final _headers = <String, dynamic>{r'Authorization': authorization};
     _headers.removeWhere((k, v) => v == null);
     const Map<String, dynamic>? _data = null;
-    final _options = _setStreamType<dynamic>(Options(
+    final _options = _setStreamType<DefaultResponse<dynamic>>(Options(
       method: 'GET',
       headers: _headers,
       extra: _extra,
-      contentType: contentType,
     )
         .compose(
           _dio.options,
@@ -256,32 +344,79 @@ class _ApiClient implements ApiClient {
           _dio.options.baseUrl,
           baseUrl,
         )));
-    final _result = await _dio.fetch(_options);
-    final _value = _result.data;
+    final _result = await _dio.fetch<Map<String, dynamic>>(_options);
+    late DefaultResponse<dynamic> _value;
+    try {
+      _value = DefaultResponse<dynamic>.fromJson(
+        _result.data!,
+        (json) => json as dynamic,
+      );
+    } on Object catch (e, s) {
+      errorLogger?.logError(e, s, _options);
+      rethrow;
+    }
     return _value;
   }
 
   @override
-  Future<dynamic> getHistoryTransaction(
-    String authorization, {
-    String contentType = 'application/json',
+  Future<DefaultResponse<dynamic>> getHistoryTransaction({
+    required String authorization,
     Map<String, dynamic>? queries,
   }) async {
     final _extra = <String, dynamic>{};
     final queryParameters = <String, dynamic>{};
     queryParameters.addAll(queries ?? <String, dynamic>{});
     queryParameters.removeWhere((k, v) => v == null);
-    final _headers = <String, dynamic>{
-      r'Authorization': authorization,
-      r'Content-Type': contentType,
-    };
+    final _headers = <String, dynamic>{r'Authorization': authorization};
     _headers.removeWhere((k, v) => v == null);
     const Map<String, dynamic>? _data = null;
-    final _options = _setStreamType<dynamic>(Options(
+    final _options = _setStreamType<DefaultResponse<dynamic>>(Options(
       method: 'GET',
       headers: _headers,
       extra: _extra,
-      contentType: contentType,
+    )
+        .compose(
+          _dio.options,
+          '/api/v1/ppob/transaction',
+          queryParameters: queryParameters,
+          data: _data,
+        )
+        .copyWith(
+            baseUrl: _combineBaseUrls(
+          _dio.options.baseUrl,
+          baseUrl,
+        )));
+    final _result = await _dio.fetch<Map<String, dynamic>>(_options);
+    late DefaultResponse<dynamic> _value;
+    try {
+      _value = DefaultResponse<dynamic>.fromJson(
+        _result.data!,
+        (json) => json as dynamic,
+      );
+    } on Object catch (e, s) {
+      errorLogger?.logError(e, s, _options);
+      rethrow;
+    }
+    return _value;
+  }
+
+  @override
+  Future<dynamic> postPpobTransaction({
+    required String authorization,
+    required dynamic body,
+    Map<String, dynamic>? queries,
+  }) async {
+    final _extra = <String, dynamic>{};
+    final queryParameters = <String, dynamic>{};
+    queryParameters.addAll(queries ?? <String, dynamic>{});
+    queryParameters.removeWhere((k, v) => v == null);
+    final _headers = <String, dynamic>{r'Authorization': authorization};
+    _headers.removeWhere((k, v) => v == null);
+    final _data = body;
+    final _options = _setStreamType<dynamic>(Options(
+      method: 'POST',
+      headers: _headers,
+      extra: _extra,
     )
         .compose(
           _dio.options,
@@ -300,66 +435,22 @@ class _ApiClient implements ApiClient {
   }
 
   @override
-  Future<dynamic> postPpobTransaction(
-    String authorization,
-    String body, {
-    String contentType = 'application/json',
+  Future<dynamic> postCheckBill({
+    required String authorization,
+    required dynamic body,
     Map<String, dynamic>? queries,
   }) async {
     final _extra = <String, dynamic>{};
     final queryParameters = <String, dynamic>{};
     queryParameters.addAll(queries ?? <String, dynamic>{});
     queryParameters.removeWhere((k, v) => v == null);
-    final _headers = <String, dynamic>{
-      r'Authorization': authorization,
-      r'Content-Type': contentType,
-    };
+    final _headers = <String, dynamic>{r'Authorization': authorization};
     _headers.removeWhere((k, v) => v == null);
     final _data = body;
     final _options = _setStreamType<dynamic>(Options(
       method: 'POST',
       headers: _headers,
       extra: _extra,
-      contentType: contentType,
-    )
-        .compose(
-          _dio.options,
-          '/api/v1/ppob/transaction',
-          queryParameters: queryParameters,
-          data: _data,
-        )
-        .copyWith(
-            baseUrl: _combineBaseUrls(
-          _dio.options.baseUrl,
-          baseUrl,
-        )));
-    final _result = await _dio.fetch(_options);
-    final _value = _result.data;
-    return _value;
-  }
-
-  @override
-  Future<dynamic> postCheckBill(
-    String authorization,
-    String body, {
-    String contentType = 'application/json',
-    Map<String, dynamic>? queries,
-  }) async {
-    final _extra = <String, dynamic>{};
-    final queryParameters = <String, dynamic>{};
-    queryParameters.addAll(queries ?? <String, dynamic>{});
-    queryParameters.removeWhere((k, v) => v == null);
-    final _headers = <String, dynamic>{
-      r'Authorization': authorization,
-      r'Content-Type': contentType,
-    };
-    _headers.removeWhere((k, v) => v == null);
-    final _data = body;
-    final _options = _setStreamType<dynamic>(Options(
-      method: 'POST',
-      headers: _headers,
-      extra: _extra,
-      contentType: contentType,
     )
         .compose(
           _dio.options,
@@ -378,26 +469,21 @@ class _ApiClient implements ApiClient {
   }
 
   @override
-  Future<dynamic> getPaylaterPeriod(
-    String authorization, {
-    String contentType = 'application/json',
+  Future<dynamic> getPaylaterPeriod({
+    required String authorization,
     Map<String, dynamic>? queries,
   }) async {
     final _extra = <String, dynamic>{};
     final queryParameters = <String, dynamic>{};
     queryParameters.addAll(queries ?? <String, dynamic>{});
     queryParameters.removeWhere((k, v) => v == null);
-    final _headers = <String, dynamic>{
-      r'Authorization': authorization,
-      r'Content-Type': contentType,
-    };
+    final _headers = <String, dynamic>{r'Authorization': authorization};
     _headers.removeWhere((k, v) => v == null);
     const Map<String, dynamic>? _data = null;
     final _options = _setStreamType<dynamic>(Options(
       method: 'GET',
       headers: _headers,
       extra: _extra,
-      contentType: contentType,
     )
         .compose(
           _dio.options,
@@ -416,26 +502,21 @@ class _ApiClient implements ApiClient {
   }
 
   @override
-  Future<dynamic> getPaylaterInvoice(
-    String authorization, {
-    String contentType = 'application/json',
+  Future<dynamic> getPaylaterInvoice({
+    required String authorization,
     Map<String, dynamic>? queries,
   }) async {
     final _extra = <String, dynamic>{};
     final queryParameters = <String, dynamic>{};
     queryParameters.addAll(queries ?? <String, dynamic>{});
     queryParameters.removeWhere((k, v) => v == null);
-    final _headers = <String, dynamic>{
-      r'Authorization': authorization,
-      r'Content-Type': contentType,
-    };
+    final _headers = <String, dynamic>{r'Authorization': authorization};
     _headers.removeWhere((k, v) => v == null);
     const Map<String, dynamic>? _data = null;
     final _options = _setStreamType<dynamic>(Options(
       method: 'GET',
       headers: _headers,
       extra: _extra,
-      contentType: contentType,
     )
         .compose(
           _dio.options,
@@ -454,27 +535,22 @@ class _ApiClient implements ApiClient {
   }
 
   @override
-  Future<dynamic> postPinCreate(
-    String authorization,
-    String body, {
-    String contentType = 'application/json',
+  Future<AuthRes> postPinCreate({
+    required String authorization,
+    required String body,
     Map<String, dynamic>? queries,
   }) async {
     final _extra = <String, dynamic>{};
     final queryParameters = <String, dynamic>{};
     queryParameters.addAll(queries ?? <String, dynamic>{});
     queryParameters.removeWhere((k, v) => v == null);
-    final _headers = <String, dynamic>{
-      r'Authorization': authorization,
-      r'Content-Type': contentType,
-    };
+    final _headers = <String, dynamic>{r'Authorization': authorization};
     _headers.removeWhere((k, v) => v == null);
     final _data = body;
-    final _options = _setStreamType<dynamic>(Options(
+    final _options = _setStreamType<AuthRes>(Options(
       method: 'POST',
       headers: _headers,
       extra: _extra,
-      contentType: contentType,
     )
         .compose(
           _dio.options,
@@ -487,33 +563,34 @@ class _ApiClient implements ApiClient {
           _dio.options.baseUrl,
           baseUrl,
         )));
-    final _result = await _dio.fetch(_options);
-    final _value = _result.data;
+    final _result = await _dio.fetch<Map<String, dynamic>>(_options);
+    late AuthRes _value;
+    try {
+      _value = AuthRes.fromJson(_result.data!);
+    } on Object catch (e, s) {
+      errorLogger?.logError(e, s, _options);
+      rethrow;
+    }
     return _value;
   }
 
   @override
-  Future<dynamic> postPasswordChange(
-    String authorization,
-    String body, {
-    String contentType = 'application/json',
+  Future<DefaultResponse<dynamic>> postPasswordChange({
+    required String authorization,
+    required dynamic body,
     Map<String, dynamic>? queries,
   }) async {
     final _extra = <String, dynamic>{};
     final queryParameters = <String, dynamic>{};
     queryParameters.addAll(queries ?? <String, dynamic>{});
     queryParameters.removeWhere((k, v) => v == null);
-    final _headers = <String, dynamic>{
-      r'Authorization': authorization,
-      r'Content-Type': contentType,
-    };
+    final _headers = <String, dynamic>{r'Authorization': authorization};
     _headers.removeWhere((k, v) => v == null);
     final _data = body;
-    final _options = _setStreamType<dynamic>(Options(
+    final _options = _setStreamType<DefaultResponse<dynamic>>(Options(
       method: 'POST',
       headers: _headers,
       extra: _extra,
-      contentType: contentType,
     )
         .compose(
           _dio.options,
@@ -526,32 +603,36 @@ class _ApiClient implements ApiClient {
           _dio.options.baseUrl,
           baseUrl,
         )));
-    final _result = await _dio.fetch(_options);
-    final _value = _result.data;
+    final _result = await _dio.fetch<Map<String, dynamic>>(_options);
+    late DefaultResponse<dynamic> _value;
+    try {
+      _value = DefaultResponse<dynamic>.fromJson(
+        _result.data!,
+        (json) => json as dynamic,
+      );
+    } on Object catch (e, s) {
+      errorLogger?.logError(e, s, _options);
+      rethrow;
+    }
     return _value;
   }
 
   @override
-  Future<dynamic> getCompanyBank(
-    String authorization, {
-    String contentType = 'application/json',
+  Future<DefaultResponse<dynamic>> getCompanyBank({
+    required String authorization,
     Map<String, dynamic>? queries,
   }) async {
     final _extra = <String, dynamic>{};
     final queryParameters = <String, dynamic>{};
     queryParameters.addAll(queries ?? <String, dynamic>{});
     queryParameters.removeWhere((k, v) => v == null);
-    final _headers = <String, dynamic>{
-      r'Authorization': authorization,
-      r'Content-Type': contentType,
-    };
+    final _headers = <String, dynamic>{r'Authorization': authorization};
     _headers.removeWhere((k, v) => v == null);
     const Map<String, dynamic>? _data = null;
-    final _options = _setStreamType<dynamic>(Options(
+    final _options = _setStreamType<DefaultResponse<dynamic>>(Options(
       method: 'GET',
       headers: _headers,
       extra: _extra,
-      contentType: contentType,
     )
         .compose(
           _dio.options,
@@ -564,33 +645,37 @@ class _ApiClient implements ApiClient {
           _dio.options.baseUrl,
           baseUrl,
         )));
-    final _result = await _dio.fetch(_options);
-    final _value = _result.data;
+    final _result = await _dio.fetch<Map<String, dynamic>>(_options);
+    late DefaultResponse<dynamic> _value;
+    try {
+      _value = DefaultResponse<dynamic>.fromJson(
+        _result.data!,
+        (json) => json as dynamic,
+      );
+    } on Object catch (e, s) {
+      errorLogger?.logError(e, s, _options);
+      rethrow;
+    }
     return _value;
   }
 
   @override
-  Future<dynamic> postWalletDeposit(
-    String authorization,
-    String body, {
-    String contentType = 'application/json',
+  Future<DefaultResponse<dynamic>> postWalletDeposit({
+    required String authorization,
+    required dynamic body,
     Map<String, dynamic>? queries,
   }) async {
     final _extra = <String, dynamic>{};
     final queryParameters = <String, dynamic>{};
     queryParameters.addAll(queries ?? <String, dynamic>{});
     queryParameters.removeWhere((k, v) => v == null);
-    final _headers = <String, dynamic>{
-      r'Authorization': authorization,
-      r'Content-Type': contentType,
-    };
+    final _headers = <String, dynamic>{r'Authorization': authorization};
     _headers.removeWhere((k, v) => v == null);
     final _data = body;
-    final _options = _setStreamType<dynamic>(Options(
+    final _options = _setStreamType<DefaultResponse<dynamic>>(Options(
       method: 'POST',
       headers: _headers,
       extra: _extra,
-      contentType: contentType,
     )
         .compose(
           _dio.options,
@@ -603,32 +688,36 @@ class _ApiClient implements ApiClient {
           _dio.options.baseUrl,
           baseUrl,
         )));
-    final _result = await _dio.fetch(_options);
-    final _value = _result.data;
+    final _result = await _dio.fetch<Map<String, dynamic>>(_options);
+    late DefaultResponse<dynamic> _value;
+    try {
+      _value = DefaultResponse<dynamic>.fromJson(
+        _result.data!,
+        (json) => json as dynamic,
+      );
+    } on Object catch (e, s) {
+      errorLogger?.logError(e, s, _options);
+      rethrow;
+    }
     return _value;
   }
 
   @override
-  Future<dynamic> getWalletDeposit(
-    String authorization, {
-    String contentType = 'application/json',
+  Future<DefaultResponse<dynamic>> getWalletDeposit({
+    required String authorization,
     Map<String, dynamic>? queries,
   }) async {
     final _extra = <String, dynamic>{};
     final queryParameters = <String, dynamic>{};
     queryParameters.addAll(queries ?? <String, dynamic>{});
     queryParameters.removeWhere((k, v) => v == null);
-    final _headers = <String, dynamic>{
-      r'Authorization': authorization,
-      r'Content-Type': contentType,
-    };
+    final _headers = <String, dynamic>{r'Authorization': authorization};
     _headers.removeWhere((k, v) => v == null);
     const Map<String, dynamic>? _data = null;
-    final _options = _setStreamType<dynamic>(Options(
+    final _options = _setStreamType<DefaultResponse<dynamic>>(Options(
       method: 'GET',
       headers: _headers,
       extra: _extra,
-      contentType: contentType,
     )
         .compose(
           _dio.options,
@@ -641,32 +730,36 @@ class _ApiClient implements ApiClient {
           _dio.options.baseUrl,
           baseUrl,
         )));
-    final _result = await _dio.fetch(_options);
-    final _value = _result.data;
+    final _result = await _dio.fetch<Map<String, dynamic>>(_options);
+    late DefaultResponse<dynamic> _value;
+    try {
+      _value = DefaultResponse<dynamic>.fromJson(
+        _result.data!,
+        (json) => json as dynamic,
+      );
+    } on Object catch (e, s) {
+      errorLogger?.logError(e, s, _options);
+      rethrow;
+    }
     return _value;
   }
 
   @override
-  Future<dynamic> getWalletTransaction(
-    String authorization, {
-    String contentType = 'application/json',
+  Future<DefaultResponse<dynamic>> getWalletTransaction({
+    required String authorization,
     Map<String, dynamic>? queries,
   }) async {
     final _extra = <String, dynamic>{};
     final queryParameters = <String, dynamic>{};
     queryParameters.addAll(queries ?? <String, dynamic>{});
     queryParameters.removeWhere((k, v) => v == null);
-    final _headers = <String, dynamic>{
-      r'Authorization': authorization,
-      r'Content-Type': contentType,
-    };
+    final _headers = <String, dynamic>{r'Authorization': authorization};
     _headers.removeWhere((k, v) => v == null);
     const Map<String, dynamic>? _data = null;
-    final _options = _setStreamType<dynamic>(Options(
+    final _options = _setStreamType<DefaultResponse<dynamic>>(Options(
       method: 'GET',
       headers: _headers,
       extra: _extra,
-      contentType: contentType,
     )
         .compose(
           _dio.options,
@@ -679,33 +772,37 @@ class _ApiClient implements ApiClient {
           _dio.options.baseUrl,
           baseUrl,
         )));
-    final _result = await _dio.fetch(_options);
-    final _value = _result.data;
+    final _result = await _dio.fetch<Map<String, dynamic>>(_options);
+    late DefaultResponse<dynamic> _value;
+    try {
+      _value = DefaultResponse<dynamic>.fromJson(
+        _result.data!,
+        (json) => json as dynamic,
+      );
+    } on Object catch (e, s) {
+      errorLogger?.logError(e, s, _options);
+      rethrow;
+    }
     return _value;
   }
 
   @override
-  Future<dynamic> postUpdateFcm(
-    String authorization,
-    String body, {
-    String contentType = 'application/json',
+  Future<DefaultResponse<dynamic>> postUpdateFcm({
+    required String authorization,
+    required String body,
     Map<String, dynamic>? queries,
   }) async {
     final _extra = <String, dynamic>{};
     final queryParameters = <String, dynamic>{};
     queryParameters.addAll(queries ?? <String, dynamic>{});
     queryParameters.removeWhere((k, v) => v == null);
-    final _headers = <String, dynamic>{
-      r'Authorization': authorization,
-      r'Content-Type': contentType,
-    };
+    final _headers = <String, dynamic>{r'Authorization': authorization};
     _headers.removeWhere((k, v) => v == null);
     final _data = body;
-    final _options = _setStreamType<dynamic>(Options(
+    final _options = _setStreamType<DefaultResponse<dynamic>>(Options(
       method: 'POST',
       headers: _headers,
       extra: _extra,
-      contentType: contentType,
     )
         .compose(
           _dio.options,
@@ -718,32 +815,36 @@ class _ApiClient implements ApiClient {
           _dio.options.baseUrl,
           baseUrl,
         )));
-    final _result = await _dio.fetch(_options);
-    final _value = _result.data;
+    final _result = await _dio.fetch<Map<String, dynamic>>(_options);
+    late DefaultResponse<dynamic> _value;
+    try {
+      _value = DefaultResponse<dynamic>.fromJson(
+        _result.data!,
+        (json) => json as dynamic,
+      );
+    } on Object catch (e, s) {
+      errorLogger?.logError(e, s, _options);
+      rethrow;
+    }
     return _value;
   }
 
   @override
-  Future<dynamic> getCompanyFaq(
-    String authorization, {
-    String contentType = 'application/json',
+  Future<DefaultResponse<dynamic>> getCompanyFaq({
+    required String authorization,
     Map<String, dynamic>? queries,
   }) async {
     final _extra = <String, dynamic>{};
     final queryParameters = <String, dynamic>{};
     queryParameters.addAll(queries ?? <String, dynamic>{});
     queryParameters.removeWhere((k, v) => v == null);
-    final _headers = <String, dynamic>{
-      r'Authorization': authorization,
-      r'Content-Type': contentType,
-    };
+    final _headers = <String, dynamic>{r'Authorization': authorization};
     _headers.removeWhere((k, v) => v == null);
     const Map<String, dynamic>? _data = null;
-    final _options = _setStreamType<dynamic>(Options(
+    final _options = _setStreamType<DefaultResponse<dynamic>>(Options(
       method: 'GET',
       headers: _headers,
       extra: _extra,
-      contentType: contentType,
     )
         .compose(
           _dio.options,
@@ -756,8 +857,17 @@ class _ApiClient implements ApiClient {
           _dio.options.baseUrl,
           baseUrl,
         )));
-    final _result = await _dio.fetch(_options);
-    final _value = _result.data;
+    final _result = await _dio.fetch<Map<String, dynamic>>(_options);
+    late DefaultResponse<dynamic> _value;
+    try {
+      _value = DefaultResponse<dynamic>.fromJson(
+        _result.data!,
+        (json) => json as dynamic,
+      );
+    } on Object catch (e, s) {
+      errorLogger?.logError(e, s, _options);
+      rethrow;
+    }
     return _value;
   }
 

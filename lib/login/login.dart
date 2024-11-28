@@ -6,7 +6,10 @@ import 'package:flutter/services.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:kumpulpay/bottombar/bottombar.dart';
 import 'package:kumpulpay/data/shared_prefs.dart';
+import 'package:kumpulpay/flavors.dart';
 import 'package:kumpulpay/login/register.dart';
+import 'package:kumpulpay/login/setupprofile.dart';
+import 'package:kumpulpay/repository/app_config.dart';
 import 'package:kumpulpay/repository/model/data.dart';
 import 'package:kumpulpay/repository/retrofit/api_client.dart';
 import 'package:kumpulpay/utils/button.dart';
@@ -23,7 +26,10 @@ import 'package:http/http.dart' as http;
 
 const List<String> scopes = <String>[
   'email',
-  'https://www.googleapis.com/auth/contacts.readonly',
+  // 'https://www.googleapis.com/auth/userinfo.profile',
+  // 'https://www.googleapis.com/auth/user.birthday.read', // Untuk tanggal lahir
+  // 'https://www.googleapis.com/auth/user.gender.read', // Untuk jenis kelamin
+  // 'https://www.googleapis.com/auth/user.phonenumbers.read', // Untuk nomor telepon
 ];
 
 GoogleSignIn _googleSignIn = GoogleSignIn(
@@ -58,7 +64,7 @@ class _LoginState extends State<Login> {
   @override
   void initState() {
     super.initState();
-
+      print('_currentUserX ${_currentUser}');
     _googleSignIn.onCurrentUserChanged
         .listen((GoogleSignInAccount? account) async {
       bool isAuthorized = account != null;
@@ -71,7 +77,7 @@ class _LoginState extends State<Login> {
       });
 
       if (isAuthorized) {
-        _handleGetContact(account!);
+        // _handleGetContact(account!);
       }
     });
 
@@ -378,7 +384,7 @@ class _LoginState extends State<Login> {
               ),
               const SizedBox(width: 10),
               Text(
-                "Login dengan Google",
+                "Login/Daftar Mudah",
                 style: TextStyle(
                   color: notifire.getdarkscolor,
                   fontSize: 16,
@@ -391,14 +397,34 @@ class _LoginState extends State<Login> {
     );
   }
 
-
   Future<void> _handleSignIn() async {
     try {
       final GoogleSignInAccount? account = await _googleSignIn.signIn();
+
       if (account != null) {
-        print(
-            'User signed in: ${account.displayName}, Email: ${account.email}');
-        // Lakukan apa yang dibutuhkan, misalnya mengirim token ke server.
+      //   if (_currentUser == null || _currentUser!.id != account.id) {
+          setState(() {
+            _currentUser = account;
+          });
+
+          var dataAccount = {
+            "id": account.id,
+            "name": account.displayName,
+            "email": account.email,
+            "avatar": account.photoUrl
+          };
+          // Simpan ke SharedPreferences
+          SharedPrefs().googleProfile = jsonEncode(dataAccount);
+
+          _handleSignOut();
+
+          authWithGoogle(dataAccount);
+
+          print('User signed in: ${account.displayName}, Email: ${account.email}');
+
+        // } else {
+        //   print('aaaaaa');
+        // }
       }
     } catch (error) {
       print('Google Sign-In error: $error');
@@ -413,9 +439,191 @@ class _LoginState extends State<Login> {
     setState(() {
       _currentUser = null;
     });
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Logout berhasil')),
-    );
+    // ScaffoldMessenger.of(context).showSnackBar(
+    //   const SnackBar(content: Text('Logout berhasil')),
+    // );
+  }
+
+  Future<void> _handleSubmit(BuildContext context, dynamic formData) async {
+
+    Loading.showLoadingDialog(context, _globalKey);
+    
+    try {
+      final client    = ApiClient(AppConfig().configDio());
+      final response  = await client.postAuth(formData);
+      Navigator.pop(context);
+     
+      if (response.success) {
+        String token = response.data['token'].toString();
+        SharedPrefs().token = token;
+        SharedPrefs().userData = jsonEncode(response.data['user']);
+        
+        await sendTokenFcmToServer(token);
+
+        Navigator.pushNamed(context, Bottombar.routeName);
+        
+      } else {
+        // Navigator.pop(context);
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(response.message.toString())),
+        );
+      }
+      // print(response.data);
+    } on DioException catch (e) {
+      Navigator.pop(context);
+      Fluttertoast.showToast(
+        msg: e.response != null
+            ? e.response?.data["message"] ?? "Terjadi kesalahan pada server."
+            : "Koneksi gagal, periksa jaringan Anda.",
+        backgroundColor: Colors.red,
+        textColor: Colors.white,
+        fontSize: 16,
+      );
+      rethrow;
+    }
+  }
+
+  Future<void> authWithGoogle(dynamic dataAccount) async {
+    final Map<String, dynamic> params = dataAccount;
+
+    final apiClient = ApiClient(Dio(BaseOptions(contentType: "application/json")));
+
+    try {
+      final response = await apiClient.postAuthWithGoogle(params);
+      if (response.status) {
+        // print('Authentication successful: ${response.data}');
+
+        String token = response.data['token'].toString();
+        SharedPrefs().token = token;
+        SharedPrefs().userData = jsonEncode(response.data['user']);
+        await sendTokenFcmToServer(token);
+
+        if (response.data['isNewUser']) {
+          
+          Navigator.pushNamed(context, SetupProfile.routeName);
+        } else {
+          Navigator.pushNamed(context, Bottombar.routeName);
+        }
+        
+      }
+    } catch (e) {
+      print('Error occurred: $e');
+    }
+  }
+
+  Future<void> sendTokenFcmToServer(String token) async {
+    try {
+     
+      Map<String, dynamic> body = {
+        "fcm_token_mobile": SharedPrefs().fcmTokenMobile
+      };
+      String jsonString = json.encode(body);
+     
+      final client  = ApiClient(AppConfig().configDio());
+      final post    = await client.postUpdateFcm(authorization: 'Bearer ${SharedPrefs().token}', body: jsonString);
+     
+      if (post.success) {
+          Navigator.pushNamed(context, Bottombar.routeName);
+      } else {
+          Fluttertoast.showToast(
+              msg: 'Fcm token gagal di update!',
+              backgroundColor: Colors.red,
+              textColor: Colors.white,
+              fontSize: 16);
+      }
+    } on DioException catch (e) {
+      Fluttertoast.showToast(
+        msg: e.response != null
+            ? e.response?.data["message"] ?? "Terjadi kesalahan pada server."
+            : "Koneksi gagal, periksa jaringan Anda.",
+        backgroundColor: Colors.red,
+        textColor: Colors.white,
+        fontSize: 16,
+      );
+      rethrow;
+    }
+  }
+
+  Future<bool> _onWillPop() async {
+    return (await showDialog(
+          context: context,
+          builder: (context) => AlertDialog(
+            title: const Text('Konfirmasi'),
+            content: const Text('Apakah Anda ingin keluar dari halaman ini?'),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.of(context).pop(false),
+                child: const Text('Tidak'),
+              ),
+              TextButton(
+                onPressed: () => SystemNavigator.pop(),
+                child: const Text('Ya'),
+              ),
+            ],
+          ),
+        )) ??
+        false;
+  }
+
+  // function google oAuth
+    Future<void> _fetchUserProfile() async {
+    if (_currentUser == null) return;
+
+    try {
+      final auth = await _currentUser!.authentication;
+      final accessToken = auth.accessToken;
+
+      // Gunakan token untuk memanggil Google People API
+      final response = await http.get(
+        Uri.parse(
+            'https://people.googleapis.com/v1/people/me?personFields=names,emailAddresses,photos,birthdays,genders,phoneNumbers'),
+        headers: {
+          'Authorization': 'Bearer $accessToken',
+        },
+      );
+
+      final profileData = jsonDecode(response.body);
+   
+      final displayName =
+          profileData['names']?[0]['displayName'] ?? 'Tidak diketahui';
+      final email =
+          profileData['emailAddresses']?[0]['value'] ?? 'Tidak diketahui';
+      final photoUrl = profileData['photos']?[0]['url'] ?? 'Tidak ada foto';
+      final birthday =
+          profileData['birthdays']?[0]['date'] ?? 'Tidak diketahui';
+      final gender = profileData['genders']?[0]['value'] ?? 'Tidak diketahui';
+      final phoneNumber =
+          profileData['phoneNumbers']?[0]['value'] ?? 'Tidak diketahui';
+
+      setState(() {
+        // Simpan data sesuai kebutuhan
+        print('Nama: $displayName');
+        print('Email: $email');
+        print('Foto: $photoUrl');
+        print('Tanggal Lahir: $birthday');
+        print('Jenis Kelamin: $gender');
+        print('Nomor Telepon: $phoneNumber');
+      });
+    } catch (e) {
+      print('Gagal mendapatkan profil pengguna. Error: $e');
+      if (e.toString().contains("SERVICE_DISABLED")) {
+        // Tampilkan pesan ke pengguna
+        showDialog(
+          context: context,
+          builder: (context) => AlertDialog(
+            title: Text("Layanan Tidak Aktif"),
+            content: Text(
+                "API Google People belum diaktifkan untuk aplikasi ini. Silakan hubungi admin."),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.pop(context),
+                child: Text("OK"),
+              ),
+            ],
+          ),
+        );
+      }
+    }
   }
 
   Future<void> _handleGetContact(GoogleSignInAccount user) async {
@@ -463,100 +671,4 @@ class _LoginState extends State<Login> {
     return null;
   }
 
-  Future<void> _handleSubmit(BuildContext context, dynamic formData) async {
-    Loading.showLoadingDialog(context, _globalKey);
-    try {
-      final client =
-          ApiClient(Dio(BaseOptions(contentType: "application/json")));
-
-      AuthRes response;
-      response = await client.postAuth(formData);
-      if (response.status) {
-        String token = response.data['token'].toString();
-        SharedPrefs().token = token;
-        SharedPrefs().userData = jsonEncode(response.data['user']);
-
-        sendTokenFcmToServer(token);
-        
-      } else {
-        Navigator.pop(context);
-      }
-      // print(response.data);
-    } on DioException catch (e) {
-      Navigator.pop(context);
-      // The request was made and the server responded with a status code
-      // that falls out of the range of 2xx and is also not 304.
-      if (e.response != null) {
-        // print(e.response?.data);
-        // print(e.response?.headers);
-        // print(e.response?.requestOptions);
-      } else {
-        // Something happened in setting up or sending the request that triggered an Error
-        // print(e.requestOptions);
-        // print(e.message);
-      }
-    }
-  }
-
-  Future<void> sendTokenFcmToServer(String token) async {
-    try {
-     
-      Map<String, dynamic> body = {
-        "fcm_token_mobile": SharedPrefs().fcmTokenMobile
-      };
-      String jsonString = json.encode(body);
-
-      final client =
-          ApiClient(Dio(BaseOptions(contentType: "application/json")));
-      final dynamic post = await client.postUpdateFcm(
-          'Bearer ${SharedPrefs().token}', jsonString);
-      // print('sendTokenFcmToServer: $post');
-      if (post["status"]) {
-          Navigator.pushNamed(context, Bottombar.routeName);
-      } else {
-          Fluttertoast.showToast(
-              msg: 'Fcm token gagal di update!',
-              backgroundColor: Colors.red,
-              textColor: Colors.white,
-              fontSize: 16);
-      }
-    } on DioException catch (e) {
-      // print("error: ${e}");
-      if (e.response != null) {
-        // print(e.response?.data);
-        // print(e.response?.headers);
-        // print(e.response?.requestOptions);
-        bool status = e.response?.data["status"];
-        if (status) {
-          // return Center(child: Text('Upst...'));
-          // return e.response;
-        }
-      } else {
-        // print(e.requestOptions);
-        // print(e.message);
-      }
-      rethrow;
-    }
-  }
-
-  Future<bool> _onWillPop() async {
-    return (await showDialog(
-          context: context,
-          builder: (context) => AlertDialog(
-            title: const Text('Konfirmasi'),
-            content: const Text('Apakah Anda ingin keluar dari halaman ini?'),
-            actions: [
-              TextButton(
-                onPressed: () => Navigator.of(context).pop(false),
-                child: const Text('Tidak'),
-              ),
-              TextButton(
-                onPressed: () => SystemNavigator.pop(),
-                child: const Text('Ya'),
-              ),
-            ],
-          ),
-        )) ??
-        false;
-  }
 }

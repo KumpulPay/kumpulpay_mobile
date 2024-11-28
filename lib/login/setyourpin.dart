@@ -11,6 +11,7 @@ import 'package:provider/provider.dart';
 import '../utils/button.dart';
 
 class Setyourpin extends StatefulWidget {
+  static String routeName = '/pin_create';
   const Setyourpin({Key? key}) : super(key: key);
 
   @override
@@ -19,38 +20,38 @@ class Setyourpin extends StatefulWidget {
 
 class _SetyourpinState extends State<Setyourpin> {
   late ColorNotifire notifire;
-
+  String? _txtPin;
   @override
   Widget build(BuildContext context) {
     notifire = Provider.of<ColorNotifire>(context, listen: true);
     return Scaffold(
-      appBar: AppBar(
-        centerTitle: true,
+        appBar: AppBar(
+          centerTitle: true,
+          backgroundColor: notifire.getprimerycolor,
+          elevation: 0,
+          iconTheme: IconThemeData(color: notifire.getdarkscolor),
+        ),
         backgroundColor: notifire.getprimerycolor,
-        elevation: 0,
-        iconTheme: IconThemeData(color: notifire.getdarkscolor),
-      ),
-      backgroundColor: notifire.getprimerycolor,
-      body: SingleChildScrollView(
-        child: Stack(
-          children: [
-            Container(
-              height: height * 0.89,
-              width: width,
-              decoration: const BoxDecoration(
-                image: DecorationImage(
-                    image: AssetImage("images/background.png"),
-                    fit: BoxFit.cover),
+        body: Container(
+            height: height,
+            width: width,
+            decoration: const BoxDecoration(
+              color: Colors.transparent,
+              image: DecorationImage(
+                image: AssetImage(
+                  "images/background.png",
+                ),
+                fit: BoxFit.cover,
               ),
             ),
-            Column(
+            child: Column(
               children: [
                 SizedBox(height: height / 20),
                 Row(
                   children: [
                     SizedBox(width: width / 20),
                     Text(
-                      CustomStrings.setyourpin,
+                      'Buat PIN Amanmu',
                       style: TextStyle(
                           fontFamily: 'Gilroy Bold',
                           fontSize: height / 30,
@@ -60,40 +61,35 @@ class _SetyourpinState extends State<Setyourpin> {
                   ],
                 ),
                 SizedBox(height: height / 80),
-                Row(
-                  children: [
-                    SizedBox(width: width / 20),
-                    Text(
-                      CustomStrings.youwilluse,
-                      style: TextStyle(
-                        color: notifire.getdarkgreycolor,
-                        fontFamily: 'Gilroy Medium',
-                        fontSize: height / 60,
-                      ),
+                Padding(
+                  padding: EdgeInsets.symmetric(horizontal: width / 20),
+                  child: Text(
+                    'Gunakan PIN ini untuk login dan memastikan setiap transaksi tetap aman dan nyaman!',
+                    style: TextStyle(
+                      color: notifire.getdarkgreycolor,
+                      fontFamily: 'Gilroy Medium',
+                      fontSize: height / 60,
                     ),
-                  ],
+                    softWrap: true,
+                    overflow: TextOverflow.visible,
+                  ),
                 ),
                 SizedBox(height: height / 30),
                 animatedBorders(),
-                SizedBox(height: height / 1.8),
-                GestureDetector(
-                  onTap: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => const ConfirmPin(),
-                      ),
-                    );
-                  },
-                  child: Custombutton.button(notifire.getbluecolor,
-                      CustomStrings.savepin, width / 1.1),
-                ),
+                // SizedBox(height: height / 1.8),
+                const Spacer(),
+                Padding(
+                  padding: EdgeInsets.symmetric(vertical: height / 40),
+                  child: GestureDetector(
+                    onTap: () {
+                      Navigator.pushNamed(context, ConfirmPin.routeName, arguments: ConfirmPin(txtPin: _txtPin));
+                    },
+                    child: Custombutton.button(notifire.getPrimaryPurpleColor,
+                        CustomStrings.savepin, width / 1.1),
+                  ),
+                )
               ],
-            ),
-          ],
-        ),
-      ),
-    );
+            )));
   }
 
   Widget animatedBorders() {
@@ -113,7 +109,9 @@ class _SetyourpinState extends State<Setyourpin> {
           fieldStyle: FieldStyle.box,
           outlineBorderRadius: 15,
           style: TextStyle(fontSize: 17, color: notifire.getdarkscolor),
-          onChanged: (pin) {},
+          onChanged: (pin) {
+            _txtPin = pin;
+          },
           onCompleted: (pin) {}),
     );
   }

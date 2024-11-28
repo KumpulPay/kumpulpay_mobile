@@ -1,6 +1,9 @@
 import 'package:intl/intl.dart';
 import 'package:flutter/material.dart';
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:kumpulpay/utils/media.dart';
+import 'package:provider/provider.dart';
+import 'color.dart';
 
 
 class Helpers {
@@ -48,7 +51,7 @@ class Helpers {
     return number;
   }
 
-  static Widget setNetWorkImage(String images, Widget placeholder, {double? height_, double? width_}) {
+  static Widget setNetWorkImage(String images, {double? height_, double? width_, Widget? placeholder}) {
     return Center(
       child: images.isNotEmpty
           ? Image.network(
@@ -58,15 +61,16 @@ class Helpers {
               fit: BoxFit
                   .contain,
               errorBuilder: (context, error, stackTrace) {
-                return placeholder;
+                return placeholder ??
+                    Image.asset("images/logo_app/disabled_kumpulpay_logo.png",
+                        height: height / height_);
               },
             )
           : placeholder,
     );
   }
 
-  static Widget setCachedNetworkImage(String images, Widget placeholder,
-      {double? height_, double? width_}) {
+  static Widget setCachedNetworkImage(String images, {double? height_, double? width_, Widget? placeholder}) {
     return Center(
       child: images.isNotEmpty
           ? CachedNetworkImage(
@@ -75,7 +79,10 @@ class Helpers {
               width: width_,
               fit: BoxFit.cover, 
               errorWidget: (context, url, error) {
-                return placeholder;
+                return placeholder??
+                    Image.asset(
+                        "images/logo_app/disabled_kumpulpay_logo.png",
+                        height: height / height_);
               },
             )
           : placeholder,
@@ -108,6 +115,127 @@ class Helpers {
     } else {
       return number.toString();
     }
+  }
+
+  static Future<dynamic> showMbsAlert({required context, required title, required subtitle, typeAlert, txtButton}) {
+    Widget image = Icon(
+      Icons.check_circle_outline,
+      color: Colors.green,
+      size: height / 10,
+    );
+    if (typeAlert == 'info') {
+      image = Icon(
+        Icons.info_outlined,
+        color: blueColor,
+        size: height / 10,
+      );
+    } else if(typeAlert == 'warning'){
+      image = Icon(
+        Icons.warning_amber_rounded,
+        color: Colors.amberAccent,
+        size: height / 10,
+      );
+    } else if (typeAlert == 'danger') {
+      image = Icon(
+        Icons.dangerous_outlined,
+        color: Colors.red,
+        size: height / 10,
+      );
+    }
+    return  showModalBottomSheet(
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.only(
+          topLeft: Radius.circular(20),
+          topRight: Radius.circular(20),
+        ),
+      ),
+      backgroundColor: primeryColor,
+      context: context,
+      builder: (context) {
+        return SizedBox(
+          width: double.infinity,
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              SizedBox(
+                height: height / 80,
+              ),
+              Container(
+                height: height / 80,
+                width: width / 4,
+                decoration: BoxDecoration(
+                  color: greyColor,
+                  borderRadius: const BorderRadius.all(
+                    Radius.circular(20),
+                  ),
+                ),
+              ),
+              SizedBox(
+                height: height / 50,
+              ),
+              image,
+              SizedBox(
+                height: height / 50,
+              ),
+              Padding(
+                  padding: EdgeInsets.symmetric(horizontal: width / 10),
+                  child: Align(
+                    alignment: Alignment.center,
+                    child: Column(
+                      children: [
+                        Text(
+                          title,
+                          style: TextStyle(
+                              color: darkColor,
+                              fontFamily: 'Gilroy Bold',
+                              fontSize: height / 35),
+                        ),
+                        SizedBox(height: height / 40),
+                        Text(
+                          subtitle,
+                          style: TextStyle(
+                              color: Colors.grey,
+                              fontFamily: 'Gilroy Medium',
+                              fontSize: height / 55),
+                        ),
+                      ],
+                    ),
+                  )),
+
+              // start button
+              Padding(
+                padding: EdgeInsets.symmetric(horizontal: width / 20, vertical: height / 40),
+                child: GestureDetector(
+                  onTap: () {
+                    Navigator.pop(context);
+                  },
+                  child: Container(
+                    height: height / 15,
+                    width: width,
+                    decoration: BoxDecoration(
+                      color: primaryPurpleColor,
+                      borderRadius: const BorderRadius.all(
+                        Radius.circular(30),
+                      ),
+                    ),
+                    child: Center(
+                      child: Text(
+                        txtButton??'Tutup',
+                        style: TextStyle(
+                            color: Colors.white,
+                            fontFamily: 'Gilroy Bold',
+                            fontSize: height / 50),
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+              // end button
+            ],
+          ),
+        );
+      },
+    );
   }
 
 }

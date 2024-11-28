@@ -10,7 +10,7 @@ flavors:
     android:
       applicationId: "com.kumpulpay"
       firebase:
-        config: "android/app/google-services.json"
+        config: android/app/src/prod/google-services.json
     ios:
       bundleId: "com.kumpulpay"
     macos:
@@ -23,7 +23,7 @@ flavors:
     android:
       applicationId: "com.kumpulpay.dev"
       firebase:
-        config: "android/app/google-services.json"
+        config: android/app/src/dev/google-services.json
     ios:
       bundleId: "com.kumpulpay.dev"
     macos:

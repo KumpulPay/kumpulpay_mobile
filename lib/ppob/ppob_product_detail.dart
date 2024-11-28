@@ -6,15 +6,18 @@ import 'package:dio/dio.dart';
 import 'package:dotted_line/dotted_line.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_form_builder/flutter_form_builder.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:form_builder_validators/form_builder_validators.dart';
 import 'package:kumpulpay/data/phone_provider.dart';
 import 'package:kumpulpay/data/shared_prefs.dart';
 import 'package:kumpulpay/ppob/ppob_product.dart';
+import 'package:kumpulpay/repository/app_config.dart';
 import 'package:kumpulpay/repository/retrofit/api_client.dart';
 import 'package:kumpulpay/transaction/confirm_pin.dart';
 import 'package:kumpulpay/utils/button.dart';
 import 'package:kumpulpay/utils/colornotifire.dart';
 import 'package:kumpulpay/utils/helpers.dart';
+import 'package:kumpulpay/utils/loading.dart';
 import 'package:kumpulpay/utils/media.dart';
 import 'package:kumpulpay/utils/textfeilds.dart';
 import 'package:provider/provider.dart';
@@ -41,8 +44,10 @@ class _PpobProductDetailState extends State<PpobProductDetail> {
   PpobProductDetail? args;
   late bool _loading = true;  
   late ColorNotifire notifire;
+  final _globalKey = GlobalKey<State>();
   final _formKey = GlobalKey<FormBuilderState>();
-  
+  late ScrollController _scrollController;
+  List<GlobalKey> _sectionKeys = [];
   dynamic _categoryData;
   dynamic _providerData;
   String? _type;
@@ -53,11 +58,13 @@ class _PpobProductDetailState extends State<PpobProductDetail> {
   Map<String, dynamic> phoneProvider = {};
   String _txtProvider = "";
   List<dynamic> productList = [];
+  Map<String, dynamic>? startsWithC;
+  dynamic dataCheck;
 
   @override
   void initState() {
     super.initState();
-
+     _scrollController = ScrollController();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       args = ModalRoute.of(context)!.settings.arguments as PpobProductDetail?;
       _type = args!.type;
@@ -92,7 +99,14 @@ class _PpobProductDetailState extends State<PpobProductDetail> {
       }
 
       _fetchData();
-    });    
+    }); 
+      
+  }
+
+  @override
+  void dispose() {
+    _scrollController.dispose();
+    super.dispose();
   }
 
   getdarkmodepreviousstate() async {
@@ -105,7 +119,29 @@ class _PpobProductDetailState extends State<PpobProductDetail> {
     }
   }
 
- 
+  void _scrollToSection(int index) {
+    if (index >= _sectionKeys.length) {
+      print('Index $index di luar jangkauan _sectionKeys');
+      return;
+    }
+    print('index ${index}');
+    print('_sectionKeysLength  ${_sectionKeys.length}');
+    print('_sectionKeysIndex ${_sectionKeys[index]}');
+    print('_sectionKeysIndexCurrentContext ${_sectionKeys[index]?.currentContext}');
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final keyContext = _sectionKeys[index]?.currentContext;
+      print('keyContextX $keyContext');
+      if (keyContext != null) {
+        Scrollable.ensureVisible(
+          keyContext,
+          duration: const Duration(milliseconds: 500),
+          curve: Curves.easeInOut,
+        );
+      } else {
+        print('keyContext masih null untuk index $index');
+      }
+    });
+  }
 
   void handleFormSubmission(String value) {
     // print('Text submitted: $value');
@@ -205,6 +241,7 @@ class _PpobProductDetailState extends State<PpobProductDetail> {
             children: [
               Expanded(
                 child: SingleChildScrollView(
+                  // controller: _scrollController,
                   child: Column(
                     children: [
                       
@@ -263,24 +300,40 @@ class _PpobProductDetailState extends State<PpobProductDetail> {
   }
 
   void _fetchData() async {
+    final Map<String, dynamic> queries = {
+      "type": _type,
+      "category": _category,
+      "provider": _txtProvider
+    };
+    final response = await ApiClient(AppConfig().configDio()).getProduct(authorization: 'Bearer ${SharedPrefs().token}', queries: queries);
     try {
-      final Map<String, dynamic> queries = {
-        "type": _type,
-        "category": _category,
-        "provider": _txtProvider
-      };
-      final response =
-          await ApiClient(Dio(BaseOptions(contentType: "application/json")))
-              .getProduct('Bearer ${SharedPrefs().token}', queries: queries);
-
-      if (response['status']) {
+      if (response.success) {
         setState(() {
           if (_filterCategory == 'prepaid_pulsa' || _filterCategory == 'prepaid_e_money') {
-            productList = response['data'];
+            List<dynamic> data = response.data;
+
+            // Filter data where code starts with "C" (case-insensitive)
+            startsWithC = data.firstWhere(
+              (item) {
+                String code = item['code'] ?? '';
+                return code.toLowerCase().startsWith('c');
+              },
+              orElse: () => null,
+            );
+
+            // Filter data where code does not start with "C"
+            List<dynamic> doesNotStartWithC = data.where((item) {
+              String code = item['code'] ?? '';
+              return !code.toLowerCase().startsWith('c');
+            }).toList();
+
+            productList = doesNotStartWithC;
+
+            // productList = response['data'];
             _loading = false;
           } else {
             productList =
-                groupDataByTypeCategoryProviderPaketData(response['data']);
+                groupDataByTypeCategoryProviderPaketData(response.data);
             _loading = false;
           }
         });
@@ -301,6 +354,7 @@ class _PpobProductDetailState extends State<PpobProductDetail> {
         _filterCategory == 'prepaid_e_money') {
       return _buildItemGridView(productList);
     } else {
+      _sectionKeys = List.generate(productList.length, (index) => GlobalKey());
       return _buildItemAccordionData(productList);
     }
   }
@@ -337,9 +391,11 @@ class _PpobProductDetailState extends State<PpobProductDetail> {
                               listDetail[index]["discount"].toDouble();
                             
                           return GestureDetector(
-                            onTap: () {
+                            onTap: () async {
                               if (_txtDestination.isNotEmpty) {
-                                _openBottomSheet(ctxObs, listDetail, index);
+
+                                await _checkBill(ctxObs, listDetail, index);
+
                               } else {
                                 ScaffoldMessenger.of(context).showSnackBar(
                                     const SnackBar(
@@ -405,6 +461,7 @@ class _PpobProductDetailState extends State<PpobProductDetail> {
   }
 
   Widget _buildItemAccordionData(List<dynamic> group1) {
+
     return Skeletonizer(
       enabled: _loading,
       child: Column(
@@ -422,18 +479,23 @@ class _PpobProductDetailState extends State<PpobProductDetail> {
                     headerPadding:
                         const EdgeInsets.symmetric(vertical: 7, horizontal: 15),
                     children: [
-                      for (var item in group1) ...[
+                      // for (var item in group1) ...[
+                      for (var i = 0; i < group1.length; i++) ...[
                         AccordionSection(
+                            key: _sectionKeys[i] = GlobalKey(),
                             header: Text(
-                              item["name"],
+                              group1[i]["name"],
                               style: TextStyle(
                                   fontFamily: "Gilroy Bold",
                                   color: notifire.getdarkscolor,
                                   fontSize: height / 55),
                             ),
+                            onOpenSection: () {
+                              _scrollToSection(i);
+                            },
                             contentHorizontalPadding: 20,
                             content: Builder(builder: (context) {
-                              List<dynamic> group2 = item["child"];
+                              List<dynamic> group2 = group1[i]["child"];
 
                               return ListView.builder(
                                   shrinkWrap: true,
@@ -476,9 +538,9 @@ class _PpobProductDetailState extends State<PpobProductDetail> {
                                                     children: [
                                                       Text(
                                                           group2[index]["name"],
-                                                          maxLines: 3,
-                                                          overflow: TextOverflow
-                                                              .ellipsis,
+                                                          // maxLines: 3,
+                                                          // overflow: TextOverflow
+                                                          //     .ellipsis,
                                                           style: TextStyle(
                                                               fontFamily:
                                                                   "Gilroy Medium",
@@ -521,13 +583,13 @@ class _PpobProductDetailState extends State<PpobProductDetail> {
                                                 ),
                                               ),
                                             )),
-                                        // Padding(
-                                        //   padding: const EdgeInsets.symmetric(),
-                                        //   child: Divider(
-                                        //     color: notifire.getdarkgreycolor
-                                        //         .withOpacity(0.1),
-                                        //   ),
-                                        // ),
+                                        Padding(
+                                          padding: const EdgeInsets.symmetric(),
+                                          child: Divider(
+                                            color: notifire.getdarkgreycolor
+                                                .withOpacity(0.1),
+                                          ),
+                                        ),
                                       ],
                                     );
                                   });
@@ -540,6 +602,8 @@ class _PpobProductDetailState extends State<PpobProductDetail> {
   }
 
   Widget _bottomSheetContent(BuildContext ctxBsc, List<dynamic> listDetail, int index) {
+    double remainingBalance = dataCheck['user_detail']['balance'].toDouble() -
+        listDetail[index]["price_fixed"].toDouble();
     String productCode = listDetail[index]["name_unique"];
     if (_filterCategory == 'prepaid_pulsa' ||
           _filterCategory == 'prepaid_e_money') {
@@ -597,6 +661,9 @@ class _PpobProductDetailState extends State<PpobProductDetail> {
             ],
           ),
         ),
+        // start customer name
+        customerName(),
+        // end customer name
         SizedBox(
           height: height / 80,
         ),
@@ -857,14 +924,28 @@ class _PpobProductDetailState extends State<PpobProductDetail> {
                 ),
               ),
               const Spacer(),
-              Text(
-                Helpers.currencyFormatter(SharedPrefs().balanceAvailable,
-                    decimalDigits: 0),
-                style: TextStyle(
-                  color: notifire.getdarkscolor,
-                  fontFamily: 'Gilroy Medium',
-                  fontSize: height / 60,
-                ),
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.end,
+                children: [
+                  Text(
+                    Helpers.currencyFormatter(
+                        dataCheck['user_detail']['balance'].toDouble()),
+                    style: TextStyle(
+                      color: notifire.getdarkscolor,
+                      fontFamily: 'Gilroy Medium',
+                      fontSize: height / 60,
+                    ),
+                  ),
+                  if (remainingBalance < 0)
+                    Text(
+                      "Kurang ${Helpers.currencyFormatter(remainingBalance)}",
+                      style: TextStyle(
+                        color: Colors.red,
+                        fontFamily: 'Gilroy Medium',
+                        fontSize: height / 60,
+                      ),
+                    ),
+                ],
               ),
             ],
           ),
@@ -872,11 +953,8 @@ class _PpobProductDetailState extends State<PpobProductDetail> {
         // end costumer info
 
         // start action button
-        SizedBox(
-          height: height / 30,
-        ),
         Padding(
-          padding: EdgeInsets.symmetric(horizontal: width / 20),
+          padding: EdgeInsets.symmetric(horizontal: width / 20, vertical: height / 30),
           child: Row(
             children: [
               Expanded(
@@ -894,7 +972,14 @@ class _PpobProductDetailState extends State<PpobProductDetail> {
                 flex: 1,
                 child: GestureDetector(
                   onTap: () {
-                    fetchDataAndNavigate(ctxBsc, listDetail[index]);
+                    Navigator.pop(context);
+                    if (remainingBalance < 0) {
+                      Helpers.showMbsAlert(context: context, title: 'Gagal!', 
+                      subtitle: 'Saldo kamu tersisa ${Helpers.currencyFormatter(dataCheck['user_detail']['balance'].toDouble())} tidak cukup untuk melakukan transaksi senilai ${Helpers.currencyFormatter(listDetail[index]['price_fixed'].toDouble())}',
+                      typeAlert: 'info');
+                    } else {
+                      fetchDataAndNavigate(ctxBsc, listDetail[index]);
+                    }
                   },
                   child: Custombutton.button2(
                       notifire.getPrimaryPurpleColor, "Konfirmasi", Colors.white),
@@ -902,9 +987,6 @@ class _PpobProductDetailState extends State<PpobProductDetail> {
               ),
             ],
           ),
-        ),
-        SizedBox(
-          height: height / 20,
         ),
         // end action button
       ],
@@ -940,17 +1022,6 @@ class _PpobProductDetailState extends State<PpobProductDetail> {
       dynamic productSelected) async {
     await Future.delayed(const Duration(seconds: 1));
 
-    // Map<String, dynamic> userData = json.decode(SharedPrefs().userData);
-    // Map<String, dynamic> customerMeta = {
-    //   "user_id": userData["id"],
-    //   "code": userData["code"],
-    //   "name": userData["name"],
-    //   "first_name": userData["first_name"],
-    //   "last_name": userData["last_name"],
-    //   "phone": userData["phone"],
-    //   "email": userData["email"]
-    // };
-
     Map<String, dynamic> orderDetail = {
       "destination": _txtDestination,
       "price": productSelected['price'],
@@ -965,7 +1036,6 @@ class _PpobProductDetailState extends State<PpobProductDetail> {
       "payment_method": "deposit",
       "order_detail": orderDetail,
       "product_meta": productSelected,
-      // "customer_meta": customerMeta,
     };
 
     return transactionData;
@@ -1013,5 +1083,74 @@ class _PpobProductDetailState extends State<PpobProductDetail> {
     }).toList();
     // print('groupedDataArrayX ${jsonEncode(groupedDataArray)}');
     return groupedDataArray;
+  }
+
+  Future<dynamic> _checkBill(
+      BuildContext ctxObs, List<dynamic> listDetail, int index) async {
+
+    Loading.showLoadingDialog(context, _globalKey);
+
+    Map<String, dynamic> body = {
+      "product_code": startsWithC!['code'],
+      "destination": _txtDestination,
+      "type_category_provider": startsWithC!['type_category_provider'],
+    };
+
+    final response = await ApiClient(AppConfig().configDio()).postCheckBill(
+       authorization:  'Bearer ${SharedPrefs().token}', body: body);  
+
+    Navigator.pop(context);
+    try {
+      if (response.success) {
+        setState(() {
+          dataCheck = response.data;
+        });
+        _openBottomSheet(ctxObs, listDetail, index);
+      } else {
+        Helpers.showMbsAlert(context: ctxObs, title: 'Gagal', subtitle: response.message, typeAlert: 'info');
+      }
+    } catch (e) {
+      Fluttertoast.showToast(
+        msg: e.toString(),
+        backgroundColor: Colors.red,
+        textColor: Colors.white,
+        fontSize: 16,
+      );
+      rethrow;
+    }
+  }
+
+  Widget customerName(){
+    return Column(
+      children: [
+        SizedBox(
+          height: height / 80,
+        ),
+        Padding(
+          padding: EdgeInsets.symmetric(horizontal: width / 20),
+          child: Row(
+            children: [
+              Text(
+                'Nama Pelanggan',
+                style: TextStyle(
+                  color: Colors.grey,
+                  fontFamily: 'Gilroy Medium',
+                  fontSize: height / 60,
+                ),
+              ),
+              const Spacer(),
+              Text(
+                dataCheck['bill_details']['customer_name'],
+                style: TextStyle(
+                  color: notifire.getdarkgreycolor,
+                  fontFamily: 'Gilroy Medium',
+                  fontSize: height / 60,
+                ),
+              ),
+            ],
+          ),
+        ),
+      ],
+    );
   }
 }

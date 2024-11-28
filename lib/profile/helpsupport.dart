@@ -4,6 +4,7 @@ import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_html/flutter_html.dart';
 import 'package:kumpulpay/data/shared_prefs.dart';
+import 'package:kumpulpay/repository/app_config.dart';
 import 'package:kumpulpay/repository/retrofit/api_client.dart';
 import 'package:kumpulpay/utils/string.dart';
 import 'package:provider/provider.dart';
@@ -28,7 +29,7 @@ class _HelpSupportState extends State<HelpSupport> {
       color: Color(0xff999999), fontSize: 14, fontWeight: FontWeight.normal);
   final TextEditingController _searchController = TextEditingController();    
   List<dynamic> faqList = [];
-  List<dynamic> filteredFaqList = List.filled(6, {
+  List<dynamic> filteredFaqList = List.filled(10, {
     "question": "question",
     "answer": "answer"
   });
@@ -37,32 +38,29 @@ class _HelpSupportState extends State<HelpSupport> {
   void initState() {
     super.initState();
     _searchController.addListener(
-        _onSearchChanged); // Memanggil fungsi setiap ada perubahan pencarian
-    _fetchFaqData(); // Memanggil fungsi untuk fetch data hanya satu kali saat halaman dimuat
+        _onSearchChanged);
+    _fetchFaqData();
   }
 
   // Fungsi untuk mengambil data FAQ hanya sekali
   void _fetchFaqData() async {
+    final response =
+        await ApiClient(AppConfig().configDio())
+            .getCompanyFaq(authorization: 'Bearer ${SharedPrefs().token}');
     try {
-      final response =
-          await ApiClient(Dio(BaseOptions(contentType: "application/json")))
-              .getCompanyFaq('Bearer ${SharedPrefs().token}');
-      if (response['status']) {
+      
+      if (response.success) {
         setState(() {
-          faqList =
-              response['data']; // Menyimpan data FAQ yang diambil dari API
-          filteredFaqList = faqList; // Menyimpan data FAQ yang sudah difilter
+          faqList = response.data;
+          filteredFaqList = faqList;
           _loading = false;
         });
       } else {
-        // Handle case jika API tidak memberikan data yang valid
         setState(() {
           filteredFaqList = [];
         });
       }
     } catch (e) {
-      // print("Error fetching FAQ data: $e");
-      // Menangani error apabila gagal mengambil data
       setState(() {
         filteredFaqList = [];
       });

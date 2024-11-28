@@ -4,14 +4,17 @@ import 'package:dio/dio.dart';
 import 'package:dotted_line/dotted_line.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_form_builder/flutter_form_builder.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:form_builder_validators/form_builder_validators.dart';
 import 'package:kumpulpay/data/shared_prefs.dart';
 import 'package:kumpulpay/ppob/ppob_product_detail.dart';
+import 'package:kumpulpay/repository/app_config.dart';
 import 'package:kumpulpay/repository/retrofit/api_client.dart';
 import 'package:kumpulpay/transaction/confirm_pin.dart';
 import 'package:kumpulpay/utils/button.dart';
 import 'package:kumpulpay/utils/colornotifire.dart';
 import 'package:kumpulpay/utils/helpers.dart';
+import 'package:kumpulpay/utils/loading.dart';
 import 'package:kumpulpay/utils/media.dart';
 import 'package:kumpulpay/utils/textfeilds.dart';
 import 'package:provider/provider.dart';
@@ -37,6 +40,7 @@ class _PpobProductState extends State<PpobProduct>
   PpobProduct? args;
   late bool _loading = true;    
   late ColorNotifire notifire;
+  final _globalKey = GlobalKey<State>();
   final _formKey = GlobalKey<FormBuilderState>();
   Map<String, dynamic> phoneProvider = {};
   dynamic _categoryData;
@@ -52,7 +56,7 @@ class _PpobProductState extends State<PpobProduct>
     "category_short_name": "Pulsa Pasca",
   });
   List<dynamic> providerList = [];
-  List<dynamic> filteredProviderList = List.filled(4, {
+  List<dynamic> filteredProviderList = List.filled(8, {
     "group_key": "group_key",
     "category_name": "category_name",
     "provider": "provider",
@@ -70,6 +74,8 @@ class _PpobProductState extends State<PpobProduct>
     ]
   });
   bool _isFilterProvider = true;
+  Map<String, dynamic>? startsWithC;
+  dynamic dataCheck;
 
   @override
   void initState() {
@@ -304,24 +310,37 @@ class _PpobProductState extends State<PpobProduct>
   }
 
   void _fetchData() async {
-    try {
-      final Map<String, dynamic> queries = {
-        "type": _type,
-        "category": _category
-      };
-      // print('queriesXXX ${queries}');
-      final response =
-          await ApiClient(Dio(BaseOptions(contentType: "application/json")))
-              .getProduct('Bearer ${SharedPrefs().token}', queries: queries);
+    final Map<String, dynamic> queries = {"type": _type, "category": _category};
 
-      if (response['status']) {
+    final response = await ApiClient(AppConfig().configDio()).getProduct(authorization: 'Bearer ${SharedPrefs().token}', queries: queries);
+    try {
+      
+
+      if (response.success) {
         setState(() {
           if (_filterCategory != 'prepaid_pln_prepaid'){
-            providerList = groupDataByTypeCategoryProviderArray(response['data']);
+            providerList = groupDataByTypeCategoryProviderArray(response.data);
             filteredProviderList = providerList;
-            print('filteredProviderListX ${filteredProviderList}');
+           
           } else {
-            productList = response['data'];
+            List<dynamic> data = response.data;
+
+            // Filter data where code starts with "C" (case-insensitive)
+            startsWithC = data.firstWhere(
+              (item) {
+                String code = item['code'] ?? '';
+                return code.toLowerCase().startsWith('c');
+              },
+              orElse: () => null,
+            );
+           
+            // Filter data where code does not start with "C"
+            List<dynamic> doesNotStartWithC = data.where((item) {
+              String code = item['code'] ?? '';
+              return !code.toLowerCase().startsWith('c');
+            }).toList();
+
+            productList = doesNotStartWithC;
           }
           _loading = false;
         });
@@ -362,8 +381,11 @@ class _PpobProductState extends State<PpobProduct>
                           listDetail[index]["margin"].toDouble() -
                           listDetail[index]["discount"].toDouble();
                       return GestureDetector(
-                        onTap: () {
+                        onTap: () async {
                           if (_txtDestination.isNotEmpty) {
+                            Loading.showLoadingDialog(context, _globalKey);
+                            await _checkBill();
+                            Navigator.pop(context);
                             showModalBottomSheet(
                                 isDismissible: false,
                                 isScrollControlled: true,
@@ -498,10 +520,7 @@ class _PpobProductState extends State<PpobProduct>
                                               height: height / 30,
                                             )
                                           : items[index]['provider_images'] != null ? Helpers.setNetWorkImage(
-                                              items[index]['provider_images']['image'], Image.asset(
-                                                "images/logo_app/disabled_kumpulpay_logo.png", // Gambar fallback jika provider_images null atau kosong
-                                                height: height / 30,
-                                              ), height_: height/30) : Image.asset(
+                                              items[index]['provider_images']['image'], height_: height/30) : Image.asset(
                                                   "images/logo_app/disabled_kumpulpay_logo.png", // Gambar fallback jika provider_images null atau kosong
                                                   height: height / 30,
                                                 )
@@ -537,6 +556,7 @@ class _PpobProductState extends State<PpobProduct>
   }
 
   Widget _bottomSheetContent(BuildContext ctxBsc, List<dynamic> listDetail, int index) {
+    double remainingBalance = dataCheck['user_detail']['balance'].toDouble() - listDetail[index]["price_fixed"].toDouble();
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
@@ -615,66 +635,125 @@ class _PpobProductState extends State<PpobProduct>
             ],
           ),
         ),
-        // description
+        // start customer name
         SizedBox(
           height: height / 80,
         ),
         Padding(
           padding: EdgeInsets.symmetric(horizontal: width / 20),
           child: Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Expanded(
-                flex: 1,
-                child: Text(
-                  'Deskripsi',
-                  style: TextStyle(
-                    color: Colors.grey,
-                    fontFamily: 'Gilroy Medium',
-                    fontSize: height / 60,
-                  ),
+              Text(
+                'Nama Pelanggan',
+                style: TextStyle(
+                  color: Colors.grey,
+                  fontFamily: 'Gilroy Medium',
+                  fontSize: height / 60,
                 ),
               ),
-              Expanded(
-                flex: 2,
-                child: Text(
-                  listDetail[index]["name"],
-                  textAlign: TextAlign.right,
-                  style: TextStyle(
-                    color: notifire.getdarkgreycolor,
-                    fontFamily: 'Gilroy Medium',
-                    fontSize: height / 60,
-                  ),
+              const Spacer(),
+              Text(
+               dataCheck['bill_details']['customer_name'],
+                style: TextStyle(
+                  color: notifire.getdarkgreycolor,
+                  fontFamily: 'Gilroy Medium',
+                  fontSize: height / 60,
                 ),
               ),
-              // Expanded(
-              //     flex: 2,
-              //     child: Column(
-              //       crossAxisAlignment: CrossAxisAlignment.end,
-              //       children: [
-              //         Text(
-              //           listDetail[index]["provider"],
-              //           textAlign: TextAlign.right,
-              //           style: TextStyle(
-              //             color: notifire.getdarkscolor,
-              //             fontFamily: 'Gilroy Medium',
-              //             fontSize: height / 60,
-              //           ),
-              //         ),
-              //         Text(
-              //           listDetail[index]["name"],
-              //           textAlign: TextAlign.right,
-              //           style: TextStyle(
-              //             color: notifire.getdarkgreycolor,
-              //             fontFamily: 'Gilroy Medium',
-              //             fontSize: height / 60,
-              //           ),
-              //         ),
-              //       ],
-              //     ))
             ],
           ),
         ),
+        // end customer name
+        // start tarif daya
+        SizedBox(
+          height: height / 80,
+        ),
+        Padding(
+          padding: EdgeInsets.symmetric(horizontal: width / 20),
+          child: Row(
+            children: [
+              Text(
+                'Tarif/Daya',
+                style: TextStyle(
+                  color: Colors.grey,
+                  fontFamily: 'Gilroy Medium',
+                  fontSize: height / 60,
+                ),
+              ),
+              const Spacer(),
+              Text(
+                "${dataCheck['bill_details']['golongan']}/${dataCheck['bill_details']['daya']}",
+                style: TextStyle(
+                  color: notifire.getdarkgreycolor,
+                  fontFamily: 'Gilroy Medium',
+                  fontSize: height / 60,
+                ),
+              ),
+            ],
+          ),
+        ),
+        // end tarif daya
+        // start description
+        // SizedBox(
+        //   height: height / 80,
+        // ),
+        // Padding(
+        //   padding: EdgeInsets.symmetric(horizontal: width / 20),
+        //   child: Row(
+        //     crossAxisAlignment: CrossAxisAlignment.start,
+        //     children: [
+        //       Expanded(
+        //         flex: 1,
+        //         child: Text(
+        //           'Deskripsi',
+        //           style: TextStyle(
+        //             color: Colors.grey,
+        //             fontFamily: 'Gilroy Medium',
+        //             fontSize: height / 60,
+        //           ),
+        //         ),
+        //       ),
+        //       Expanded(
+        //         flex: 2,
+        //         child: Text(
+        //           listDetail[index]["name"],
+        //           textAlign: TextAlign.right,
+        //           style: TextStyle(
+        //             color: notifire.getdarkgreycolor,
+        //             fontFamily: 'Gilroy Medium',
+        //             fontSize: height / 60,
+        //           ),
+        //         ),
+        //       ),
+        //       // Expanded(
+        //       //     flex: 2,
+        //       //     child: Column(
+        //       //       crossAxisAlignment: CrossAxisAlignment.end,
+        //       //       children: [
+        //       //         Text(
+        //       //           listDetail[index]["provider"],
+        //       //           textAlign: TextAlign.right,
+        //       //           style: TextStyle(
+        //       //             color: notifire.getdarkscolor,
+        //       //             fontFamily: 'Gilroy Medium',
+        //       //             fontSize: height / 60,
+        //       //           ),
+        //       //         ),
+        //       //         Text(
+        //       //           listDetail[index]["name"],
+        //       //           textAlign: TextAlign.right,
+        //       //           style: TextStyle(
+        //       //             color: notifire.getdarkgreycolor,
+        //       //             fontFamily: 'Gilroy Medium',
+        //       //             fontSize: height / 60,
+        //       //           ),
+        //       //         ),
+        //       //       ],
+        //       //     ))
+        //     ],
+        //   ),
+        // ),
+        // end description
         // end costumer info
 
         // start payment detail
@@ -860,13 +939,28 @@ class _PpobProductState extends State<PpobProduct>
                 ),
               ),
               const Spacer(),
-              Text(
-                Helpers.currencyFormatter(SharedPrefs().balanceAvailable),
-                style: TextStyle(
-                  color: notifire.getdarkscolor,
-                  fontFamily: 'Gilroy Medium',
-                  fontSize: height / 60,
-                ),
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.end,
+                children: [
+                  Text(
+                    Helpers.currencyFormatter(
+                        dataCheck['user_detail']['balance'].toDouble()),
+                    style: TextStyle(
+                      color: notifire.getdarkscolor,
+                      fontFamily: 'Gilroy Medium',
+                      fontSize: height / 60,
+                    ),
+                  ),
+                  if (remainingBalance < 0)
+                   Text(
+                      "Kurang ${Helpers.currencyFormatter(remainingBalance)}",
+                      style: TextStyle(
+                        color: Colors.red,
+                        fontFamily: 'Gilroy Medium',
+                        fontSize: height / 60,
+                      ),
+                    ), 
+                ],
               ),
             ],
           ),
@@ -896,7 +990,10 @@ class _PpobProductState extends State<PpobProduct>
                 flex: 1,
                 child: GestureDetector(
                   onTap: () {
-                    fetchDataAndNavigate(context, listDetail[index]);
+                    if (dataCheck['user_detail']['balance'] >
+                        listDetail[index]['price_fixed']) {
+                      fetchDataAndNavigate(context, listDetail[index]);
+                    }
                   },
                   child: Custombutton.button2(
                       notifire.getPrimaryPurpleColor, "Konfirmasi", Colors.white),
@@ -917,22 +1014,20 @@ class _PpobProductState extends State<PpobProduct>
       dynamic productSelected) async {
     await Future.delayed(const Duration(seconds: 1));
 
-    Map<String, dynamic> userData = json.decode(SharedPrefs().userData);
-    Map<String, dynamic> customerMeta = {
-      "user_id": userData["id"],
-      "code": userData["code"],
-      "name": userData["name"],
-      "first_name": userData["first_name"],
-      "last_name": userData["last_name"],
-      "phone": userData["phone"],
-      "email": userData["email"]
+    Map<String, dynamic> orderDetail = {
+      "destination": _txtDestination,
+      "price": productSelected['price'],
+      "margin": productSelected['margin'],
+      "discount": productSelected['discount'],
+      "admin_fee": productSelected['admin_fee'],
+      "price_fixed": productSelected['price_fixed']
     };
 
     Map<String, dynamic> transactionData = {
-      "payment_method": "paylater",
-      "destination": _txtDestination,
+      "transaction_type": "purchase",
+      "payment_method": "deposit",
+      "order_detail": orderDetail,
       "product_meta": productSelected,
-      "customer_meta": customerMeta,
     };
 
     return transactionData;
@@ -949,28 +1044,43 @@ class _PpobProductState extends State<PpobProduct>
     );
   }
 
-  Widget _setImage(dynamic images) {
-    return Center(
-      child: images != null && images.isNotEmpty
-          ? Image.network(
-              images['image'], // URL gambar dari API
-              height: height / 20,
-              width: width / 8,
-              fit: BoxFit
-                  .contain, // Menyesuaikan ukuran gambar di dalam container
-              errorBuilder: (context, error, stackTrace) {
-                // Fallback jika gambar gagal dimuat
-                return Image.asset(
-                  "images/logo_app/disabled_kumpulpay_logo.png", // Gambar fallback
-                  height: height / 30,
-                );
-              },
-            )
-          : Image.asset(
-              "images/logo_app/disabled_kumpulpay_logo.png", // Gambar fallback jika provider_images null atau kosong
-              height: height / 30,
-            ),
-    );
+  Future<dynamic> _checkBill() async {
+     Map<String, dynamic> body = {
+      "product_code": startsWithC!['code'],
+      "destination": _txtDestination,
+      "type_category_provider": startsWithC!['type_category_provider'],
+    };
+
+    final dynamic post = await ApiClient(AppConfig().configDio()).postCheckBill(
+        authorization: 'Bearer ${SharedPrefs().token}', body: body);
+    try {
+
+     
+
+      if (post["status"]) {
+        dataCheck = post['data'];
+        // print('dataCheck ${dataCheck}');
+
+      } else {
+        Fluttertoast.showToast(
+          msg: post["message"],
+          backgroundColor: Colors.red,
+          textColor: Colors.white,
+          fontSize: 16,
+        );
+      }
+    } on DioException catch (e) {
+      Fluttertoast.showToast(
+        msg: e.response != null
+            ? e.response?.data["message"] ?? "Terjadi kesalahan pada server."
+            : "Koneksi gagal, periksa jaringan Anda.",
+        backgroundColor: Colors.red,
+        textColor: Colors.white,
+        fontSize: 16,
+      );
+      rethrow;
+    } finally {
+    }
   }
 
   List<dynamic> groupDataByTypeCategoryProviderArray(

@@ -32,16 +32,29 @@ class SharedPrefs {
     _sharedPrefs.setString("fcm_token_mobile", value);
   }
 
+  dynamic get googleProfile => _sharedPrefs.get("google_profile");
+  set googleProfile(dynamic value) {
+    _sharedPrefs.setString("google_profile", value);
+  }
+
   String get userData => _sharedPrefs.getString("user_data") ?? "";
   set userData(String value) {
     _sharedPrefs.setString("user_data", value);
   }
 
-  String get pinTransaction {
-    Map<String, dynamic> userData = jsonDecode(SharedPrefs().userData);
-    return userData['pin_transaction'];
-  }
+  // String get pinTransaction {
+  //   Map<String, dynamic> userData = jsonDecode(SharedPrefs().userData);
+  //   return userData['pin_transaction'];
+  // }
 
+  String get pinTransaction {
+    String? data = _sharedPrefs.getString("user_data");
+    if (data != null) {
+      Map<String, dynamic> userData = jsonDecode(data);
+      return userData['pin_transaction'] ?? "";
+    }
+    return "";
+  }
 
   double get limitsAvailable => _sharedPrefs.getDouble("limits_available") ?? 0;
   set limitsAvailable(double value) {

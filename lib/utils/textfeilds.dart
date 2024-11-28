@@ -246,7 +246,7 @@ class CustomtextFormBuilderfilds {
       padding: EdgeInsets.symmetric(horizontal: width / 18),
       child: Container(
         color: Colors.transparent,
-        height: height / 15,
+        // height: height / 15,
         child: FormBuilderTextField(
           initialValue: initialValue,
           name: name,
@@ -294,6 +294,11 @@ class CustomtextFormBuilderfilds {
                   )
                 : suffixIcon,
             hintStyle: TextStyle(color: hintclr, fontSize: height / 60),
+            border: OutlineInputBorder(
+                  borderSide: BorderSide(
+                    color: Colors.grey.withOpacity(0.4),
+                  ),
+                  borderRadius: BorderRadius.circular(10)),
             focusedBorder: OutlineInputBorder(
               borderSide: BorderSide(color: borderclr),
               borderRadius: BorderRadius.circular(10),
@@ -304,7 +309,7 @@ class CustomtextFormBuilderfilds {
               ),
               borderRadius: BorderRadius.circular(10),
             ),
-            // contentPadding: const EdgeInsets.only(left: 16.0, top: 26.0)
+            contentPadding: const EdgeInsets.symmetric(vertical: 12.0, horizontal: 16.0),
           ),
         
         ),

@@ -7,6 +7,7 @@ import '../bottombar/bottombar.dart';
 import '../utils/button.dart';
 
 class VerificationDone extends StatefulWidget {
+  static String routeName = '/verify_done';
   const VerificationDone({Key? key}) : super(key: key);
 
   @override
@@ -39,21 +40,27 @@ class _VerificationDoneState extends State<VerificationDone> {
                 Center(
                     child: Image.asset("images/verificationdone.png",
                         height: height / 3)),
-                Text(
-                  CustomStrings.verificationdone,
-                  style: TextStyle(
-                      fontSize: height / 30,
-                      color: notifire.getdarkscolor,
-                      fontFamily: 'Gilroy Bold'),
+                Padding(
+                  padding: EdgeInsets.symmetric(horizontal: width / 10),
+                  child: Text(
+                    'Akun Siap Digunakan!',
+                    style: TextStyle(
+                        fontSize: height / 30,
+                        color: notifire.getdarkscolor,
+                        fontFamily: 'Gilroy Bold'),
+                  ),
                 ),
                 SizedBox(height: height / 50),
-                Text(
-                  CustomStrings.theaacountbeen,
-                  textAlign: TextAlign.center,
-                  style: TextStyle(
-                      fontSize: height / 55,
-                      fontFamily: 'Gilroy Medium',
-                      color: notifire.getdarkgreycolor),
+                Padding(
+                  padding: EdgeInsets.symmetric(horizontal: width / 10),
+                  child: Text(
+                    'Selamat! Verifikasi selesai. Akun kamu kini aktif dan siap digunakan untuk menikmati layanan terbaik dari KumpulPay. 🎉',
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                        fontSize: height / 55,
+                        fontFamily: 'Gilroy Medium',
+                        color: notifire.getdarkgreycolor),
+                  ),
                 ),
                 SizedBox(height: height / 4),
                 GestureDetector(
@@ -65,8 +72,8 @@ class _VerificationDoneState extends State<VerificationDone> {
                       ),
                     );
                   },
-                  child: Custombutton.button(
-                      notifire.getbluecolor, CustomStrings.done, width / 1.1),
+                  child: Custombutton.button(notifire.getPrimaryPurpleColor,
+                      CustomStrings.done, width / 1.1),
                 ),
               ],
             ),

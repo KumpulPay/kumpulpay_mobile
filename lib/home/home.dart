@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:kumpulpay/category/category.dart';
 import 'package:kumpulpay/data/shared_prefs.dart';
 import 'package:kumpulpay/notification/notification_list.dart';
@@ -10,9 +11,10 @@ import 'package:kumpulpay/ppob/ppob_product.dart';
 import 'package:kumpulpay/home/request/request.dart';
 import 'package:kumpulpay/home/scanpay/scan.dart';
 import 'package:kumpulpay/ppob/product_provider.dart';
+import 'package:kumpulpay/repository/app_config.dart';
 import 'package:kumpulpay/repository/retrofit/api_client.dart';
 import 'package:kumpulpay/topup/topup.dart';
-import 'package:kumpulpay/transaction/history.dart';
+import 'package:kumpulpay/transaction/history_all.dart';
 import 'package:kumpulpay/utils/color.dart';
 import 'package:kumpulpay/utils/colornotifire.dart';
 import 'package:kumpulpay/utils/helper_data_json.dart';
@@ -23,7 +25,6 @@ import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:skeletonizer/skeletonizer.dart';
 import '../profile/helpsupport.dart';
-import '../profile/legalandpolicy.dart';
 import 'transfer/sendmoney.dart';
 
 class Home extends StatefulWidget {
@@ -102,6 +103,12 @@ class _HomeState extends State<Home> {
   ];
   bool selection = true;
 
+  List<Map<String, dynamic>> exclusiveItems = [
+    {'title': "Iuran Lingkungan", 'image': 'images/ic_kumpulpay/iuran_lingkungan.png'},
+    {'title': "Iuran Komunitas", 'image': 'images/ic_kumpulpay/iuran_komunitas.png'},
+    {'title': "Iuran Pendidikan", 'image': 'images/ic_kumpulpay/iuran_pendidikan.png'},
+  ];
+
   @override
   Widget build(BuildContext context) {
     notifire = Provider.of<ColorNotifire>(context, listen: true);
@@ -173,6 +180,8 @@ class _HomeState extends State<Home> {
                   // start section top
                   _buildSectionTop(),
                   // end section top
+
+                  _exclusiveService(),
 
                   // start grid menu
                   _favoriteServices(),
@@ -531,6 +540,115 @@ class _HomeState extends State<Home> {
     ));
   }
 
+  Widget _exclusiveService() {
+    return Skeletonizer(
+      enabled: _loading,
+      child: Align(
+        alignment: Alignment.centerLeft,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            SizedBox(
+              height: height / 40,
+            ),
+            Padding(
+              padding: EdgeInsets.only(left: width / 18),
+              child: Row(
+                children: [
+                  Text(
+                    'Hanya di ',
+                    style: TextStyle(
+                      fontFamily: "Gilroy Bold",
+                      color: notifire.getdarkscolor,
+                      fontSize: height / 40,
+                    ),
+                  ),
+                  Text(
+                    'KumpulPay',
+                    style: TextStyle(
+                      fontFamily: "Gilroy Bold",
+                      color: notifire.getPrimaryPurpleColor,
+                      fontSize: height / 40,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            SizedBox(
+              height: height / 50,
+            ),
+            Padding(
+              padding: EdgeInsets.symmetric(horizontal: width / 20),
+              child: SizedBox(
+                height: height / 7, // Batasi tinggi untuk daftar horizontal
+                child: GridView.builder(
+                  physics: const NeverScrollableScrollPhysics(),
+                  shrinkWrap: true,
+                  padding: EdgeInsets.only(bottom: height / 30),
+                  gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                    crossAxisCount: 3, // Jumlah item per baris
+                    crossAxisSpacing:
+                        height / 50, // Jarak horizontal antar item
+                    mainAxisSpacing: height / 100, // Jarak vertikal antar item
+                    childAspectRatio: 1, // Rasio aspek item (lebar:tinggi)
+                  ),
+                  itemCount: exclusiveItems.length, // Jumlah total item
+                  itemBuilder: (context, index) {
+                    return GestureDetector(
+                      onTap: () {
+                        // Aksi saat item diklik
+                      },
+                      child: Padding(
+                        padding: EdgeInsets.only(
+                            right: width / 30), // Spasi antar item
+                        child: Column(
+                          children: [
+                            Container(
+                              height: height / 15,
+                              width: width / 7,
+                              decoration: BoxDecoration(
+                                color: notifire.gettabwhitecolor,
+                                borderRadius: const BorderRadius.all(
+                                  Radius.circular(10),
+                                ),
+                              ),
+                              child: Center(
+                                child: Image.asset(
+                                  exclusiveItems[index]
+                                      ["image"], // Gunakan icon dinamis
+                                  height: height / 30,
+                                ),
+                              ),
+                            ),
+                            SizedBox(
+                              height: height / 120,
+                            ),
+                            Center(
+                              child: Text(
+                                exclusiveItems[index]
+                                    ["title"], // Gunakan label dinamis
+                                textAlign: TextAlign.center,
+                                style: TextStyle(
+                                  fontFamily: "Gilroy Medium",
+                                  color: notifire.getdarkscolor,
+                                  fontSize: height / 60,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    );
+                  },
+                ),
+              ),
+            )
+          ],
+        ),
+      ),
+    );
+  }
+
   Widget _favoriteServices() {
     return Skeletonizer(
         enabled:  _loading,
@@ -595,7 +713,8 @@ class _HomeState extends State<Home> {
                     if (index == listFavoritService.length) {
                       return GestureDetector(
                             onTap: () {
-
+                              Navigator.pushNamed(
+                                  context, Category.routeName);
                             },
                             child: Column(
                               children: [
@@ -863,7 +982,7 @@ class _HomeState extends State<Home> {
               const Spacer(),
               GestureDetector(
                 onTap: () {
-                  Navigator.pushNamed(context, History.routeName);
+                  Navigator.pushNamed(context, HistoryAll.routeName);
                 },
                 child: Container(
                   color: Colors.transparent,
@@ -915,10 +1034,18 @@ class _HomeState extends State<Home> {
                             ),
                           ),
                           child: Center(
-                            child: Image.asset(
-                              "images/logo_app/disabled_kumpulpay_logo.png",
-                              height: height / 20,
-                            ),
+                            child: listLastTransaction[index]["product_meta"]
+                                        ['provider_images'] !=
+                                    null
+                                ? Helpers.setCachedNetworkImage(
+                                    listLastTransaction[index]["product_meta"]
+                                        ['provider_images']['image'],
+                                    height_: height / 26
+                                  )
+                                : Image.asset(
+                                    "images/logo_app/disabled_kumpulpay_logo.png",
+                                    height: height / 20,
+                                  ),
                           ),
                         ),
                         SizedBox(width: width / 40),
@@ -1018,49 +1145,30 @@ class _HomeState extends State<Home> {
   }
 
   void _getDataHome() async {
+
+    final client = ApiClient(AppConfig().configDio());
+    final response = await client.getHome(authorization: 'Bearer ${SharedPrefs().token}');
+
     try {
-      final response = await ApiClient(Dio(BaseOptions(contentType: "application/json")))
-      .getHome('Bearer ${SharedPrefs().token}');
-      if (response['status']) {
+      if (response.success) {
         setState(() {
-          balanceAvailable = response["data"]["balance"].toDouble();
+          balanceAvailable = response.data["balance"].toDouble();
           SharedPrefs().balanceAvailable = balanceAvailable;
 
-          listFavoritService = response["data"]["favorit_sevice"];
-          listLastTransaction = response["data"]["last_transaction"];
+          listFavoritService = response.data["favorit_sevice"];
+          listLastTransaction = response.data["last_transaction"];
           _loading = false;
         });
-
-      } else {
-
       }
     } catch (e) {
-      
+      Fluttertoast.showToast(
+        msg: e.toString(),
+        backgroundColor: Colors.red,
+        textColor: Colors.white,
+        fontSize: 16,
+      );
+      rethrow;
     }
   }
-
-  // Future<dynamic> _getDataHome() async {
-  //   try {
-  //     final client =
-  //         ApiClient(Dio(BaseOptions(contentType: "application/json")));
-
-  //     return await client.getHome('Bearer ${SharedPrefs().token}');
-  //   } on DioException catch (e) {
-  //     if (e.response != null) {
-  //       // print(e.response?.data);
-  //       // print(e.response?.headers);
-  //       // print(e.response?.requestOptions);
-  //       bool status = e.response?.data["status"];
-  //       if (status) {
-  //         // return Center(child: Text('Upst...'));
-  //         return e.response;
-  //       }
-  //     } else {
-  //       // print(e.requestOptions);
-  //       // print(e.message);
-  //     }
-  //     rethrow;
-  //   }
-  // }
 
 }

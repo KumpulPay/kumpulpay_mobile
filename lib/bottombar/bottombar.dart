@@ -1,17 +1,17 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
+// import 'package:flutter/services.dart';
+import 'package:kumpulpay/data/shared_prefs.dart';
 import 'package:kumpulpay/home/home.dart';
+import 'package:kumpulpay/login/login.dart';
 import 'package:kumpulpay/notification/notification_list.dart';
 import 'package:kumpulpay/test.dart';
 import 'package:kumpulpay/transaction/history_all.dart';
 import 'package:kumpulpay/utils/colornotifire.dart';
 import 'package:kumpulpay/utils/media.dart';
-import 'package:kumpulpay/wallet/wallets.dart';
+import 'package:kumpulpay/utils/string.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-import '../analytics/analytics.dart';
-import '../card/mycard.dart';
 import '../profile/profile.dart';
 
 class Bottombar extends StatefulWidget {
@@ -215,20 +215,123 @@ class _BottombarState extends State<Bottombar> {
   Future<bool> _onWillPop() async {
     return (await showDialog(
           context: context,
-          builder: (context) => AlertDialog(
-            title: const Text('Konfirmasi'),
-            content: const Text('Apakah Anda ingin keluar dari halaman ini?'),
-            actions: [
-              TextButton(
-                onPressed: () => Navigator.of(context).pop(false),
-                child: const Text('Tidak'),
+          builder: (BuildContext context) {
+            return Dialog(
+              shape: const RoundedRectangleBorder(
+                borderRadius: BorderRadius.all(
+                  Radius.circular(32.0),
+                ),
               ),
-              TextButton(
-                onPressed: () => SystemNavigator.pop(),
-                child: const Text('Ya'),
+              child: Container(
+                decoration: BoxDecoration(
+                  color: notifire.getprimerycolor,
+                  borderRadius: const BorderRadius.all(
+                    Radius.circular(20),
+                  ),
+                ),
+                height: height / 3,
+                child: Column(
+                  children: [
+                    SizedBox(
+                      height: height / 40,
+                    ),
+                    GestureDetector(
+                      onTap: () {
+                        Navigator.pop(context);
+                      },
+                      child: Row(
+                        children: [
+                          const Spacer(),
+                          Icon(
+                            Icons.clear,
+                            color: notifire.getdarkscolor,
+                          ),
+                          SizedBox(
+                            width: width / 20,
+                          ),
+                        ],
+                      ),
+                    ),
+                    SizedBox(
+                      height: height / 40,
+                    ),
+                    Text(
+                      CustomStrings.sure,
+                      style: TextStyle(
+                        color: notifire.getdarkscolor,
+                        fontFamily: 'Gilroy Bold',
+                        fontSize: height / 40,
+                      ),
+                    ),
+                    Text(
+                      CustomStrings.log,
+                      style: TextStyle(
+                        color: notifire.getdarkscolor,
+                        fontFamily: 'Gilroy Bold',
+                        fontSize: height / 40,
+                      ),
+                    ),
+                    SizedBox(
+                      height: height / 20,
+                    ),
+                    GestureDetector(
+                      onTap: () {
+                        Navigator.pop(context);
+                      },
+                      child: Container(
+                        height: height / 18,
+                        width: width / 2.5,
+                        decoration: BoxDecoration(
+                          color: notifire.getPrimaryPurpleColor,
+                          borderRadius: const BorderRadius.all(
+                            Radius.circular(20),
+                          ),
+                        ),
+                        child: Center(
+                          child: Text(
+                            'Tidak',
+                            style: TextStyle(
+                                color: Colors.white,
+                                fontFamily: 'Gilroy Bold',
+                                fontSize: height / 55),
+                          ),
+                        ),
+                      ),
+                    ),
+                    SizedBox(
+                      height: height / 100,
+                    ),
+                    GestureDetector(
+                      onTap: () {
+                        SharedPrefs().clearAllData();
+                        Navigator.pushNamedAndRemoveUntil(
+                            context, Login.routeName, (route) => false);
+                      },
+                      child: Container(
+                        height: height / 18,
+                        width: width / 2.5,
+                        decoration: const BoxDecoration(
+                          color: Colors.transparent,
+                          borderRadius: BorderRadius.all(
+                            Radius.circular(20),
+                          ),
+                        ),
+                        child: Center(
+                          child: Text(
+                            CustomStrings.logout,
+                            style: TextStyle(
+                                color: const Color(0xffEB5757),
+                                fontFamily: 'Gilroy Bold',
+                                fontSize: height / 55),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
               ),
-            ],
-          ),
+            );
+          },
         )) ??
         false;
   }

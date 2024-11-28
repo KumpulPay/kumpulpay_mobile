@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:kumpulpay/login/setupprofile.dart';
+import 'package:kumpulpay/onbonding.dart';
 import 'package:otp_text_field/otp_field.dart';
 import 'package:otp_text_field/otp_field_style.dart';
 import 'package:otp_text_field/style.dart';
@@ -12,6 +12,7 @@ import '../utils/media.dart';
 import '../utils/string.dart';
 
 class Verify extends StatefulWidget {
+  static String routeName = '/login_verify_pin';
   const Verify({Key? key}) : super(key: key);
 
   @override
@@ -20,6 +21,13 @@ class Verify extends StatefulWidget {
 
 class _VerifyState extends State<Verify> {
   late ColorNotifire notifire;
+
+  @override
+  void initState() {
+    super.initState();
+    notifire = Provider.of<ColorNotifire>(context, listen: false);
+    getdarkmodepreviousstate();
+  }
 
   getdarkmodepreviousstate() async {
     final prefs = await SharedPreferences.getInstance();
@@ -33,7 +41,7 @@ class _VerifyState extends State<Verify> {
 
   @override
   Widget build(BuildContext context) {
-    notifire = Provider.of<ColorNotifire>(context, listen: true);
+   
     return Scaffold(
       backgroundColor: notifire.getprimerycolor,
       body: SingleChildScrollView(
@@ -78,22 +86,13 @@ class _VerifyState extends State<Verify> {
                       height: height / 40,
                     ),
                     Text(
-                      CustomStrings.verification1,
+                      "Masukkan PIN Login Kamu",
                       style: TextStyle(
                           color: notifire.getdarkgreycolor,
                           fontSize: height / 65,
                           fontFamily: 'Gilroy Medium'),
                     ),
-                    SizedBox(
-                      height: height / 100,
-                    ),
-                    Text(
-                      CustomStrings.verification2,
-                      style: TextStyle(
-                          color: notifire.getdarkgreycolor,
-                          fontSize: height / 65,
-                          fontFamily: 'Gilroy Medium'),
-                    ),
+                   
                     SizedBox(
                       height: height / 20,
                     ),
@@ -105,7 +104,7 @@ class _VerifyState extends State<Verify> {
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
                         Text(
-                          CustomStrings.code,
+                          'Lupa PIN?',
                           style: TextStyle(
                             color: notifire.getdarkgreycolor.withOpacity(0.6),
                             fontSize: height / 60,
@@ -115,7 +114,7 @@ class _VerifyState extends State<Verify> {
                           width: width / 100,
                         ),
                         Text(
-                          CustomStrings.resendcode,
+                          'Reset',
                           style: TextStyle(
                             color: notifire.getbluecolor,
                             fontSize: height / 60,
@@ -128,12 +127,7 @@ class _VerifyState extends State<Verify> {
                     ),
                     GestureDetector(
                       onTap: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => const SetupProfile(),
-                          ),
-                        );
+                        Navigator.pushNamedAndRemoveUntil(context, Onbonding.routeName, (route) => false);
                       },
                       child: Custombutton.button(notifire.getbluecolor,
                           CustomStrings.verityme, width / 2),

@@ -4,8 +4,10 @@ import 'package:flutter_form_builder/flutter_form_builder.dart';
 import 'package:form_builder_validators/form_builder_validators.dart';
 import 'package:kumpulpay/data/shared_prefs.dart';
 import 'package:kumpulpay/ppob/ppob_postpaid_single_provider.dart';
+import 'package:kumpulpay/repository/app_config.dart';
 import 'package:kumpulpay/repository/retrofit/api_client.dart';
 import 'package:kumpulpay/utils/colornotifire.dart';
+import 'package:kumpulpay/utils/helpers.dart';
 import 'package:kumpulpay/utils/media.dart';
 import 'package:kumpulpay/utils/textfeilds.dart';
 import 'package:provider/provider.dart';
@@ -86,7 +88,7 @@ class _ProductProviderState extends State<ProductProvider> {
         iconTheme: IconThemeData(color: notifire.getdarkscolor),
         backgroundColor: notifire.getprimerycolor,
         title: Text(
-         _categoryName ??'',
+         _categoryName ?? '',
           style: TextStyle(
               color: notifire.getdarkscolor,
               fontSize: height / 40,
@@ -172,6 +174,7 @@ class _ProductProviderState extends State<ProductProvider> {
                       padding: const EdgeInsets.symmetric(vertical: 7),
                       child: GestureDetector(
                         onTap: () {
+                          String providerImage = items[index]['provider_images'] != null ? items[index]['provider_images']['image'] : '';
                           Navigator.pushNamed(
                               context, PpobPostpaidSingleProvider.routeName,
                               arguments: PpobPostpaidSingleProvider(
@@ -179,6 +182,7 @@ class _ProductProviderState extends State<ProductProvider> {
                                 typeName: items[index]['category_name'],
                                 category: _category,
                                 categoryName: items[index]['provider_name'],
+                                providerImage: providerImage,
                                 child: items[index]['child'],
                               ));
                         },
@@ -215,8 +219,18 @@ class _ProductProviderState extends State<ProductProvider> {
                                               "images/logo_app/disabled_kumpulpay_logo.png", // Gambar fallback jika provider_images null atau kosong
                                               height: height / 30,
                                             )
-                                          : _setImage(
-                                              items[index]['provider_images'])),
+                                          : items[index]['provider_images'] !=
+                                                  null
+                                              ? Helpers.setNetWorkImage(
+                                                  items[index]
+                                                          ['provider_images']
+                                                      ['image'],
+                                                  height_: height / 30)
+                                              : Image.asset(
+                                                  "images/logo_app/disabled_kumpulpay_logo.png", // Gambar fallback jika provider_images null atau kosong
+                                                  height: height / 30,
+                                                )
+                                  ),
                                 ),
                                 // end icon
                                 SizedBox(
@@ -263,18 +277,12 @@ class _ProductProviderState extends State<ProductProvider> {
   }
 
   void _fetchProviderData() async {
+    final Map<String, dynamic> queries = {"type": _type, "category": _category};
+    final response = await ApiClient(AppConfig().configDio()).getProduct(authorization: 'Bearer ${SharedPrefs().token}', queries: queries);
     try {
-      final Map<String, dynamic> queries = {
-        "type": _type,
-        "category": _category
-      };
-      final response =
-          await ApiClient(Dio(BaseOptions(contentType: "application/json")))
-              .getProduct('Bearer ${SharedPrefs().token}', queries: queries);
-
-      if (response['status']) {
+      if (response.success) {
         setState(() {
-          providerList = groupDataByTypeCategoryProviderArray(response['data']);
+          providerList = groupDataByTypeCategoryProviderArray(response.data);
           filteredProviderList = providerList;
           _loading = false;
         });
@@ -318,7 +326,7 @@ class _ProductProviderState extends State<ProductProvider> {
       String categoryName =
           entry.value.isNotEmpty ? entry.value[0]["category_name"] : "";
       dynamic providerImages =
-          entry.value.isNotEmpty ? entry.value[0]["provider_images"] : "";
+          entry.value.isNotEmpty ? entry.value[0]["provider_images"] : "";    
 
       return {
         "group_key": entry.key,

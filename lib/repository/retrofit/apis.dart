@@ -3,7 +3,10 @@ class Apis {
   static const String test = '/api/v1/test';
   // auth
   static const String auth = '/api/v1/auth/login';
+  static const String authWithGoogle = '/api/v1/auth/with-google';
   static const String register = '/api/v1/auth/register';
+  static const String refreshToken = '/api/v1/auth/refresh-token';
+  static const String profile = '/api/v1/user/profile';
 
   static const String home = '/api/v1/home';
 

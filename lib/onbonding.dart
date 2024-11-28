@@ -287,7 +287,6 @@ class _OnbondingState extends State<Onbonding> {
                                 context, Login.routeName, (route) => false);
                           },
                           child: Container(
-                            // color: Colors.transparent,
                             color: Colors.transparent,
                             child: Text(
                               CustomStrings.skip,

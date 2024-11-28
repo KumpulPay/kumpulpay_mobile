@@ -2,7 +2,7 @@ class CustomStrings {
   static const String paylater = 'Paylater';
   static const String algorithm = 'Happiness';
   static const String skip = 'SKIP';
-  static const String setupprofile = 'Set Up Profile';
+  static const String setupprofile = 'Atur Profil';
 
   static const String intro1Title = 'Kumpul Pembayaran Digital';
   static const String intro1Description = 'Beli pulsa dan banyak produk digital lainnya kami kumpulkan disini';
@@ -32,7 +32,7 @@ class CustomStrings {
       'for any kind of transaction. Transfer, pay or buy anything';
   static const String onbonding12 =
       'anywhere, your account is in your fingertips';
-  static const String login = 'Log In';
+  static const String login = 'Masuk';
   static const String security = 'Keamanan';
   static const String language = 'Language';
   static const String forgotpasswords = 'Lupa password';
@@ -153,7 +153,7 @@ class CustomStrings {
   static const String all = 'All';
   static const String favorite = 'Favorite';
   static const String bank = 'Bank';
-  static const String continues = 'Continue';
+  static const String continues = 'Lanjutkan';
   static const String schedule = 'Schedule';
   static const String transfermoney = 'Transfer Money';
   static const String sendmoney = 'Send money';
@@ -185,7 +185,7 @@ class CustomStrings {
   static const String more = 'More';
   static const String transfersent = 'Transfer pembayaran berhasil dikirim!';
   static const String transfersuccessful = 'Transfer Berhasil!';
-  static const String cancel = 'Cancel';
+  static const String cancel = 'Batal';
   static const String confirm = 'Confirm';
   static const String free = 'Free';
   static const String myprofile = 'My Profile';
@@ -258,7 +258,7 @@ class CustomStrings {
       'We’ve sent a 4digits verification code to your Mail.';
   static const String verification2 =
       'Please enter the code below to verify it’s you!';
-  static const String verification = 'Verification';
+  static const String verification = 'Verifikasi';
   static const String retypepassword = 'Ulangi password';
   static const String confirmpassword = 'Confirm Password';
   static const String createpassword = 'Create a password';
@@ -275,10 +275,10 @@ class CustomStrings {
   static const String loginhear = 'Log In here';
   static const String personalinformations = 'Personal Informations';
   static const String antorpaul = 'Antor Paul';
-  static const String contactnumber = 'Contact Number';
-  static const String dateofbirth = 'Date of birth';
-  static const String gender = 'Gender';
-  static const String male = 'Male';
+  static const String contactnumber = 'Nomor Telepon';
+  static const String dateofbirth = 'Tanggal Lahir';
+  static const String gender = 'Jenis Kelamin';
+  static const String male = 'Laki Laki';
   static const String savechange = 'Simpan Perubahan';
   static const String confirmtransfer = 'Confirm Transfer';
   static const String continuepayment = 'to continue the payment process';
@@ -302,9 +302,9 @@ class CustomStrings {
   static const String phonenumbers = 'Phone number';
   static const String transferdetails = 'Transfer Details';
   static const String news = 'New';
-  static const String female = 'Female';
-  static const String fullnames = 'Full name';
-  static const String fullnamee = 'Full Name';
+  static const String female = 'Perempuan';
+  static const String fullnames = 'Nama Lengkap';
+  static const String fullnamee = 'Nama Lengkap';
   static const String addcreditionalstoloop = 'Add Creditionals to Loop';
   static const String addyourbankcradite =
       'Add your bank credit/debit card to Loop for\nmanage your expenses and set your budget for savings';
@@ -338,12 +338,12 @@ class CustomStrings {
   static const String retakephoto = 'Retake Photo';
   static const String setyourpin = 'Set your PIN';
   static const String youwilluse = 'You will use this to login next time';
-  static const String savepin = 'Save Pin';
-  static const String confirmyourpin = 'Confirm your PIN';
+  static const String savepin = 'Simpan PIN';
+  static const String confirmyourpin = 'Konfirmasi PIN Kamu';
   static const String verificationdone = 'Verification Done!';
   static const String theaacountbeen =
       'The account has been successfully leveraged,\nenjoy to Managing your money feels guided';
-  static const String done = 'Done';
+  static const String done = 'Selesai';
 
   static const String commingsoon = 'Dalam pengembangan';
 }

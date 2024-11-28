@@ -847,8 +847,9 @@ class _WalletsState extends State<Wallets> {
   }
 
   Future<dynamic> _getPaylaterPeriod() async {
-    final client = ApiClient(Dio(BaseOptions(contentType: "application/json")));
-    return await client.getPaylaterPeriod('Bearer ${SharedPrefs().token}');
+    // final client = ApiClient(Dio(BaseOptions(contentType: "application/json")));
+    // return await client.getPaylaterPeriod('Bearer ${SharedPrefs().token}');
+    return Text('aa');
   }
 
   Widget scannerbutton(clr, txt, clr2) {
