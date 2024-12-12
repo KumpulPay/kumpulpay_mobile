@@ -6,7 +6,9 @@ class Apis {
   static const String authWithGoogle = '/api/v1/auth/with-google';
   static const String register = '/api/v1/auth/register';
   static const String refreshToken = '/api/v1/auth/refresh-token';
+  static const String accountChecker = '/api/v1/auth/checker';
   static const String profile = '/api/v1/user/profile';
+  static const String kyc = '/api/v1/user/kyc';
 
   static const String home = '/api/v1/home';
 
@@ -31,8 +33,9 @@ class Apis {
   static const String passwordChange = '/api/v1/security/password/change';
   static const String passwordForgot = '/api/v1/security/password/forgot';
 
-  // master
+  // master & service
   static const String companyBank = '/api/v1/company/bank';
+  static const String regional = '/api/v1/regional';
 
 
   // wallet

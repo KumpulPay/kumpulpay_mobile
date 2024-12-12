@@ -1,8 +1,6 @@
-import 'dart:convert';
 
 import 'package:accordion/accordion.dart';
 import 'package:accordion/controllers.dart';
-import 'package:dio/dio.dart';
 import 'package:dotted_line/dotted_line.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_form_builder/flutter_form_builder.dart';
@@ -10,7 +8,6 @@ import 'package:fluttertoast/fluttertoast.dart';
 import 'package:form_builder_validators/form_builder_validators.dart';
 import 'package:kumpulpay/data/phone_provider.dart';
 import 'package:kumpulpay/data/shared_prefs.dart';
-import 'package:kumpulpay/ppob/ppob_product.dart';
 import 'package:kumpulpay/repository/app_config.dart';
 import 'package:kumpulpay/repository/retrofit/api_client.dart';
 import 'package:kumpulpay/transaction/confirm_pin.dart';
@@ -20,6 +17,8 @@ import 'package:kumpulpay/utils/helpers.dart';
 import 'package:kumpulpay/utils/loading.dart';
 import 'package:kumpulpay/utils/media.dart';
 import 'package:kumpulpay/utils/textfeilds.dart';
+import 'package:kumpulpay/verification/personal_data.dart';
+import 'package:kumpulpay/verification/verify_info.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:skeletonizer/skeletonizer.dart';
@@ -60,6 +59,7 @@ class _PpobProductDetailState extends State<PpobProductDetail> {
   List<dynamic> productList = [];
   Map<String, dynamic>? startsWithC;
   dynamic dataCheck;
+  bool isVerifiedKyc = false;
 
   @override
   void initState() {
@@ -71,22 +71,24 @@ class _PpobProductDetailState extends State<PpobProductDetail> {
       _category = args!.category;
       _categoryData = args!.categoryData;
       _providerData = args!.providerData;
-      _filterCategory = '${_type}_${_category}';
-      _txtDestination =
-          _txtDestination.isEmpty ? args!.txtDestination : _txtDestination;
-      // _txtDestination = args!.txtDestination;
+      _filterCategory = '${_type}-${_category}';
+      _txtDestination = _txtDestination.isEmpty ? args!.txtDestination : _txtDestination;
+   
+      // _txtProvider = args!.providerData['provider'] ?? '';
       _txtProvider = args!.providerData['provider'] ?? '';
-      if (_filterCategory != 'prepaid_e_money') {
+
+      if (_filterCategory != 'prepaid-e_money') {
         if (_txtDestination.isNotEmpty) {
           phoneProvider = PhoneProvider.getProvide(_txtDestination);
           _txtProvider = phoneProvider['provider'];
         }
       }
+      print('_categoryDataXX ${_categoryData}');
+      print('_providerDataXX ${_providerData}');
+      title = '${_categoryData['name']} ${_providerData['provider_name']}';
 
-      title = '${_categoryData['name']} ${_txtProvider}';
-
-      if (_filterCategory == 'prepaid_pulsa' ||
-          _filterCategory == 'prepaid_e_money') {
+      if (_filterCategory == 'prepaid-pulsa' ||
+          _filterCategory == 'prepaid-e_money') {
         productList = List.filled(6, {
           "name_unique": "5000",
           "price_fixed": 0,
@@ -124,10 +126,7 @@ class _PpobProductDetailState extends State<PpobProductDetail> {
       print('Index $index di luar jangkauan _sectionKeys');
       return;
     }
-    print('index ${index}');
-    print('_sectionKeysLength  ${_sectionKeys.length}');
-    print('_sectionKeysIndex ${_sectionKeys[index]}');
-    print('_sectionKeysIndexCurrentContext ${_sectionKeys[index]?.currentContext}');
+   
     WidgetsBinding.instance.addPostFrameCallback((_) {
       final keyContext = _sectionKeys[index]?.currentContext;
       print('keyContextX $keyContext');
@@ -300,17 +299,19 @@ class _PpobProductDetailState extends State<PpobProductDetail> {
   }
 
   void _fetchData() async {
-    final Map<String, dynamic> queries = {
-      "type": _type,
-      "category": _category,
-      "provider": _txtProvider
-    };
-    final response = await ApiClient(AppConfig().configDio()).getProduct(authorization: 'Bearer ${SharedPrefs().token}', queries: queries);
     try {
+      final Map<String, dynamic> queries = {
+        "type": _type,
+        "category": _category,
+        "provider": _txtProvider
+      };
+    
+      final response = await ApiClient(AppConfig().configDio(context: context)).getProduct(authorization: 'Bearer ${SharedPrefs().token}', queries: queries);
+
       if (response.success) {
         setState(() {
-          if (_filterCategory == 'prepaid_pulsa' || _filterCategory == 'prepaid_e_money') {
-            List<dynamic> data = response.data;
+          if (_filterCategory == 'prepaid-pulsa' || _filterCategory == 'prepaid-e_money') {
+            final List<dynamic> data = response.data;
 
             // Filter data where code starts with "C" (case-insensitive)
             startsWithC = data.firstWhere(
@@ -322,14 +323,30 @@ class _PpobProductDetailState extends State<PpobProductDetail> {
             );
 
             // Filter data where code does not start with "C"
-            List<dynamic> doesNotStartWithC = data.where((item) {
+            final List<dynamic> doesNotStartWithC = data.where((item) {
               String code = item['code'] ?? '';
               return !code.toLowerCase().startsWith('c');
             }).toList();
 
             productList = doesNotStartWithC;
 
-            // productList = response['data'];
+            _loading = false;
+          } else if (_filterCategory == 'entertainment-game') {
+            final List<dynamic> data = response.data;
+
+            startsWithC = data.firstWhere(
+              (item) {
+                return item['price'] == 0;
+              },
+              orElse: () => null,
+            );
+
+            final List<dynamic> doesNotStartWithC = data.where((item) {
+              return item['price'] > 0;
+            }).toList();
+
+            productList = doesNotStartWithC;
+
             _loading = false;
           } else {
             productList =
@@ -350,13 +367,19 @@ class _PpobProductDetailState extends State<PpobProductDetail> {
   }
   
   Widget _buildList(){
-    if (_filterCategory == 'prepaid_pulsa' ||
-        _filterCategory == 'prepaid_e_money') {
+    if (_filterCategory == 'prepaid-pulsa' ||
+        _filterCategory == 'prepaid-e_money') {
       return _buildItemGridView(productList);
+
+    } else if (_filterCategory == 'entertainment-game') {
+      return _buildListLandscape();
+
     } else {
       _sectionKeys = List.generate(productList.length, (index) => GlobalKey());
       return _buildItemAccordionData(productList);
+
     }
+   
   }
 
   Widget _buildItemGridView(List<dynamic> listDetail) {
@@ -386,15 +409,31 @@ class _PpobProductDetailState extends State<PpobProductDetail> {
                                 childAspectRatio: 2.0),
                         itemCount: listDetail.length,
                         itemBuilder: (BuildContext ctxObs, index) {
+            
                           double priceList = listDetail[index]["price"].toDouble() +
                               listDetail[index]["margin"].toDouble() -
                               listDetail[index]["discount"].toDouble();
                             
                           return GestureDetector(
                             onTap: () async {
+                              if (_filterCategory == 'prepaid-pulsa'){
+                                if (int.parse(
+                                        listDetail[index]["name_unique"]) > 200000) {
+                                  if (!isVerifiedKyc) {
+                                    Helpers.showMbsAlertWithAction(context: context, title: 'Akun belum terverifikasi!', subtitle: 'Yuk, segera verifikasi dan lengkapi data kamu sekarang!', txtConfirmButton: 'Lengkapi Data', onConfirm: (){
+                                      Navigator.pushNamed(context, VerifyInfo.routeName);
+                                    });
+                                    return;
+                                  }
+                                
+                                }
+                              }
                               if (_txtDestination.isNotEmpty) {
-
-                                await _checkBill(ctxObs, listDetail, index);
+                                if (_filterCategory == 'prepaid-pulsa') {
+                                  _openBottomSheet(ctxObs, listDetail, index);
+                                } else {
+                                  await _checkBill(ctxObs, listDetail, index);
+                                }
 
                               } else {
                                 ScaffoldMessenger.of(context).showSnackBar(
@@ -479,7 +518,7 @@ class _PpobProductDetailState extends State<PpobProductDetail> {
                     headerPadding:
                         const EdgeInsets.symmetric(vertical: 7, horizontal: 15),
                     children: [
-                      // for (var item in group1) ...[
+                     
                       for (var i = 0; i < group1.length; i++) ...[
                         AccordionSection(
                             key: _sectionKeys[i] = GlobalKey(),
@@ -500,96 +539,89 @@ class _PpobProductDetailState extends State<PpobProductDetail> {
                               return ListView.builder(
                                   shrinkWrap: true,
                                   physics: const NeverScrollableScrollPhysics(),
-                                  padding: EdgeInsets.zero,
                                   itemCount: group2.length,
                                   itemBuilder: (context, index) {
                                     return Column(
                                       children: [
-                                        Padding(
-                                            padding: EdgeInsets.symmetric(
-                                                vertical: height / 100),
-                                            child: GestureDetector(
-                                              onTap: () {
-                                                if (_txtDestination.isNotEmpty) {
-                                                  _openBottomSheet(context,group2, index);
-                                                } else {
-                                                  ScaffoldMessenger.of(context)
-                                                      .showSnackBar(const SnackBar(
-                                                          content: Text(
-                                                              "Masukkan nomor terlebih dulu!")));
-                                                }
-                                              },
-                                              child: Container(
-                                                decoration: const BoxDecoration(
-                                                  // color: notifire.getdarkwhitecolor,
-                                                  borderRadius:
-                                                      BorderRadius.all(
-                                                    Radius.circular(10),
-                                                  ),
-                                                ),
-                                                child: Padding(
-                                                  padding: EdgeInsets.symmetric(
-                                                      horizontal: width / 30,
-                                                      vertical: height / 60),
-                                                  child: Column(
-                                                    crossAxisAlignment:
-                                                        CrossAxisAlignment
-                                                            .start,
+                                        GestureDetector(
+                                          onTap: () {
+                                            if (_txtDestination.isNotEmpty) {
+                                              _openBottomSheet(
+                                                  context, group2, index);
+                                            } else {
+                                              ScaffoldMessenger.of(context)
+                                                  .showSnackBar(const SnackBar(
+                                                      content: Text(
+                                                          "Masukkan nomor terlebih dulu!")));
+                                            }
+                                          },
+                                          child: Container(
+                                            decoration: const BoxDecoration(
+                                              // color: notifire.getdarkwhitecolor,
+                                              borderRadius: BorderRadius.all(
+                                                Radius.circular(10),
+                                              ),
+                                            ),
+                                            child: Padding(
+                                              padding: EdgeInsets.symmetric(
+                                                  horizontal: width / 30,
+                                                  vertical: height / 80),
+                                              child: Column(
+                                                crossAxisAlignment:
+                                                    CrossAxisAlignment.start,
+                                                children: [
+                                                  Text(group2[index]["name"],
+                                                      // maxLines: 3,
+                                                      // overflow: TextOverflow
+                                                      //     .ellipsis,
+                                                      style: TextStyle(
+                                                          fontFamily:
+                                                              "Gilroy Medium",
+                                                          color: notifire
+                                                              .getdarkgreycolor,
+                                                          // .withOpacity(0.6),
+                                                          fontSize:
+                                                              height / 50)),
+                                                  SizedBox(height: height / 50),
+                                                  Row(
                                                     children: [
                                                       Text(
-                                                          group2[index]["name"],
-                                                          // maxLines: 3,
-                                                          // overflow: TextOverflow
-                                                          //     .ellipsis,
+                                                        "Harga",
+                                                        style: TextStyle(
+                                                          fontFamily:
+                                                              "Gilroy Medium",
+                                                          fontSize: height / 50,
+                                                        ),
+                                                      ),
+                                                      const Spacer(),
+                                                      Text(
+                                                          Helpers.currencyFormatter(
+                                                              group2[index][
+                                                                      "price_fixed"]
+                                                                  .toDouble()),
                                                           style: TextStyle(
                                                               fontFamily:
-                                                                  "Gilroy Medium",
+                                                                  "Gilroy Bold",
                                                               color: notifire
-                                                                  .getdarkgreycolor,
-                                                              // .withOpacity(0.6),
+                                                                  .getPrimaryPurpleColor,
                                                               fontSize:
                                                                   height / 50)),
-                                                      SizedBox(
-                                                          height: height / 50),
-                                                      Row(
-                                                        children: [
-                                                          Text(
-                                                            "Harga",
-                                                            style: TextStyle(
-                                                              fontFamily:
-                                                                  "Gilroy Medium",
-                                                              fontSize:
-                                                                  height / 50,
-                                                            ),
-                                                          ),
-                                                          const Spacer(),
-                                                          Text(
-                                                              Helpers.currencyFormatter(
-                                                                  group2[index][
-                                                                          "price_fixed"]
-                                                                      .toDouble()),
-                                                              style: TextStyle(
-                                                                  fontFamily:
-                                                                      "Gilroy Bold",
-                                                                  color: notifire
-                                                                      .getPrimaryPurpleColor,
-                                                                  fontSize:
-                                                                      height /
-                                                                          50)),
-                                                        ],
-                                                      )
                                                     ],
-                                                  ),
-                                                ),
+                                                  )
+                                                ],
                                               ),
-                                            )),
-                                        Padding(
-                                          padding: const EdgeInsets.symmetric(),
-                                          child: Divider(
-                                            color: notifire.getdarkgreycolor
-                                                .withOpacity(0.1),
+                                            ),
                                           ),
                                         ),
+                                        if (index < group2.length -1)
+                                          Padding(
+                                            padding:
+                                                const EdgeInsets.symmetric(),
+                                            child: Divider(
+                                              color: notifire.getdarkgreycolor
+                                                  .withOpacity(0.1),
+                                            ),
+                                          ),
                                       ],
                                     );
                                   });
@@ -601,12 +633,131 @@ class _PpobProductDetailState extends State<PpobProductDetail> {
     );
   }
 
+  Widget _buildListLandscape() {
+    return Skeletonizer(
+      enabled: _loading,
+      child:  Padding(
+      padding: EdgeInsets.symmetric(horizontal: width / 20, vertical: height / 40),
+      child: Column(
+        children: [
+          ListView.builder(
+              shrinkWrap: true,
+              physics: const NeverScrollableScrollPhysics(),
+              itemCount: productList.length,
+              itemBuilder: (context, index) {
+                return Column(
+                  children: [
+                    GestureDetector(
+                      onTap: () async {
+                        if (_txtDestination.isNotEmpty) {
+                        
+                          startsWithC != null ? await _checkBill(context, productList, index) : _openBottomSheet(context, productList, index);
+                         
+                        } else {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(
+                                  content:
+                                      Text("Masukkan nomor terlebih dulu!")));
+                        }
+                      },
+                      child: Container(
+                        decoration: BoxDecoration(
+                          color: notifire.getdarkwhitecolor,
+                          borderRadius: const BorderRadius.all(
+                            Radius.circular(10),
+                          ),
+                          border: Border.all(
+                                color: Colors.grey.withOpacity(
+                                    0.2), // Warna border dengan transparansi
+                                // width: 0.5, // Ketebalan border
+                              ),
+                        ),
+                        child: Padding(
+                          padding: EdgeInsets.symmetric(
+                              horizontal: width / 30, vertical: height / 80),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(productList[index]["name"],
+                                  // maxLines: 3,
+                                  // overflow: TextOverflow
+                                  //     .ellipsis,
+                                  style: TextStyle(
+                                      fontFamily: "Gilroy Medium",
+                                      color: notifire.getdarkgreycolor,
+                                      // .withOpacity(0.6),
+                                      fontSize: height / 50)),
+                              SizedBox(height: height / 50),
+                              Row(
+                                children: [
+                                  Text(
+                                    "Harga",
+                                    style: TextStyle(
+                                      fontFamily: "Gilroy Medium",
+                                      fontSize: height / 50,
+                                    ),
+                                  ),
+                                  const Spacer(),
+                                  Text(
+                                      Helpers.currencyFormatter(
+                                          productList[index]["price_fixed"]
+                                              .toDouble()),
+                                      style: TextStyle(
+                                          fontFamily: "Gilroy Bold",
+                                          color: notifire.getPrimaryPurpleColor,
+                                          fontSize: height / 50)),
+                                ],
+                              )
+                            ],
+                          ),
+                        ),
+                      ),
+                    ),
+                    if (index < productList.length - 1)
+                     SizedBox(height: height / 60)
+                  ],
+                );
+              })
+        ],
+      ),
+    )
+    );
+  }
+
+  void _openBottomSheet(
+      BuildContext ctxObs, List<dynamic> listDetail, int index) {
+    showModalBottomSheet(
+        isDismissible: false,
+        isScrollControlled: true,
+        shape: const RoundedRectangleBorder(
+          borderRadius: BorderRadius.only(
+            topLeft: Radius.circular(20),
+            topRight: Radius.circular(20),
+          ),
+        ),
+        backgroundColor: notifire.getprimerycolor,
+        context: ctxObs,
+        builder: (BuildContext ctxSbs) {
+          return _bottomSheetContent(ctxSbs, listDetail, index);
+        });
+  }
+
   Widget _bottomSheetContent(BuildContext ctxBsc, List<dynamic> listDetail, int index) {
-    double remainingBalance = dataCheck['user_detail']['balance'].toDouble() -
-        listDetail[index]["price_fixed"].toDouble();
+    // saldo sebelum
+    double currentBalance = SharedPrefs().balanceAvailable;
+
+    // saldo setelah
+    double remainingBalance = currentBalance - listDetail[index]["price_fixed"].toDouble();
+    if (_filterCategory == 'prepaid-e_money') {
+      remainingBalance = dataCheck['user_detail']['balance'].toDouble() -
+          listDetail[index]["price_fixed"].toDouble();
+
+      currentBalance = dataCheck['user_detail']['balance'].toDouble();    
+    }    
+
     String productCode = listDetail[index]["name_unique"];
-    if (_filterCategory == 'prepaid_pulsa' ||
-          _filterCategory == 'prepaid_e_money') {
+    if (_filterCategory == 'prepaid-pulsa' ||
+          _filterCategory == 'prepaid-e_money') {
             productCode = Helpers.currencyFormatter(
                     double.parse(productCode),
                     symbol: "");
@@ -662,7 +813,7 @@ class _PpobProductDetailState extends State<PpobProductDetail> {
           ),
         ),
         // start customer name
-        customerName(),
+        if (_filterCategory == 'prepaid-e_money') customerName(),
         // end customer name
         SizedBox(
           height: height / 80,
@@ -929,7 +1080,7 @@ class _PpobProductDetailState extends State<PpobProductDetail> {
                 children: [
                   Text(
                     Helpers.currencyFormatter(
-                        dataCheck['user_detail']['balance'].toDouble()),
+                        currentBalance),
                     style: TextStyle(
                       color: notifire.getdarkscolor,
                       fontFamily: 'Gilroy Medium',
@@ -971,14 +1122,14 @@ class _PpobProductDetailState extends State<PpobProductDetail> {
               Expanded(
                 flex: 1,
                 child: GestureDetector(
-                  onTap: () {
+                  onTap: () async {
                     Navigator.pop(context);
                     if (remainingBalance < 0) {
                       Helpers.showMbsAlert(context: context, title: 'Gagal!', 
-                      subtitle: 'Saldo kamu tersisa ${Helpers.currencyFormatter(dataCheck['user_detail']['balance'].toDouble())} tidak cukup untuk melakukan transaksi senilai ${Helpers.currencyFormatter(listDetail[index]['price_fixed'].toDouble())}',
+                      subtitle: 'Saldo kamu saat ini ${Helpers.currencyFormatter(currentBalance)} tidak cukup untuk melakukan transaksi senilai ${Helpers.currencyFormatter(listDetail[index]['price_fixed'].toDouble())}',
                       typeAlert: 'info');
                     } else {
-                      fetchDataAndNavigate(ctxBsc, listDetail[index]);
+                      await fetchDataAndNavigate(listDetail[index]);
                     }
                   },
                   child: Custombutton.button2(
@@ -993,34 +1144,37 @@ class _PpobProductDetailState extends State<PpobProductDetail> {
     );
   }
 
-  void _openBottomSheet(BuildContext ctxObs, List<dynamic> listDetail, int index) {
-    showModalBottomSheet(
-        isDismissible: false,
-        isScrollControlled: true,
-        shape: const RoundedRectangleBorder(
-          borderRadius: BorderRadius.only(
-            topLeft: Radius.circular(20),
-            topRight: Radius.circular(20),
-          ),
-        ),
-        backgroundColor: notifire.getprimerycolor,
-        context: ctxObs,
-        builder: (BuildContext ctxSbs) {
-          return _bottomSheetContent(ctxSbs, listDetail, index);
-        });
-  }
+  Future<void> fetchDataAndNavigate(dynamic productSelected) async {
+    Loading.showLoadingLogoDialog(context, _globalKey);
+    try {
+      Map<String, dynamic>? formData = await _generateFormData(productSelected);
+      Navigator.pop(context);
+      Navigator.pushNamed(context, ConfirmPin.routeName,
+          arguments: ConfirmPin(formData: formData));
 
-  Future<void> fetchDataAndNavigate(
-      BuildContext context, dynamic productSelected) async {
-    Map<String, dynamic> formData = await _generateFormData(productSelected);
-
-    Navigator.pushNamed(context, ConfirmPin.routeName,
-        arguments: ConfirmPin(formData: formData));
+    } catch (e) {
+      print('fetchDataAndNavigate ${e.toString()}');
+      Navigator.pop(context);
+    }
   }
 
   Future<Map<String, dynamic>> _generateFormData(
       dynamic productSelected) async {
     await Future.delayed(const Duration(seconds: 1));
+
+    // Validasi _txtDestination
+    if (_txtDestination == null) {
+      throw Exception('_txtDestination is null');
+    }
+
+    // Validasi kunci productSelected
+    if (productSelected['price'] == null ||
+        productSelected['margin'] == null ||
+        productSelected['discount'] == null ||
+        productSelected['admin_fee'] == null ||
+        productSelected['price_fixed'] == null) {
+      throw Exception('Missing keys in productSelected: $productSelected');
+    }
 
     Map<String, dynamic> orderDetail = {
       "destination": _txtDestination,
@@ -1088,19 +1242,20 @@ class _PpobProductDetailState extends State<PpobProductDetail> {
   Future<dynamic> _checkBill(
       BuildContext ctxObs, List<dynamic> listDetail, int index) async {
 
-    Loading.showLoadingDialog(context, _globalKey);
+    Loading.showLoadingLogoDialog(context, _globalKey);
 
-    Map<String, dynamic> body = {
-      "product_code": startsWithC!['code'],
-      "destination": _txtDestination,
-      "type_category_provider": startsWithC!['type_category_provider'],
-    };
-
-    final response = await ApiClient(AppConfig().configDio()).postCheckBill(
-       authorization:  'Bearer ${SharedPrefs().token}', body: body);  
-
-    Navigator.pop(context);
     try {
+      Map<String, dynamic> body = {
+        "product_code": startsWithC!['code'],
+        "destination": _txtDestination,
+        "type_category_provider": startsWithC!['type_category_provider'],
+      };
+      
+      final response = await ApiClient(AppConfig().configDio(context: context)).postCheckBill(
+        authorization:  'Bearer ${SharedPrefs().token}', body: body);  
+
+      Navigator.pop(context);
+
       if (response.success) {
         setState(() {
           dataCheck = response.data;
@@ -1110,6 +1265,7 @@ class _PpobProductDetailState extends State<PpobProductDetail> {
         Helpers.showMbsAlert(context: ctxObs, title: 'Gagal', subtitle: response.message, typeAlert: 'info');
       }
     } catch (e) {
+      Navigator.pop(context);
       Fluttertoast.showToast(
         msg: e.toString(),
         backgroundColor: Colors.red,

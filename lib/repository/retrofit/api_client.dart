@@ -3,34 +3,48 @@ import 'package:kumpulpay/data/shared_prefs.dart';
 import 'package:kumpulpay/repository/model/data.dart';
 import 'package:kumpulpay/repository/model/default_response.dart';
 import 'package:kumpulpay/repository/retrofit/apis.dart';
-// import 'package:retrofit/http.dart';
 import 'package:retrofit/retrofit.dart';
 part 'api_client.g.dart';
 
 
-// @RestApi(baseUrl: "https://dev-api.kumpulpay.com")
 @RestApi()
 abstract class ApiClient {
   
   factory ApiClient(Dio dio, {String baseUrl}) = _ApiClient;
 
-  @GET(Apis.test)
-  Future<dynamic> getTest();
+  @POST(Apis.accountChecker)
+  Future<DefaultResponse> postAccountChecker({
+    @Body() required dynamic body,
+  });
 
   @POST(Apis.auth)
-  Future<DefaultResponse> postAuth(@Body() Map<String, dynamic> params);
+  Future<DefaultResponse> postAuth({
+    @Body() required Map<String, dynamic> params
+  });
+
+  @POST(Apis.refreshToken)
+  Future<DefaultResponse> postRefreshToken({
+    @Header('Authorization') required String authorization,
+  });
 
   @POST(Apis.authWithGoogle)
-  Future<AuthRes> postAuthWithGoogle(@Body() Map<String, dynamic> params);
+  Future<DefaultResponse> postAuthWithGoogle({@Body() required Map<String, dynamic> params});
 
   @POST(Apis.register)
-  Future<dynamic> postRegister({
-    @Body() required String body,
+  Future<DefaultResponse> postRegister({
+    @Body() required dynamic body,
     @Queries() Map<String, dynamic>? queries
   });
 
   @PATCH(Apis.profile)
   Future<DefaultResponse> patchProfile({
+    @Header('Authorization') required String authorization,
+    @Body() required dynamic body,
+    @Queries() Map<String, dynamic>? queries
+  });   
+
+  @PATCH(Apis.kyc)
+  Future<DefaultResponse> patchDataKyc({
     @Header('Authorization') required String authorization,
     @Body() required dynamic body,
     @Queries() Map<String, dynamic>? queries
@@ -66,14 +80,14 @@ abstract class ApiClient {
   });
 
   @POST(Apis.ppobTransaction)
-  Future<dynamic> postPpobTransaction({
+  Future<DefaultResponse> postPpobTransaction({
     @Header('Authorization') required String authorization,
     @Body() required dynamic body,
     @Queries() Map<String, dynamic>? queries
   });
 
   @POST(Apis.ppobCheckBill)
-  Future<dynamic> postCheckBill({
+  Future<DefaultResponse> postCheckBill({
     @Header('Authorization') required String authorization,
     @Body() required dynamic body,
     @Queries() Map<String, dynamic>? queries
@@ -94,7 +108,7 @@ abstract class ApiClient {
 
   // pin transaction
   @POST(Apis.pinCreate)
-  Future<AuthRes> postPinCreate({
+  Future<DefaultResponse> postPinCreate({
     @Header('Authorization') required String authorization,
     @Body() required String body,
     @Queries() Map<String, dynamic>? queries
@@ -108,13 +122,19 @@ abstract class ApiClient {
     @Queries() Map<String, dynamic>? queries
   });
 
-  // start master
+  // start master & service
   @GET(Apis.companyBank)
   Future<DefaultResponse> getCompanyBank({
     @Header('Authorization') required String authorization,
     @Queries() Map<String, dynamic>? queries
   });
-  // end master
+
+  @GET(Apis.regional)
+  Future<DefaultResponse> getRegional({
+    @Header('Authorization') required String authorization,
+    @Queries() Map<String, dynamic>? queries
+  });
+  // end master & service
 
   // start wallet
   @POST(Apis.walletDeposit)
@@ -141,7 +161,7 @@ abstract class ApiClient {
   @POST(Apis.updateFcm)
   Future<DefaultResponse> postUpdateFcm({
     @Header('Authorization') required String authorization,
-    @Body() required String body,
+    @Body() required dynamic body,
     @Queries() Map<String, dynamic>? queries
   });
   // end user
@@ -153,4 +173,6 @@ abstract class ApiClient {
     @Queries() Map<String, dynamic>? queries
   });
   // end company faq
+
+  
 }

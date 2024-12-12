@@ -6,6 +6,7 @@ import 'package:flutter_form_builder/flutter_form_builder.dart';
 import 'package:form_builder_validators/form_builder_validators.dart';
 import 'package:kumpulpay/bottombar/bottombar.dart';
 import 'package:kumpulpay/data/shared_prefs.dart';
+import 'package:kumpulpay/repository/app_config.dart';
 import 'package:kumpulpay/repository/retrofit/api_client.dart';
 import 'package:kumpulpay/utils/colornotifire.dart';
 import 'package:kumpulpay/utils/loading.dart';
@@ -314,17 +315,16 @@ class _PinCreateState extends State<PinCreate> {
 
   Future<void> _submitForm(dynamic formData) async {
     try {
-      
       Loading.showLoadingDialog(context, _globalKey);
-      final client = ApiClient(Dio(BaseOptions(contentType: "application/json")));
-      final post = await client.postPinCreate(authorization: 'Bearer ${SharedPrefs().token}', body: jsonEncode(formData));
+      
+      final response = await ApiClient(AppConfig().configDio(context: context)).postPinCreate(authorization: 'Bearer ${SharedPrefs().token}', body: jsonEncode(formData));
       
       Navigator.pop(context);
-      if (post.status) {
+      if (response.success) {
         _showMyDialog();
       } else {
           ScaffoldMessenger.of(context)
-            .showSnackBar(SnackBar(content: Text(post.message.toString())));
+            .showSnackBar(SnackBar(content: Text(response.message.toString())));
       }
       
     } catch (e) {

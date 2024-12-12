@@ -1,5 +1,4 @@
 import 'dart:convert';
-import 'package:dio/dio.dart';
 import 'package:dotted_line/dotted_line.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -21,7 +20,6 @@ import '../utils/colornotifire.dart';
 import '../utils/media.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:string_capitalize/string_capitalize.dart';
 
 class PpobPostpaidSingleProvider extends StatefulWidget {
   static String routeName = '/ppob/product_single_provider/index';
@@ -42,17 +40,47 @@ class _PpobPostpaidSingleProviderState extends State<PpobPostpaidSingleProvider>
   final _formKey = GlobalKey<FormBuilderState>();
   final ScrollController scrollController = ScrollController();
   String? title;
-  String? _type, _typeName;
+  String? _type, _typeName, _typeCategoryProvider;
   String? _category, _categoryName;
   String? _provider, _providerImage;
-  dynamic _productCheck, _productPay;
+  dynamic _productCheck, _productPay, _child;
   String _txtDestination = "";
   bool isButtonEnabled = false;
   bool isLoading = false;
   List<dynamic> dataCustomerNumber = [];
-  int currentPage = 1;
+  int currentPage = 0;
   int itemsPerPage = 20; // Tentukan jumlah item per halaman
   CustomerNumberDao? customerNumberDao;
+
+  @override
+  void initState() {
+    super.initState();
+    getdarkmodepreviousstate();
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      args = ModalRoute.of(context)!.settings.arguments
+          as PpobPostpaidSingleProvider?;
+
+      _child = args!.child;
+      _type = args!.type;
+      _typeName = args!.typeName;
+      _category = args!.category;
+      _categoryName = args!.categoryName;
+      _provider = args!.provider;
+      _providerImage = args!.providerImage;
+      _typeCategoryProvider = '$_type-$_category-$_provider';
+
+      final filteredData = filterDataByCode(args!.child);
+      _productCheck = filteredData['startsWithC'];
+      _productPay = filteredData['startsWithB'];
+
+      customerNumberDao = GetIt.instance.get<CustomerNumberDao>();
+
+      loadData();
+
+      scrollController.addListener(() => _scrollListener(scrollController));
+    });
+  }
 
   getdarkmodepreviousstate() async {
     final prefs = await SharedPreferences.getInstance();
@@ -71,10 +99,10 @@ class _PpobPostpaidSingleProviderState extends State<PpobPostpaidSingleProvider>
       isLoading = true;
     });
     
-    final newResults = await customerNumberDao!.getAll(itemsPerPage, currentPage);
-    // final newResults = await customerNumberDao!.getAllByCategory('$_type-$_category-$_provider', itemsPerPage, currentPage);
     
-    setState(() {
+    final newResults = await customerNumberDao!.getAllByCategory(_typeCategoryProvider??'', itemsPerPage, currentPage);
+  
+    setState(() { 
       dataCustomerNumber.addAll(newResults); // Menambahkan data ke list yang sudah ada
       currentPage++; // Increment page
       isLoading = false;
@@ -89,35 +117,9 @@ class _PpobPostpaidSingleProviderState extends State<PpobPostpaidSingleProvider>
   }
   
   @override
-  void initState() {
-    super.initState();
-    getdarkmodepreviousstate();
-
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-       args = ModalRoute.of(context)!.settings.arguments as PpobPostpaidSingleProvider?;
-
-        _type = args!.type;
-        _typeName = args!.typeName;
-        _category = args!.category;
-        _categoryName = args!.categoryName;
-        _provider = args!.provider;
-        _providerImage = args!.providerImage;
-       
-        final filteredData = filterDataByCode(args!.child);
-        _productCheck = filteredData['startsWithC'];
-        _productPay = filteredData['startsWithB'];
-    });
-
-    customerNumberDao = GetIt.instance.get<CustomerNumberDao>();
-
-    loadData();
-    scrollController.addListener(() => _scrollListener(scrollController));
-  }
-  
-  @override
   Widget build(BuildContext context) {
     notifire = Provider.of<ColorNotifire>(context, listen: true);
-
+   
     return Scaffold(
       appBar: AppBar(
         elevation: 0,
@@ -181,13 +183,17 @@ class _PpobPostpaidSingleProviderState extends State<PpobPostpaidSingleProvider>
     return Row(
       children: [
         CircleAvatar(
-          backgroundImage: setNetWorkImage(_providerImage),
+          // backgroundImage: setNetWorkImage(_providerImage),
           radius: 24,
+          child: Padding(
+            padding: const EdgeInsets.all(3),
+            child: Helpers.setNetWorkImage(_providerImage ?? '', height_: height / 10),
+          ),
         ),
         const SizedBox(width: 12),
         Text(
           _categoryName??'',
-          style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+          style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
         ),
       ],
     );
@@ -195,7 +201,7 @@ class _PpobPostpaidSingleProviderState extends State<PpobPostpaidSingleProvider>
 
   ImageProvider setNetWorkImage(String? images) {
     if (images == null || images.isEmpty) {
-      return AssetImage("images/logo_app/disabled_kumpulpay_logo.png");
+      return const AssetImage("images/logo_app/disabled_kumpulpay_logo.png");
     }
     return NetworkImage(images);
   }
@@ -212,7 +218,7 @@ class _PpobPostpaidSingleProviderState extends State<PpobPostpaidSingleProvider>
           // maxLength: 15,
           validator: FormBuilderValidators.compose([
             FormBuilderValidators.required(),
-            FormBuilderValidators.minLength(9),
+            FormBuilderValidators.minLength(6),
           ]),
           onSubmitted: (value) {
             if (_formKey.currentState?.validate() ?? false) {
@@ -449,20 +455,21 @@ class _PpobPostpaidSingleProviderState extends State<PpobPostpaidSingleProvider>
         decoration: BoxDecoration(
           color: isEnabled
               ? notifire.getPrimaryPurpleColor
-              : notifire.getdarkgreycolor, // Mengubah warna saat tombol dinonaktifkan
+              : Colors.grey.withOpacity(0.5),
           borderRadius: const BorderRadius.all(
             Radius.circular(30),
           ),
           border: Border.all(
               color: isEnabled
                   ? notifire.getPrimaryPurpleColor
-                  : notifire.getdarkgreycolor), // Border juga berubah
+                  : Colors.grey.withOpacity(0.5),
+          ),
         ),
         child: Center(
           child: Text(
             "Lanjut ke pembayaran",
             style: TextStyle(
-              color: notifire.getwhite, // Ubah warna teks saat dinonaktifkan
+              color: notifire.getwhite,
               fontSize: height / 55,
               fontFamily: 'Gilroy Bold',
             ),
@@ -778,21 +785,23 @@ class _PpobPostpaidSingleProviderState extends State<PpobPostpaidSingleProvider>
   }
 
   Future<dynamic> _checkBill() async {
-    Loading.showLoadingDialog(context, _globalKey);
+    Loading.showLoadingLogoDialog(context, _globalKey);
 
-    Map<String, dynamic> body = {
-      "product_code": _productCheck['code'],
-      "destination": _txtDestination,
-    };
-
-    final response = await ApiClient(AppConfig().configDio()).postCheckBill(authorization: 'Bearer ${SharedPrefs().token}', body: body);
-
-    Navigator.pop(context);
     try {
+      Map<String, dynamic> body = {
+        "product_code": _productCheck['code'],
+        "destination": _txtDestination,
+        "type_category_provider": _productCheck['type_category_provider'],
+      };
+
+      final response = await ApiClient(AppConfig().configDio(context: context)).postCheckBill(authorization: 'Bearer ${SharedPrefs().token}', body: body);
+
+      Navigator.pop(context);
+
       if (response.success) {
         dynamic dataCheck = response.data;
 
-        await _storeNotification(dataCheck);
+        await _storeCustomerNumber(dataCheck);
 
         // Tampilkan modal setelah operasi async selesai
         showModalBottomSheet(
@@ -819,6 +828,7 @@ class _PpobPostpaidSingleProviderState extends State<PpobPostpaidSingleProvider>
         );
       }
     } catch (e) {
+      Navigator.pop(context);
       Fluttertoast.showToast(
         msg: e.toString(),
         backgroundColor: Colors.red,
@@ -829,17 +839,19 @@ class _PpobPostpaidSingleProviderState extends State<PpobPostpaidSingleProvider>
     }
   }
 
-  Future<void> _storeNotification(dynamic formData) async {
-    final customerNId = CustomerNumberEntity.optional(
-      category: '$_type-$_category-$_provider',
-      customerNumber: _txtDestination,
-      customerName: formData['bill_details']['customer_name'],
-    );
-    print('XXXXX ${customerNId.toJson()}');
+  Future<void> _storeCustomerNumber(dynamic formData) async {
     try {
+      final customerNId = CustomerNumberEntity.optional(
+        category: '$_type-$_category-$_provider',
+        customerNumber: _txtDestination,
+        customerName: formData['bill_details']['customer_name'],
+      );
+      print('XXXXX ${customerNId.toJson()}');
       await customerNumberDao!.insertData(customerNId); 
-    } catch (e) {
-      print('Error _storeNotification: $e');
+
+    } catch (e, stackTrace) {
+      print('Error _storeCustomerNumber: $e');
+      print('Stack trace: $stackTrace');
     }
   }
 

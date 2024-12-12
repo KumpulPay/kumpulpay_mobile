@@ -6,7 +6,9 @@ import 'package:flutter_form_builder/flutter_form_builder.dart';
 import 'package:form_builder_validators/form_builder_validators.dart';
 import 'package:kumpulpay/login/login.dart';
 import 'package:kumpulpay/login/verify.dart';
+import 'package:kumpulpay/repository/app_config.dart';
 import 'package:kumpulpay/repository/retrofit/api_client.dart';
+import 'package:kumpulpay/utils/device_info_util.dart';
 import 'package:kumpulpay/utils/loading.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -153,9 +155,9 @@ class _RegisterState extends State<Register> {
                                                       .saveAndValidate()) {
                                                     final formData = _formKey
                                                         .currentState?.value;
-                                                    print('formDataX ${formData}');
-                                                    Navigator.pushNamed(context,Verify.routeName);
-                                                    // _submitForm(formData);
+                                                    
+                                                    // Navigator.pushNamed(context,Verify.routeName);
+                                                    _submitForm(formData);
                                                   }
                                                 },
                                                 child: Custombutton.button(
@@ -265,43 +267,49 @@ class _RegisterState extends State<Register> {
 
   Future<void> _submitForm(dynamic formData) async {
    
+    Loading.showLoadingLogoDialog(context, _globalKey);
     try {
-      Map<String, dynamic> body = {};
-      body.addAll(formData);
-      String jsonString = json.encode(body);
-      print("print: ${jsonString}");
+      var deviceData = await DeviceInfoUtil.initPlatformState();
+      dynamic deviceInfo = jsonEncode(deviceData);
+
+      var mutableFormData = Map<String, dynamic>.from(formData);
+
+      mutableFormData['device_info'] = deviceInfo;
      
-      // Loading.showLoadingDialog(context, _globalKey);
-      // final client = ApiClient(Dio(BaseOptions(contentType: "application/json")));
-      // final dynamic post = await client.postRegister(jsonString);
-   
-      // if (post["status"]) {
+      final response = await ApiClient(AppConfig().dio)
+          .postRegister(body: mutableFormData);
+
+      Navigator.pop(context);
+
+      if (response.success) {
         Navigator.pushNamed(
           context, Verify.routeName
         );
        
-      // } else {
-      //   Navigator.pop(context);
-      //   ScaffoldMessenger.of(context)
-      //       .showSnackBar(SnackBar(content: Text(post["message"])));
-      // }
-    } on DioException catch (e) {
-      Navigator.pop(context);
-      // print("error: ${e}");
-      if (e.response != null) {
-        // print(e.response?.data);
-        // print(e.response?.headers);
-        // print(e.response?.requestOptions);
-        bool status = e.response?.data["status"];
-        if (status) {
-          // return Center(child: Text('Upst...'));
-          // return e.response;
-        }
       } else {
-        // print(e.requestOptions);
-        // print(e.message);
+        
+        String errorMessage = response.message;
+        Map<String, dynamic> errors = response.data;
+
+        List<String> dynamicErrors = [];
+
+        errors.forEach((key, value) {
+          if (value is List && value.isNotEmpty) {
+            dynamicErrors.add('${key}: ${value.join(', ')}');
+          }
+        });
+
+        if (dynamicErrors.isNotEmpty) {
+          errorMessage += '\n' + dynamicErrors.join('\n');
+        }
+
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(errorMessage), backgroundColor: notifire.getbluecolor,),
+        );
       }
-      // rethrow;
+    } catch (e) {
+      Navigator.pop(context);
+      rethrow;
     }
   }
 }

@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-// import 'package:flutter/services.dart';
 import 'package:kumpulpay/data/shared_prefs.dart';
 import 'package:kumpulpay/home/home.dart';
 import 'package:kumpulpay/login/login.dart';
@@ -65,14 +64,14 @@ class _BottombarState extends State<Bottombar> {
             "images/logo_app/playstore.png",
             height: height / 25,
           ),
-          onPressed: () {
-            Navigator.push(
-              context,
-              MaterialPageRoute(
-                // builder: (context) => const Scan(),
-                builder: (context) => const Test(),
-              ),
-            );
+          onPressed: () async {
+            // Navigator.push(
+            //   context,
+            //   MaterialPageRoute(
+            //     // builder: (context) => const Scan(),
+            //     builder: (context) => const FaceVerification(),
+            //   ),
+            // );
           },
         ),
         floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,

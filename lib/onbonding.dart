@@ -104,41 +104,17 @@ class _OnbondingState extends State<Onbonding> {
                                   "images/intro_01.png",
                                   height: height / 2,
                                 ),
+
                                 SizedBox(
                                   height: height / 100,
                                 ),
-                                Text(
-                                  CustomStrings.intro1Title,
-                                  style: TextStyle(
-                                      fontFamily: 'Gilroy Bold',
-                                      color: notifire.getdarkscolor,
-                                      fontSize: height / 40),
-                                ),
+                                txtTitle(CustomStrings.intro1Title),
+                                
                                 SizedBox(
                                   height: height / 30,
                                 ),
-                                Text(
-                                  CustomStrings.intro1Description,
-                                  textAlign: TextAlign.center,
-                                  style: TextStyle(
-                                      fontFamily: 'Gilroy Medium',
-                                      color: notifire.getdarkgreycolor,
-                                      fontSize: height / 50),
-                                ),
-                                // Text(
-                                //   CustomStrings.onbonding3,
-                                //   style: TextStyle(
-                                //       fontFamily: 'Gilroy Medium',
-                                //       color: notifire.getdarkgreycolor,
-                                //       fontSize: height / 60),
-                                // ),
-                                // Text(
-                                //   CustomStrings.onbonding4,
-                                //   style: TextStyle(
-                                //       fontFamily: 'Gilroy Medium',
-                                //       color: notifire.getdarkgreycolor,
-                                //       fontSize: height / 60),
-                                // ),
+                                txtSubTitle(CustomStrings.intro1Description),
+                                
                               ],
                             ),
                           ],
@@ -165,41 +141,17 @@ class _OnbondingState extends State<Onbonding> {
                                   "images/intro_02.png",
                                   height: height / 2,
                                 ),
+
                                 SizedBox(
                                   height: height / 100,
                                 ),
-                                Text(
-                                  CustomStrings.intro2Title,
-                                  style: TextStyle(
-                                      fontFamily: 'Gilroy Bold',
-                                      color: notifire.getdarkscolor,
-                                      fontSize: height / 40),
-                                ),
+                                txtTitle(CustomStrings.intro2Title),
+
                                 SizedBox(
                                   height: height / 30,
                                 ),
-                                Text(
-                                  CustomStrings.intro2Description,
-                                  textAlign: TextAlign.center,
-                                  style: TextStyle(
-                                      fontFamily: 'Gilroy Medium',
-                                      color: notifire.getdarkgreycolor,
-                                      fontSize: height / 50),
-                                ),
-                                // Text(
-                                //   CustomStrings.onbonding7,
-                                //   style: TextStyle(
-                                //       fontFamily: 'Gilroy Medium',
-                                //       color: notifire.getdarkgreycolor,
-                                //       fontSize: height / 60),
-                                // ),
-                                // Text(
-                                //   CustomStrings.onbonding8,
-                                //   style: TextStyle(
-                                //       fontFamily: 'Gilroy Medium',
-                                //       color: notifire.getdarkgreycolor,
-                                //       fontSize: height / 60),
-                                // ),
+                                txtSubTitle(CustomStrings.intro2Description),
+                                
                               ],
                             ),
                           ],
@@ -226,40 +178,17 @@ class _OnbondingState extends State<Onbonding> {
                                   "images/intro_03.png",
                                   height: height / 2,
                                 ),
+
                                 SizedBox(
                                   height: height / 100,
                                 ),
-                                Text(
-                                  CustomStrings.intro3Title,
-                                  style: TextStyle(
-                                      fontFamily: 'Gilroy Bold',
-                                      color: notifire.getdarkscolor,
-                                      fontSize: height / 40),
-                                ),
+                                txtTitle(CustomStrings.intro3Title),
+
                                 SizedBox(
                                   height: height / 30,
                                 ),
-                                Text(
-                                  CustomStrings.intro3Description,
-                                  style: TextStyle(
-                                      fontFamily: 'Gilroy Medium',
-                                      color: notifire.getdarkgreycolor,
-                                      fontSize: height / 50),
-                                ),
-                                // Text(
-                                //   CustomStrings.onbonding11,
-                                //   style: TextStyle(
-                                //       fontFamily: 'Gilroy Medium',
-                                //       color: notifire.getdarkgreycolor,
-                                //       fontSize: height / 60),
-                                // ),
-                                // Text(
-                                //   CustomStrings.onbonding12,
-                                //   style: TextStyle(
-                                //       fontFamily: 'Gilroy Medium',
-                                //       color: notifire.getdarkgreycolor,
-                                //       fontSize: height / 60),
-                                // ),
+                                txtSubTitle(CustomStrings.intro3Description),
+
                               ],
                             ),
                           ],
@@ -440,6 +369,33 @@ class _OnbondingState extends State<Onbonding> {
             }
           ],
         ),
+      ),
+    );
+  }
+
+  Widget txtTitle(String title) {
+    return Padding(
+      padding: EdgeInsets.symmetric(horizontal: width / 10),
+      child: Text(
+        title,
+        style: TextStyle(
+            fontFamily: 'Gilroy Bold',
+            color: notifire.getdarkscolor,
+            fontSize: height / 40),
+      ),
+    );
+  }
+
+  Widget txtSubTitle(String subTitle) {
+    return Padding(
+      padding: EdgeInsets.symmetric(horizontal: width / 10),
+      child: Text(
+        subTitle,
+        textAlign: TextAlign.center,
+        style: TextStyle(
+            fontFamily: 'Gilroy Medium',
+            color: notifire.getdarkgreycolor,
+            fontSize: height / 50),
       ),
     );
   }

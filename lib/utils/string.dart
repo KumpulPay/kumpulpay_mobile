@@ -4,12 +4,12 @@ class CustomStrings {
   static const String skip = 'SKIP';
   static const String setupprofile = 'Atur Profil';
 
-  static const String intro1Title = 'Kumpul Pembayaran Digital';
-  static const String intro1Description = 'Beli pulsa dan banyak produk digital lainnya kami kumpulkan disini';
-  static const String intro2Title = 'Transaksi Mudah';
-  static const String intro2Description = 'Lebih mudah pakai KumpulPay transaksi cepat pembayaran anti ribet';
-  static const String intro3Title = 'Pendaftaran gratis';
-  static const String intro3Description = 'Gratis biaya pendaftaran dan tanpa syarat';
+  static const String intro1Title = 'Praktis';
+  static const String intro1Description = 'Bayar Tagihan & Topup lebih cepat dan efisien';
+  static const String intro3Title = 'Terjamin';
+  static const String intro3Description = 'Transaksi Anda dijamin aman setiap saat';
+  static const String intro2Title = 'Dukungan Penuh';
+  static const String intro2Description = 'Layanan bantuan siap 24 jam, kapan saja';
 
   static const String onbonding1 = 'Easily Accessible';
   static const String onbonding2 =

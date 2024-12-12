@@ -3,7 +3,7 @@ import 'package:string_capitalize/string_capitalize.dart';
 
 class HelpersDataJson {
   static String product(dynamic data, param) {
-    print('dataX ${data}');
+    
     String output = "";
     if (param == "product_name") {
       if ("${data["type"]}-${data["category"]}" == "prepaid-pulsa" || "${data["type"]}-${data["category"]}" == "prepaid-pln_prepaid") {
@@ -13,7 +13,7 @@ class HelpersDataJson {
         output = output.capitalizeEach();
       }
     }
-    print('outputX ${output}');
+  
     return output;
   }
 }

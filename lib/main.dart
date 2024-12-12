@@ -10,6 +10,7 @@ import 'package:kumpulpay/login/setupprofile.dart';
 import 'package:kumpulpay/login/confirmpin.dart' as cplogin;
 import 'package:kumpulpay/login/setyourpin.dart';
 import 'package:kumpulpay/login/verify.dart';
+import 'package:kumpulpay/master/regional_search.dart';
 
 import 'package:kumpulpay/notification/notification_list.dart';
 import 'package:kumpulpay/onbonding.dart';
@@ -19,6 +20,7 @@ import 'package:kumpulpay/ppob/ppob_product.dart';
 import 'package:kumpulpay/ppob/ppob_product_detail.dart';
 import 'package:kumpulpay/ppob/product_provider.dart';
 import 'package:kumpulpay/profile/editprofile.dart';
+import 'package:kumpulpay/repository/camera/camera_frame_screen.dart';
 import 'package:kumpulpay/repository/notification/notification_controller.dart';
 import 'package:kumpulpay/repository/sqlite/database_provider.dart';
 import 'package:kumpulpay/security/password/password.dart';
@@ -30,10 +32,15 @@ import 'package:kumpulpay/splashscreen.dart';
 import 'package:kumpulpay/topup/topup.dart';
 import 'package:kumpulpay/topup/topup_transfer_manual.dart';
 import 'package:kumpulpay/transaction/confirm_pin.dart' as cptransaction;
-import 'package:kumpulpay/transaction/history.dart';
 import 'package:kumpulpay/transaction/history_all.dart';
 import 'package:kumpulpay/utils/colornotifire.dart';
+import 'package:kumpulpay/verification/address_data.dart';
+import 'package:kumpulpay/verification/document_data.dart';
+import 'package:kumpulpay/verification/personal_data.dart';
 import 'package:kumpulpay/verification/verificationdone.dart';
+import 'package:kumpulpay/verification/verify_info.dart';
+import 'package:kumpulpay/wallet/transfer/transfer.dart';
+import 'package:kumpulpay/wallet/withdraw/withdraw.dart';
 import 'package:provider/provider.dart';
 
 final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
@@ -66,6 +73,13 @@ FutureOr<void> main() async {
           Login.routeName: (context) => const Login(),
           Register.routeName: (context) => const Register(),
           Verify.routeName: (context) => const Verify(),
+          VerifyInfo.routeName: (context) => const VerifyInfo(),
+          PersonalData.routeName: (context) => const PersonalData(),
+          AddressData.routeName: (context) => const AddressData(),
+          DocumentData.routeName: (context) => const DocumentData(),
+
+          RegionalSearch.routeName: (context) => const RegionalSearch(),
+
          
           SetupProfile.routeName: (context) => const SetupProfile(),
           Setyourpin.routeName: (context) => const Setyourpin(),
@@ -78,6 +92,8 @@ FutureOr<void> main() async {
 
           Topup.routeName: (context) => const Topup(),
           TopupTransferManual.routeName: (context) => const TopupTransferManual(),
+          Withdraw.routeName: (context) => const Withdraw(),
+          Transfer.routeName: (context) => const Transfer(),
 
           Category.routeName: (context) => const Category(),
           ProductProvider.routeName: (context) => const ProductProvider(),
@@ -89,8 +105,6 @@ FutureOr<void> main() async {
           PpobPostpaidSingleProvider.routeName: (context) => const PpobPostpaidSingleProvider(),
 
           HistoryAll.routeName: (context) => const HistoryAll(),
-          History.routeName: (context) => const History(),
-          HistoryAll.routeName: (context) => const HistoryAll(),
           cptransaction.ConfirmPin.routeName: (context) => const cptransaction.ConfirmPin(),
 
           
@@ -101,6 +115,9 @@ FutureOr<void> main() async {
           Password.routeName: (context) => const Password(),
           PasswordChange.routeName: (context) => const PasswordChange(),
           PasswordForgot.routeName: (context) => const PasswordForgot(),
+
+          CameraFrameScreen.routeName: (context) => const CameraFrameScreen(),
+          
         },
       ),
     ),

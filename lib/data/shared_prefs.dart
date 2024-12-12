@@ -26,6 +26,10 @@ class SharedPrefs {
   set refreshToken(String value) {
     _sharedPrefs.setString("token_refresh_api", value);
   }
+  String get deviceToken => _sharedPrefs.getString("device_token") ?? "";
+  set deviceToken(String value) {
+    _sharedPrefs.setString("device_token", value);
+  }
 
   String get fcmTokenMobile => _sharedPrefs.getString("fcm_token_mobile") ?? "";
   set fcmTokenMobile(String value) {
@@ -37,6 +41,14 @@ class SharedPrefs {
     _sharedPrefs.setString("google_profile", value);
   }
 
+  dynamic get userDataObj {
+    String? data = _sharedPrefs.getString("user_data");
+    if (data != null) {
+      dynamic userData = jsonDecode(data);
+      return userData;
+    }
+    return null;
+  }
   String get userData => _sharedPrefs.getString("user_data") ?? "";
   set userData(String value) {
     _sharedPrefs.setString("user_data", value);

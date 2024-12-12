@@ -13,6 +13,8 @@ import 'package:kumpulpay/repository/app_config.dart';
 import 'package:kumpulpay/repository/model/data.dart';
 import 'package:kumpulpay/repository/retrofit/api_client.dart';
 import 'package:kumpulpay/utils/button.dart';
+import 'package:kumpulpay/utils/device_info_util.dart';
+import 'package:kumpulpay/utils/helpers.dart';
 import 'package:kumpulpay/utils/loading.dart';
 import 'package:kumpulpay/utils/media.dart';
 import 'package:kumpulpay/utils/string.dart';
@@ -363,6 +365,7 @@ class _LoginState extends State<Login> {
       child: GestureDetector(
         onTap: _handleSignIn,
         child: Container(
+          height: height / 15,
           padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
           decoration: BoxDecoration(
             color: notifire.getprimerycolor,
@@ -446,13 +449,18 @@ class _LoginState extends State<Login> {
 
   Future<void> _handleSubmit(BuildContext context, dynamic formData) async {
 
-    Loading.showLoadingDialog(context, _globalKey);
+    Loading.showLoadingLogoDialog(context, _globalKey);
     
     try {
-      final client    = ApiClient(AppConfig().configDio());
-      final response  = await client.postAuth(formData);
-      Navigator.pop(context);
+      var deviceData = await DeviceInfoUtil.initPlatformState();
+      dynamic deviceInfo = jsonEncode(deviceData);
+
+      var mutableFormData = Map<String, dynamic>.from(formData);
+
+      mutableFormData['device_info'] = deviceInfo;
      
+      final response = await ApiClient(AppConfig().dio).postAuth(params: mutableFormData);
+
       if (response.success) {
         String token = response.data['token'].toString();
         SharedPrefs().token = token;
@@ -463,18 +471,33 @@ class _LoginState extends State<Login> {
         Navigator.pushNamed(context, Bottombar.routeName);
         
       } else {
-        // Navigator.pop(context);
+        Navigator.pop(context);
+        String errorMessage = response.message;
+        Map<String, dynamic> errors = response.data;
+
+        List<String> dynamicErrors = [];
+
+        errors.forEach((key, value) {
+          if (value is List && value.isNotEmpty) {
+            dynamicErrors.add('${key}: ${value.join(', ')}');
+          }
+        });
+
+        if (dynamicErrors.isNotEmpty) {
+          errorMessage += '\n' + dynamicErrors.join('\n');
+        }
+
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(response.message.toString())),
+          SnackBar(
+            content: Text(errorMessage),
+            backgroundColor: notifire.getbluecolor,
+          ),
         );
       }
-      // print(response.data);
-    } on DioException catch (e) {
+    } catch (e) {
       Navigator.pop(context);
       Fluttertoast.showToast(
-        msg: e.response != null
-            ? e.response?.data["message"] ?? "Terjadi kesalahan pada server."
-            : "Koneksi gagal, periksa jaringan Anda.",
+        msg: e.toString(),
         backgroundColor: Colors.red,
         textColor: Colors.white,
         fontSize: 16,
@@ -484,22 +507,25 @@ class _LoginState extends State<Login> {
   }
 
   Future<void> authWithGoogle(dynamic dataAccount) async {
-    final Map<String, dynamic> params = dataAccount;
-
-    final apiClient = ApiClient(Dio(BaseOptions(contentType: "application/json")));
-
+    Loading.showLoadingLogoDialog(context, _globalKey);
     try {
-      final response = await apiClient.postAuthWithGoogle(params);
-      if (response.status) {
-        // print('Authentication successful: ${response.data}');
+      var deviceData = await DeviceInfoUtil.initPlatformState();
+      dynamic deviceInfo = jsonEncode(deviceData);
 
+      var mutableFormData = Map<String, dynamic>.from(dataAccount);
+
+      mutableFormData['device_info'] = deviceInfo;
+
+      final response = await ApiClient(AppConfig().configDio(context: context))
+          .postAuthWithGoogle(params: mutableFormData);
+      
+      if (response.success) {
         String token = response.data['token'].toString();
         SharedPrefs().token = token;
         SharedPrefs().userData = jsonEncode(response.data['user']);
         await sendTokenFcmToServer(token);
 
         if (response.data['isNewUser']) {
-          
           Navigator.pushNamed(context, SetupProfile.routeName);
         } else {
           Navigator.pushNamed(context, Bottombar.routeName);
@@ -508,22 +534,21 @@ class _LoginState extends State<Login> {
       }
     } catch (e) {
       print('Error occurred: $e');
+      Navigator.pop(context);
     }
   }
 
   Future<void> sendTokenFcmToServer(String token) async {
     try {
-     
-      Map<String, dynamic> body = {
-        "fcm_token_mobile": SharedPrefs().fcmTokenMobile
-      };
-      String jsonString = json.encode(body);
-     
-      final client  = ApiClient(AppConfig().configDio());
-      final post    = await client.postUpdateFcm(authorization: 'Bearer ${SharedPrefs().token}', body: jsonString);
-     
-      if (post.success) {
-          Navigator.pushNamed(context, Bottombar.routeName);
+    
+      final response = await ApiClient(AppConfig().configDio(context: context))
+          .postUpdateFcm(
+          authorization: 'Bearer ${SharedPrefs().token}', body: {
+            "fcm_token_mobile": SharedPrefs().fcmTokenMobile,
+          });
+
+      if (response.success) {
+          // Navigator.pushNamed(context, Bottombar.routeName);
       } else {
           Fluttertoast.showToast(
               msg: 'Fcm token gagal di update!',
@@ -531,15 +556,7 @@ class _LoginState extends State<Login> {
               textColor: Colors.white,
               fontSize: 16);
       }
-    } on DioException catch (e) {
-      Fluttertoast.showToast(
-        msg: e.response != null
-            ? e.response?.data["message"] ?? "Terjadi kesalahan pada server."
-            : "Koneksi gagal, periksa jaringan Anda.",
-        backgroundColor: Colors.red,
-        textColor: Colors.white,
-        fontSize: 16,
-      );
+    } catch (e) {
       rethrow;
     }
   }
@@ -566,7 +583,7 @@ class _LoginState extends State<Login> {
   }
 
   // function google oAuth
-    Future<void> _fetchUserProfile() async {
+  Future<void> _fetchUserProfile() async {
     if (_currentUser == null) return;
 
     try {

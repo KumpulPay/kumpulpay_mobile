@@ -86,10 +86,10 @@ class _PpobProductState extends State<PpobProduct>
       _categoryData = args!.categoryData;
       _type = args!.type;
       _category = args!.categoryData['id'];
-      _filterCategory = "${_type}_${_category}";
+      _filterCategory = "${_type}-${_category}";
       title = args!.categoryData['short_name'];
 
-      if (_filterCategory == 'prepaid_pln_prepaid') {
+      if (_filterCategory == 'prepaid-pln_prepaid') {
         _isFilterProvider = false;
       }
       
@@ -230,7 +230,7 @@ class _PpobProductState extends State<PpobProduct>
         ]), onSubmitted: (value) {
       if (_formKey.currentState?.validate() ?? false) {
         final formValue = _formKey.currentState?.fields['input_nomor']?.value;
-        if (_filterCategory == 'prepaid_pln_prepaid') {
+        if (_filterCategory == 'prepaid-pln_prepaid') {
           _txtDestination = value;
         } else {
           handleFormSubmission(destination: value);
@@ -310,15 +310,13 @@ class _PpobProductState extends State<PpobProduct>
   }
 
   void _fetchData() async {
-    final Map<String, dynamic> queries = {"type": _type, "category": _category};
-
-    final response = await ApiClient(AppConfig().configDio()).getProduct(authorization: 'Bearer ${SharedPrefs().token}', queries: queries);
     try {
+      final Map<String, dynamic> queries = {"type": _type, "category": _category};
+      final response = await ApiClient(AppConfig().configDio(context: context)).getProduct(authorization: 'Bearer ${SharedPrefs().token}', queries: queries);
       
-
       if (response.success) {
         setState(() {
-          if (_filterCategory != 'prepaid_pln_prepaid'){
+          if (_filterCategory != 'prepaid-pln_prepaid'){
             providerList = groupDataByTypeCategoryProviderArray(response.data);
             filteredProviderList = providerList;
            
@@ -347,11 +345,13 @@ class _PpobProductState extends State<PpobProduct>
       } else {
         setState(() {
           filteredProviderList = [];
+          productList = [];
         });
       }
     } catch (e) {
       setState(() {
         filteredProviderList = [];
+        productList = [];
       });
     }
   }
@@ -383,24 +383,9 @@ class _PpobProductState extends State<PpobProduct>
                       return GestureDetector(
                         onTap: () async {
                           if (_txtDestination.isNotEmpty) {
-                            Loading.showLoadingDialog(context, _globalKey);
-                            await _checkBill();
-                            Navigator.pop(context);
-                            showModalBottomSheet(
-                                isDismissible: false,
-                                isScrollControlled: true,
-                                shape: const RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.only(
-                                    topLeft: Radius.circular(20),
-                                    topRight: Radius.circular(20),
-                                  ),
-                                ),
-                                backgroundColor: notifire.getprimerycolor,
-                                context: context,
-                                builder: (context) {
-                                  return _bottomSheetContent(
-                                      context, listDetail, index);
-                                });
+                            
+                            await _checkBill(ctx, listDetail, index);
+                           
                           } else {
                             ScaffoldMessenger.of(context).showSnackBar(
                                 const SnackBar(
@@ -556,7 +541,10 @@ class _PpobProductState extends State<PpobProduct>
   }
 
   Widget _bottomSheetContent(BuildContext ctxBsc, List<dynamic> listDetail, int index) {
-    double remainingBalance = dataCheck['user_detail']['balance'].toDouble() - listDetail[index]["price_fixed"].toDouble();
+    // saldo sebelum
+    double currentBalance = dataCheck['user_detail']['balance'].toDouble();
+    // saldo setelah
+    double remainingBalance = currentBalance - listDetail[index]["price_fixed"].toDouble();
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
@@ -943,8 +931,7 @@ class _PpobProductState extends State<PpobProduct>
                 crossAxisAlignment: CrossAxisAlignment.end,
                 children: [
                   Text(
-                    Helpers.currencyFormatter(
-                        dataCheck['user_detail']['balance'].toDouble()),
+                    Helpers.currencyFormatter(currentBalance),
                     style: TextStyle(
                       color: notifire.getdarkscolor,
                       fontFamily: 'Gilroy Medium',
@@ -990,8 +977,14 @@ class _PpobProductState extends State<PpobProduct>
                 flex: 1,
                 child: GestureDetector(
                   onTap: () {
-                    if (dataCheck['user_detail']['balance'] >
-                        listDetail[index]['price_fixed']) {
+                    if (remainingBalance < 0) {
+                      Helpers.showMbsAlert(
+                          context: context,
+                          title: 'Gagal!',
+                          subtitle:
+                              'Saldo kamu saat ini ${Helpers.currencyFormatter(currentBalance)} tidak cukup untuk melakukan transaksi senilai ${Helpers.currencyFormatter(listDetail[index]['price_fixed'].toDouble())}',
+                          typeAlert: 'info');
+                    } else {
                       fetchDataAndNavigate(context, listDetail[index]);
                     }
                   },
@@ -1044,30 +1037,39 @@ class _PpobProductState extends State<PpobProduct>
     );
   }
 
-  Future<dynamic> _checkBill() async {
-     Map<String, dynamic> body = {
-      "product_code": startsWithC!['code'],
-      "destination": _txtDestination,
-      "type_category_provider": startsWithC!['type_category_provider'],
-    };
+  Future<dynamic> _checkBill(
+      BuildContext ctxObs, List<dynamic> listDetail, int index) async {
 
-    final dynamic post = await ApiClient(AppConfig().configDio()).postCheckBill(
-        authorization: 'Bearer ${SharedPrefs().token}', body: body);
+    Loading.showLoadingDialog(context, _globalKey);    
     try {
+      Map<String, dynamic> body = {
+        "product_code": startsWithC!['code'],
+        "destination": _txtDestination,
+        "type_category_provider": startsWithC!['type_category_provider'],
+      };
 
-     
-
-      if (post["status"]) {
-        dataCheck = post['data'];
-        // print('dataCheck ${dataCheck}');
-
+      final response = await ApiClient(AppConfig().configDio(context: context)).postCheckBill(
+          authorization: 'Bearer ${SharedPrefs().token}', body: body);
+      Navigator.pop(context);
+      if (response.success) {
+        dataCheck = response.data;
+         showModalBottomSheet(
+            isDismissible: false,
+            isScrollControlled: true,
+            shape: const RoundedRectangleBorder(
+              borderRadius: BorderRadius.only(
+                topLeft: Radius.circular(20),
+                topRight: Radius.circular(20),
+              ),
+            ),
+            backgroundColor: notifire.getprimerycolor,
+            context: ctxObs,
+            builder: (context) {
+              return _bottomSheetContent(context, listDetail, index);
+            });
       } else {
-        Fluttertoast.showToast(
-          msg: post["message"],
-          backgroundColor: Colors.red,
-          textColor: Colors.white,
-          fontSize: 16,
-        );
+        Helpers.showMbsAlert(context: context, title: 'Gagal!', subtitle: response.message, typeAlert: 'info');
+
       }
     } on DioException catch (e) {
       Fluttertoast.showToast(
@@ -1079,7 +1081,6 @@ class _PpobProductState extends State<PpobProduct>
         fontSize: 16,
       );
       rethrow;
-    } finally {
     }
   }
 

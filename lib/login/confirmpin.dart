@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:kumpulpay/data/shared_prefs.dart';
+import 'package:kumpulpay/repository/app_config.dart';
 import 'package:kumpulpay/repository/retrofit/api_client.dart';
 import 'package:kumpulpay/utils/colornotifire.dart';
 import 'package:kumpulpay/utils/media.dart';
@@ -187,32 +188,32 @@ class _ConfirmPinState extends State<ConfirmPin> {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('PIN konfirmasi tidak sesuai!')),
       );
-      return; // Berhenti jika PIN tidak sesuai
+      return;
     }
 
     setState(() {
       isLoading = true; // Mulai loading
     });
 
-    // Menyiapkan data untuk API
-    dynamic body = {
-      "pin_transaction_new": _txtPin,
-      "pin_transaction_confirm_new": _txtPinConfirm,
-    };
-    print('bodyX $body');
-    final client = ApiClient(Dio(BaseOptions(contentType: "application/json")));
     try {
-      final response = await client.postPinCreate(
+      dynamic body = {
+        "pin_transaction_new": _txtPin,
+        "pin_transaction_confirm_new": _txtPinConfirm,
+      };
+     
+      final response = await ApiClient(AppConfig().configDio(context: context))
+          .postPinCreate(
         authorization: 'Bearer ${SharedPrefs().token}',
         body: jsonEncode(body),
       );
 
-      // Jika response berhasil
-      if (response.status) {
+      if (response.success) {
         setState(() {
-          isLoading = false; // Selesai loading
+          isLoading = false;
         });
+
         Navigator.pushNamed(context, VerificationDone.routeName);
+        
       } else {
         throw Exception('Gagal memperbarui data.');
       }

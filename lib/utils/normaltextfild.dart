@@ -25,6 +25,8 @@ class NormalCustomtextfilds {
     VoidCallback? onTap, // Fungsi yang dipanggil saat widget diklik
     Widget? suffixIcon, // Ikon di sisi kanan
     keyboardType,
+    maxLines,
+    minLines,
   }) {
     // Mendapatkan instance ColorNotifire
     final notifire = Provider.of<ColorNotifire>(context, listen: true);
@@ -38,6 +40,8 @@ class NormalCustomtextfilds {
           controller: controller, // Menggunakan controller
           initialValue: initialValue,
           keyboardType: keyboardType,
+          maxLines: maxLines,
+          minLines: minLines,
           validator: validator,
           readOnly: readOnly,
           autofocus: false,

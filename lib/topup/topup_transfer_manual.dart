@@ -1,12 +1,12 @@
 import 'package:accordion/accordion.dart';
 import 'package:accordion/controllers.dart';
-import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:kumpulpay/bottombar/bottombar.dart';
 import 'package:kumpulpay/data/shared_prefs.dart';
 import 'package:kumpulpay/repository/app_config.dart';
+import 'package:kumpulpay/repository/model/default_response.dart';
 import 'package:kumpulpay/repository/retrofit/api_client.dart';
-import 'package:kumpulpay/transaction/history.dart';
+import 'package:kumpulpay/transaction/history_all.dart';
 import 'package:kumpulpay/utils/helpers.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -71,13 +71,13 @@ class _TopupTransferManualState extends State<TopupTransferManual> {
     args = ModalRoute.of(context)!.settings.arguments as TopupTransferManual?;
     _data = args!.data;
     notifire = Provider.of<ColorNotifire>(context, listen: true);
-    print(_data);
+    // print(_data);
     return PopScope(
         canPop: false,
         onPopInvokedWithResult: (didPop, result) {
           Navigator.pushNamedAndRemoveUntil(
             context,
-            History.routeName,
+            HistoryAll.routeName,
             ModalRoute.withName(Bottombar.routeName),
           );
           return;
@@ -207,6 +207,10 @@ class _TopupTransferManualState extends State<TopupTransferManual> {
                                     Helpers.currencyFormatter(
                                         _data['amount_unique'].toDouble()),
                                     textAlign: TextAlign.end,
+                                    style: TextStyle(
+                                        fontFamily: "Gilroy Bold",
+                                        color: notifire.getPrimaryPurpleColor,
+                                        fontSize: height / 50),
                                   )),
                             ],
                           ),
@@ -315,25 +319,24 @@ class _TopupTransferManualState extends State<TopupTransferManual> {
                         ),
 
                         FutureBuilder(
-                          future: ApiClient(AppConfig().configDio())
+                          future: ApiClient(AppConfig().configDio(context: context))
                               .getCompanyBank(authorization: 'Bearer ${SharedPrefs().token}'),
-                          builder: (context, dynamic snapshot) {
-                            // print('print: $snapshot');
+                          builder: (context, AsyncSnapshot<DefaultResponse<dynamic>> snapshot) {
+                         
                             if (snapshot.connectionState ==
                                 ConnectionState.waiting) {
                               return Center(
                                 child: SizedBox(
-                                  height: height / 10, // Membuat container dengan tinggi penuh agar indikator berada di tengah vertikal
+                                  height: height / 10,
                                   child: const Center(
                                     child: CircularProgressIndicator(),
                                   ),
                                 ),
                               );    
-                              // return const Center(
-                              //     child: Text('Please wait its loading...'));
+                             
                             } else if (snapshot.connectionState ==
                                 ConnectionState.done) {
-                              return _buildAccordion(snapshot.data['data']);
+                              return _buildAccordion(snapshot.data?.data);
                             } else if (snapshot.hasError) {
                               return Text('Error: ${snapshot.error}');
                             } else {
@@ -374,7 +377,7 @@ class _TopupTransferManualState extends State<TopupTransferManual> {
                   headerBackgroundColor: notifire.gettabwhitecolor,
                   contentBackgroundColor: notifire.gettabwhitecolor,
                   header: Text(
-                    item['bank_datas']['name'],
+                    item['bank']['name'],
                     style: TextStyle(
                         fontFamily: "Gilroy Bold",
                         color: notifire.getdarkscolor,

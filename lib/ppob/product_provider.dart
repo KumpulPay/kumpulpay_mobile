@@ -1,4 +1,3 @@
-import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_form_builder/flutter_form_builder.dart';
 import 'package:form_builder_validators/form_builder_validators.dart';
@@ -34,7 +33,7 @@ class _ProductProviderState extends State<ProductProvider> {
   String? _type, _typeName;
   String? _category, _categoryName;
   List<dynamic> providerList = [];
-  List<dynamic> filteredProviderList = List.filled(4, {
+  List<dynamic> filteredProviderList = List.filled(8, {
     "group_key": "group_key",
     "category_name": "category_name",
     "provider": "provider",
@@ -182,6 +181,7 @@ class _ProductProviderState extends State<ProductProvider> {
                                 typeName: items[index]['category_name'],
                                 category: _category,
                                 categoryName: items[index]['provider_name'],
+                                provider: items[index]['provider'],
                                 providerImage: providerImage,
                                 child: items[index]['child'],
                               ));
@@ -277,9 +277,10 @@ class _ProductProviderState extends State<ProductProvider> {
   }
 
   void _fetchProviderData() async {
-    final Map<String, dynamic> queries = {"type": _type, "category": _category};
-    final response = await ApiClient(AppConfig().configDio()).getProduct(authorization: 'Bearer ${SharedPrefs().token}', queries: queries);
     try {
+      final Map<String, dynamic> queries = {"type": _type, "category": _category};
+      final response = await ApiClient(AppConfig().configDio(context: context)).getProduct(authorization: 'Bearer ${SharedPrefs().token}', queries: queries);
+      
       if (response.success) {
         setState(() {
           providerList = groupDataByTypeCategoryProviderArray(response.data);
@@ -339,30 +340,6 @@ class _ProductProviderState extends State<ProductProvider> {
     }).toList();
     // print('groupedDataArrayX ${jsonEncode(groupedDataArray)}');
     return groupedDataArray;
-  }
-
-  Widget _setImage(dynamic images) {
-    return Center(
-      child: images != null && images.isNotEmpty
-          ? Image.network(
-              images['image'], // URL gambar dari API
-              height: height / 20,
-              width: width / 8,
-              fit: BoxFit
-                  .contain, // Menyesuaikan ukuran gambar di dalam container
-              errorBuilder: (context, error, stackTrace) {
-                // Fallback jika gambar gagal dimuat
-                return Image.asset(
-                  "images/logo_app/disabled_kumpulpay_logo.png", // Gambar fallback
-                  height: height / 30,
-                );
-              },
-            )
-          : Image.asset(
-              "images/logo_app/disabled_kumpulpay_logo.png", // Gambar fallback jika provider_images null atau kosong
-              height: height / 30,
-            ),
-    );
   }
 
   Widget textfeildC(name, labelText_,

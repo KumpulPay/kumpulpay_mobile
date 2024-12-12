@@ -1,4 +1,5 @@
 import 'package:dio/dio.dart';
+import 'package:flutter/material.dart';
 import 'package:kumpulpay/flavors.dart';
 import 'package:kumpulpay/repository/retrofit/auth_interceptor.dart';
 
@@ -6,20 +7,23 @@ class AppConfig {
   final dio = Dio(
     BaseOptions(
       baseUrl: F.baseUrl,
-      connectTimeout: const Duration(milliseconds: 5000),
-      receiveTimeout: const Duration(milliseconds: 3000),
+      connectTimeout: const Duration(milliseconds: 20000),
+      receiveTimeout: const Duration(milliseconds: 15000),
       contentType: "application/json",
+      // validateStatus: (status) {
+      //   // Anggap semua status kode di bawah 500 valid, termasuk 401
+      //   return status != null && status < 500;
+      // },
     ),
   );
 
   // Method untuk mengkonfigurasi Dio dengan interceptor
-  Dio configDio() {
+  Dio configDio({BuildContext? context}) {
     // Menambahkan AuthInterceptor ke dalam dio
     dio.interceptors.add(
       AuthInterceptor(
         dio: dio,
-        refreshTokenEndpoint: '${F.baseUrl}/auth/refresh-token',
-        // refreshTokenEndpoint: Apis.refreshToken,
+        context: context
       ),
     );
 

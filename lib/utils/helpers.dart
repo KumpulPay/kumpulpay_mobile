@@ -1,8 +1,12 @@
+import 'dart:io';
+
+import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
 import 'package:flutter/material.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:kumpulpay/utils/media.dart';
 import 'package:provider/provider.dart';
+import 'package:device_info_plus/device_info_plus.dart';
 import 'color.dart';
 
 
@@ -237,5 +241,159 @@ class Helpers {
       },
     );
   }
+
+  static Future<dynamic> showMbsAlertWithAction(
+      {required context,
+      required title,
+      required subtitle,
+      typeAlert,
+      txtConfirmButton,
+      txtCancelButton,
+      Function? onConfirm}) {
+
+    Widget image = Icon(
+      Icons.check_circle_outline,
+      color: Colors.green,
+      size: height / 10,
+    );
+
+    return showModalBottomSheet(
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.only(
+          topLeft: Radius.circular(20),
+          topRight: Radius.circular(20),
+        ),
+      ),
+      backgroundColor: primeryColor,
+      context: context,
+      builder: (context) {
+        return SizedBox(
+          width: double.infinity,
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              SizedBox(
+                height: height / 80,
+              ),
+              Container(
+                height: height / 80,
+                width: width / 4,
+                decoration: BoxDecoration(
+                  color: greyColor,
+                  borderRadius: const BorderRadius.all(
+                    Radius.circular(20),
+                  ),
+                ),
+              ),
+              SizedBox(
+                height: height / 50,
+              ),
+              image,
+              SizedBox(
+                height: height / 50,
+              ),
+              Padding(
+                  padding: EdgeInsets.symmetric(horizontal: width / 10),
+                  child: Align(
+                    alignment: Alignment.center,
+                    child: Column(
+                      children: [
+                        Text(
+                          title,
+                          textAlign: TextAlign.center,
+                          style: TextStyle(
+                              color: darkColor,
+                              fontFamily: 'Gilroy Bold',
+                              fontSize: height / 35),
+                        ),
+                        SizedBox(height: height / 40),
+                        Text(
+                          subtitle,
+                          textAlign: TextAlign.center,
+                          style: TextStyle(
+                              color: Colors.grey,
+                              fontFamily: 'Gilroy Medium',
+                              fontSize: height / 55),
+                        ),
+                      ],
+                    ),
+                  )),
+
+              // start button
+              Padding(
+                  padding: EdgeInsets.symmetric(
+                      horizontal: width / 20, vertical: height / 40),
+                  child: Row(
+                    children: [
+                      Expanded(
+                        flex: 1,
+                        child: GestureDetector(
+                          onTap: () {
+                            Navigator.pop(context);
+                          },
+                          child: Container(
+                            height: height / 15,
+                            decoration: BoxDecoration(
+                              color: Colors.grey.withOpacity(0.5),
+                              borderRadius: const BorderRadius.all(
+                                Radius.circular(30),
+                              ),
+                            ),
+                            child: Center(
+                              child: Text(
+                                txtCancelButton ?? 'Tutup',
+                                style: TextStyle(
+                                    color: Colors.white,
+                                    fontFamily: 'Gilroy Bold',
+                                    fontSize: height / 50),
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
+
+                      SizedBox(width: width / 40), // Space between buttons
+
+                      Expanded(
+                        flex: 2,
+                        child: GestureDetector(
+                          onTap: () {
+                            Navigator.pop(context);
+                            // Trigger onConfirm action if it's provided
+                            if (onConfirm != null) {
+                              onConfirm();
+                            }
+                          },
+                          child: Container(
+                            height: height / 15,
+                            width: width,
+                            decoration: BoxDecoration(
+                              color: primaryPurpleColor,
+                              borderRadius: const BorderRadius.all(
+                                Radius.circular(30),
+                              ),
+                            ),
+                            child: Center(
+                              child: Text(
+                                txtConfirmButton ?? 'Oke',
+                                style: TextStyle(
+                                    color: Colors.white,
+                                    fontFamily: 'Gilroy Bold',
+                                    fontSize: height / 50),
+                              ),
+                            ),
+                          ),
+                        ),
+                      )
+                    ],
+                  )),
+              // end button
+            ],
+          ),
+        );
+      },
+    );
+  }
+
 
 }

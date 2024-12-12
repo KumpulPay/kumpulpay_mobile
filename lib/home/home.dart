@@ -8,7 +8,6 @@ import 'package:kumpulpay/data/shared_prefs.dart';
 import 'package:kumpulpay/notification/notification_list.dart';
 import 'package:kumpulpay/ppob/ppob_postpaid_single_provider.dart';
 import 'package:kumpulpay/ppob/ppob_product.dart';
-import 'package:kumpulpay/home/request/request.dart';
 import 'package:kumpulpay/home/scanpay/scan.dart';
 import 'package:kumpulpay/ppob/product_provider.dart';
 import 'package:kumpulpay/repository/app_config.dart';
@@ -21,11 +20,12 @@ import 'package:kumpulpay/utils/helper_data_json.dart';
 import 'package:kumpulpay/utils/helpers.dart';
 import 'package:kumpulpay/utils/media.dart';
 import 'package:kumpulpay/utils/string.dart';
+import 'package:kumpulpay/wallet/transfer/transfer.dart';
+import 'package:kumpulpay/wallet/withdraw/withdraw.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:skeletonizer/skeletonizer.dart';
 import '../profile/helpsupport.dart';
-import 'transfer/sendmoney.dart';
 
 class Home extends StatefulWidget {
   static String routeName = '/home';
@@ -37,8 +37,8 @@ class Home extends StatefulWidget {
 
 class _HomeState extends State<Home> {
   late ColorNotifire notifire;
-
-  Map<String, dynamic> userData = jsonDecode(SharedPrefs().userData);
+  final sharedPrefs = SharedPrefs();
+  Map<String, dynamic>? userData;
   late bool _loading = true;
   late double limitsAvailable = 0;
   late double balanceAvailable = 0;
@@ -49,6 +49,8 @@ class _HomeState extends State<Home> {
   void initState() {
     super.initState();
 
+    userData = jsonDecode(sharedPrefs.userData);
+
     listFavoritService = List.filled(7, {
       "category_images": {
         "image": "images/logo_app/disabled_kumpulpay_logo.png"
@@ -57,7 +59,7 @@ class _HomeState extends State<Home> {
       "category_short_name": "item1",
     });
     
-    _getDataHome();
+   _getDataHome();
   }
 
   getdarkmodepreviousstate() async {
@@ -128,7 +130,7 @@ class _HomeState extends State<Home> {
                   fontFamily: 'Gilroy Medium'),
             ),
             Text(
-              userData["name"],
+              userData!["name"],
               style: TextStyle(
                   color: notifire.getdarkscolor,
                   fontSize: 20,
@@ -258,7 +260,7 @@ class _HomeState extends State<Home> {
                       child: Row(
                         children: [
                           Text(
-                            "Saldo Saat Ini",
+                            "Nilai Deposit Saat Ini",
                             style: TextStyle(
                                 color: Colors.white,
                                 fontSize: height / 50,
@@ -272,13 +274,13 @@ class _HomeState extends State<Home> {
                                 color: Colors.white,
                                 height: height / 25,
                               ),
-                              Text(
-                                "Saldo",
-                                style: TextStyle(
-                                    color: Colors.white,
-                                    fontSize: height / 70,
-                                    fontFamily: 'Gilroy Medium'),
-                              ),
+                              // Text(
+                              //   "Saldo",
+                              //   style: TextStyle(
+                              //       color: Colors.white,
+                              //       fontSize: height / 70,
+                              //       fontFamily: 'Gilroy Medium'),
+                              // ),
                             ],
                           ),
                         ],
@@ -320,18 +322,18 @@ class _HomeState extends State<Home> {
                                 ? Padding(
                                     padding:
                                         EdgeInsets.only(bottom: height / 100),
-                                    child: Image.asset(
-                                      "images/eye.png",
-                                      color: Colors.white,
-                                      height: height / 40,
-                                    ),
+                                    child: const Icon(
+                                          Icons.remove_red_eye,
+                                          color: Colors.white,
+                                        ),
                                   )
                                 : Padding(
                                     padding:
                                         EdgeInsets.only(bottom: height / 100),
-                                    child: const Icon(
-                                      Icons.remove_red_eye,
+                                    child: Image.asset(
+                                      "images/eye.png",
                                       color: Colors.white,
+                                      height: height / 40,
                                     ),
                                   ),
                           ),
@@ -415,12 +417,7 @@ class _HomeState extends State<Home> {
                             children: [
                               GestureDetector(
                                 onTap: () {
-                                  Navigator.push(
-                                    context,
-                                    MaterialPageRoute(
-                                      builder: (context) => const SendMoney(),
-                                    ),
-                                  );
+                                  Navigator.pushNamed(context, Transfer.routeName);
                                 },
                                 child: Container(
                                   height: height / 15,
@@ -455,12 +452,7 @@ class _HomeState extends State<Home> {
                             children: [
                               GestureDetector(
                                 onTap: () {
-                                  Navigator.push(
-                                    context,
-                                    MaterialPageRoute(
-                                      builder: (context) => const Request(),
-                                    ),
-                                  );
+                                  Navigator.pushNamed(context, Withdraw.routeName);
                                 },
                                 child: Container(
                                   height: height / 15,
@@ -809,8 +801,8 @@ class _HomeState extends State<Home> {
                                           "images/logo_app/disabled_kumpulpay_logo.png", // Gambar fallback jika provider_images null atau kosong
                                           height: height / 30,
                                         )
-                                      : _setImage(
-                                          listFavoritService[index]['category_images']),
+                                      :  Helpers.setNetWorkImage(
+                                          listFavoritService[index]['category_images']!['image'],height_: height / 30),
                             ),
                           ),
                           SizedBox(
@@ -1057,6 +1049,8 @@ class _HomeState extends State<Home> {
                               HelpersDataJson.product(
                                   listLastTransaction[index]["product_meta"],
                                   "product_name"),
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,    
                               style: TextStyle(
                                 fontFamily: "Gilroy Bold",
                                 color: notifire.getdarkscolor,
@@ -1097,7 +1091,7 @@ class _HomeState extends State<Home> {
                             ),
                             const SizedBox(height: 5),
                             Text(
-                              listLastTransaction[index]["code"],
+                              listLastTransaction[index]["status"],
                               style: TextStyle(
                                 fontFamily: "Gilroy Medium",
                                 color:
@@ -1120,54 +1114,34 @@ class _HomeState extends State<Home> {
     );
   }
 
-  Widget _setImage(dynamic images) {
-    return Center(
-      child: images != null && images.isNotEmpty
-          ? Image.network(
-              images['image'], // URL gambar dari API
-              height: height / 30,
-              // width: width / 8,
-              fit: BoxFit
-                  .contain, // Menyesuaikan ukuran gambar di dalam container
-              errorBuilder: (context, error, stackTrace) {
-                // Fallback jika gambar gagal dimuat
-                return Image.asset(
-                  "images/logo_app/disabled_kumpulpay_logo.png", // Gambar fallback
-                  height: height / 30,
-                );
-              },
-            )
-          : Image.asset(
-              "images/logo_app/disabled_kumpulpay_logo.png", // Gambar fallback jika provider_images null atau kosong
-              height: height / 30,
-            ),
-    );
-  }
-
   void _getDataHome() async {
-
-    final client = ApiClient(AppConfig().configDio());
-    final response = await client.getHome(authorization: 'Bearer ${SharedPrefs().token}');
-
     try {
+      final response = await ApiClient(AppConfig().configDio(context: context)).getHome(authorization: 'Bearer ${sharedPrefs.token}');
+     
       if (response.success) {
+        if (!mounted) return; 
         setState(() {
           balanceAvailable = response.data["balance"].toDouble();
-          SharedPrefs().balanceAvailable = balanceAvailable;
+          sharedPrefs.balanceAvailable = balanceAvailable;
 
           listFavoritService = response.data["favorit_sevice"];
           listLastTransaction = response.data["last_transaction"];
-          _loading = false;
         });
       }
     } catch (e) {
+      if (!mounted) return;
       Fluttertoast.showToast(
         msg: e.toString(),
         backgroundColor: Colors.red,
         textColor: Colors.white,
         fontSize: 16,
+        toastLength: Toast.LENGTH_LONG,
       );
-      rethrow;
+    } finally {
+      if (!mounted) return;
+      setState(() {
+        _loading = false;
+      });
     }
   }
 

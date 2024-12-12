@@ -5,11 +5,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter_form_builder/flutter_form_builder.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:form_builder_validators/form_builder_validators.dart';
+import 'package:kumpulpay/bottombar/bottombar.dart';
 import 'package:kumpulpay/data/shared_prefs.dart';
 import 'package:kumpulpay/login/setyourpin.dart';
 import 'package:kumpulpay/repository/app_config.dart';
 import 'package:kumpulpay/repository/retrofit/api_client.dart';
 import 'package:kumpulpay/utils/helpers.dart';
+import 'package:kumpulpay/utils/loading.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../utils/button.dart';
@@ -30,6 +32,7 @@ class SetupProfile extends StatefulWidget {
 class _SetupProfileState extends State<SetupProfile> {
   late ColorNotifire notifire;
   DateTime selectedDate = DateTime.now();
+  final _globalKey = GlobalKey<State>();
   final _formKey = GlobalKey<FormBuilderState>();
   final TextEditingController _ctrName = TextEditingController();
   final TextEditingController dateController= TextEditingController();
@@ -52,32 +55,8 @@ class _SetupProfileState extends State<SetupProfile> {
     }
   }
 
-  String dropdownvalue = '01';
-  String monthvalue = 'Jan';
-  String yearvalue = '2018';
   String gendervalue = '';
 
-  var items = [
-    '01',
-    '02',
-    '03',
-    '04',
-    '05',
-  ];
-  var monthitems = [
-    'Jan',
-    'feb',
-    'mar',
-    'ape',
-    'may',
-  ];
-  var yearitems = [
-    '2018',
-    '2019',
-    '2020',
-    '2021',
-    '2022',
-  ];
   var genderitems = [
     CustomStrings.male,
     CustomStrings.female,
@@ -267,12 +246,12 @@ class _SetupProfileState extends State<SetupProfile> {
                                           
                                           ),
                                     ),
-                                    Padding(
-                                      padding: EdgeInsets.only(
-                                          left: width / 3.5, top: height / 10),
-                                      child: Image.asset("images/adprofile.png",
-                                          height: height / 22),
-                                    )
+                                    // Padding(
+                                    //   padding: EdgeInsets.only(
+                                    //       left: width / 3.5, top: height / 10),
+                                    //   child: Image.asset("images/adprofile.png",
+                                    //       height: height / 22),
+                                    // )
                                   ],
                                 ),
                               ),
@@ -476,38 +455,55 @@ class _SetupProfileState extends State<SetupProfile> {
   }
 
   Future<void> _submitForm(formData) async {
-   
-    dynamic userData = {
-      "avatar": googleProfile['avatar'],
-      "name": formData['name'],
-      "email": googleProfile['email'],
-      "phone": formData['phone'],
-      "date_of_birth": formData['date_of_birth'],
-      "gender": formData['gender'],
-    };
-   
-    await Future.delayed(const Duration(seconds: 1));
-
-    final response = await ApiClient(AppConfig().configDio()).patchProfile(
-      authorization: 'Bearer ${SharedPrefs().token}',
-      body: userData,
-    );
+    Loading.showLoadingLogoDialog(context, _globalKey);
     try {
+      dynamic userData = {
+        "avatar": googleProfile['avatar'],
+        "name": formData['name'],
+        "email": googleProfile['email'],
+        "phone": formData['phone'],
+        "date_of_birth": formData['date_of_birth'],
+        "gender": formData['gender'],
+      };
+    
+      await Future.delayed(const Duration(seconds: 1));
+      
+      final response = await ApiClient(AppConfig().configDio(context: context)).patchProfile(
+        authorization: 'Bearer ${SharedPrefs().token}',
+        body: userData,
+      );
+
+      Navigator.pop(context);
+
       if (response.success) {
         SharedPrefs().userData = jsonEncode(response.data['user']);
         
-        Navigator.pushNamed(context, Setyourpin.routeName);
+        Navigator.pushNamedAndRemoveUntil(context, Setyourpin.routeName, (route) => false);
       } else {
-        // Gagal, misalnya kesalahan dari server
-        throw Exception('Gagal memperbarui data.');
+        String errorMessage = response.message;
+        Map<String, dynamic> errors = response.data;
+
+        List<String> dynamicErrors = [];
+
+        errors.forEach((key, value) {
+          if (value is List && value.isNotEmpty) {
+            dynamicErrors.add('${key}: ${value.join(', ')}');
+          }
+        });
+
+        if (dynamicErrors.isNotEmpty) {
+          errorMessage += '\n' + dynamicErrors.join('\n');
+        }
+
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(errorMessage),
+            backgroundColor: notifire.getbluecolor,
+          ),
+        );
       }
     } catch (e) {
-      Fluttertoast.showToast(
-        msg: e.toString(),
-        backgroundColor: Colors.red,
-        textColor: Colors.white,
-        fontSize: 16,
-      );
+      Navigator.pop(context);
       rethrow;
     }
   }

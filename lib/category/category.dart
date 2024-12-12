@@ -188,7 +188,7 @@ class _CategoryState extends State<Category> {
   }
 
   void _fetchCategoryData() async {
-    final response = await ApiClient(AppConfig().configDio()).getProductCategory(
+    final response = await ApiClient(AppConfig().configDio(context: context)).getProductCategory(
         authorization: 'Bearer ${SharedPrefs().token}');
 
     try {
@@ -279,7 +279,6 @@ class _CategoryState extends State<Category> {
                                           category: child2[index]['id'],
                                           categoryName: child2[index]['name']));
                                 } else {
-                                  
                                   Navigator.pushNamed(context,
                                       PpobPostpaidSingleProvider.routeName,
                                       arguments: PpobPostpaidSingleProvider(
@@ -290,11 +289,23 @@ class _CategoryState extends State<Category> {
                                           child: child2[index]['child']));
                                 }
                               } else if (item['id'] == 'entertainment') {
-                                Navigator.pushNamed(
-                                    context, PpobProduct.routeName,
-                                    arguments: PpobProduct(
-                                        type: item['id'],
-                                        categoryData: child2[index]));
+                                if (child2[index]['id'] == 'game') {
+                                  Navigator.pushNamed(
+                                          context, PpobProduct.routeName,
+                                          arguments: PpobProduct(
+                                              type: item['id'],
+                                              categoryData: child2[index]));
+                                } else if (child2[index]['id'] == 'tv_kabel') {
+                                  Navigator.pushNamed(
+                                          context, ProductProvider.routeName,
+                                          arguments: ProductProvider(
+                                              type: item['id'],
+                                              typeName: item['name'],
+                                              category: child2[index]['id'],
+                                              categoryName: child2[index]
+                                                  ['name']));
+
+                                }
                               }
                             },
                             child: Container(

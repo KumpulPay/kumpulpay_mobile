@@ -235,24 +235,24 @@ class _ConfirmPinState extends State<ConfirmPin> {
   }
 
   Future<void> _submitForm(String txtPinTransaction) async {
-    if (txtPinTransaction.isEmpty || txtPinTransaction.length < 4) {
-      ScaffoldMessenger.of(context)
-          .showSnackBar(const SnackBar(content: Text("Pin tidak valid!")));
-      return;
-    }
-
-    Loading.showLoadingDialog(context, _globalKey);
-
-    Map<String, dynamic> body = {"pin_transaction": txtPinTransaction};
-    body.addAll(_formData);
-    // String jsonString = json.encode(body);
-   
-    final response = await ApiClient(AppConfig().configDio()).postPpobTransaction(
-        authorization: 'Bearer ${SharedPrefs().token}', body: body);
-
-    Navigator.pop(context);
-
+    Loading.showLoadingLogoDialog(context, _globalKey);
     try {
+      if (txtPinTransaction.isEmpty || txtPinTransaction.length < 4) {
+        Navigator.pop(context);
+        
+        ScaffoldMessenger.of(context)
+            .showSnackBar(const SnackBar(content: Text("Pin tidak valid!")));
+        return;
+      }
+
+      Map<String, dynamic> body = {"pin_transaction": txtPinTransaction};
+      body.addAll(_formData);
+
+      final response = await ApiClient(AppConfig().configDio(context: context))
+          .postPpobTransaction(
+              authorization: 'Bearer ${SharedPrefs().token}', body: body);
+
+      Navigator.pop(context);
       
       if (response.success) {
         _showMyDialog();
@@ -262,13 +262,11 @@ class _ConfirmPinState extends State<ConfirmPin> {
       }
     } catch (e) {
       Navigator.pop(context);
-      Fluttertoast.showToast(
-        msg: e.toString(),
-        backgroundColor: Colors.red,
-        textColor: Colors.white,
-        fontSize: 16,
-      );
-      rethrow;
+      ScaffoldMessenger.of(context)
+          .showSnackBar(SnackBar(content: Text('Terjadi kesalahan: $e')));
+    } finally {
+      Navigator.pop(context);
     }
   }
+
 }

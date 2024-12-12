@@ -36,11 +36,11 @@ class _HistoryAllState extends State<HistoryAll> {
       "title": "Kirim Uang",
       "amount": -10000,
       "date": DateTime(2024, 11, 16, 8, 9),
-      "icon": Icons.send,
+      // "icon": Icons.send,
     },
     {
       "title": "Isi Saldo dari LOKET",
-      "price_fixed": 19500,
+      "amount": 19500,
       "updated_at": DateTime(2024, 11, 16, 8, 7),
       // "icon": Icons.account_balance_wallet,
     },
@@ -401,13 +401,11 @@ class _HistoryAllState extends State<HistoryAll> {
       _isLoading = true;
     });
 
-    Map<String, dynamic> queries = {"page": _page, "per_page": _perPage};
-
-    final client = ApiClient(AppConfig().configDio());
-    final response = await client.getHistoryTransaction(
-        authorization: 'Bearer ${SharedPrefs().token}', queries: queries);
-
     try {
+      Map<String, dynamic> queries = {"page": _page, "per_page": _perPage};
+
+      final response = await ApiClient(AppConfig().configDio(context: context )).getHistoryTransaction(
+          authorization: 'Bearer ${SharedPrefs().token}', queries: queries);
       
       if (response.success) {
         setState(() {
@@ -442,7 +440,7 @@ class _HistoryAllState extends State<HistoryAll> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Container(
-          padding: const EdgeInsets.symmetric(vertical: 8.0),
+          padding: EdgeInsets.symmetric(vertical: 8.0, horizontal: width / 40),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
@@ -455,7 +453,6 @@ class _HistoryAllState extends State<HistoryAll> {
               ),
               Text(
                 Helpers.currencyFormatter(total.toDouble()),
-                // "Rp${total.abs()}",
                 style: TextStyle(
                   fontFamily: "Gilroy Bold",
                   fontSize: height / 55,
@@ -473,6 +470,14 @@ class _HistoryAllState extends State<HistoryAll> {
   }
 
   Widget _buildTransactionItem(Map<String, dynamic> transaction) {
+    String title = transaction['transaction_type'] == 'deposit' ? 'Deposit' : HelpersDataJson.product(transaction["product_meta"], "product_name");
+    Widget image = Image.asset(
+                          "images/logo_app/disabled_kumpulpay_logo.png",
+                          height: height / 20,
+                        );
+    if (transaction["product_meta"] != null && transaction["product_meta"]['provider_images'] != null) {
+        image = Helpers.setCachedNetworkImage(transaction["product_meta"]['provider_images']['image'],height_: height / 26);
+    }                    
     return Padding(
       padding: EdgeInsets.symmetric(
         // horizontal: width / 20,
@@ -501,12 +506,7 @@ class _HistoryAllState extends State<HistoryAll> {
                   ),
                 ),
                 child: Center(
-                  child: transaction["product_meta"]['provider_images'] != null
-                      ? Helpers.setCachedNetworkImage(transaction["product_meta"]['provider_images']['image'],height_: height / 26)
-                      : Image.asset(
-                          "images/logo_app/disabled_kumpulpay_logo.png",
-                          height: height / 20,
-                        ),
+                  child: image,
                 ),
               ),
               SizedBox(width: width / 40),
@@ -515,15 +515,14 @@ class _HistoryAllState extends State<HistoryAll> {
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   Text(
-                    HelpersDataJson.product(
-                        transaction["product_meta"], "product_name"),
+                    title,
                     style: TextStyle(
                       fontFamily: "Gilroy Bold",
                       color: notifire.getdarkscolor,
                       fontSize: height / 52,
                     ),
                   ),
-                  const SizedBox(height: 5),
+                  // const SizedBox(height: 5),
                   Text(
                     Helpers.dateTimeToFormat(
                       transaction["updated_at"],
@@ -556,7 +555,7 @@ class _HistoryAllState extends State<HistoryAll> {
                   ),
                   const SizedBox(height: 5),
                   Text(
-                    transaction["status"],
+                    transaction["status"]??'On Process',
                     style: TextStyle(
                       fontFamily: "Gilroy Medium",
                       color: notifire.getdarkgreycolor.withOpacity(0.6),
@@ -572,51 +571,6 @@ class _HistoryAllState extends State<HistoryAll> {
     );
   }
   
-  Widget _XbuildTransactionItem(Map<String, dynamic> transaction) {
-    DateTime updatedAt = DateTime.parse(transaction['updated_at']);
-    return Card(
-      elevation: 0,
-      shadowColor: Colors.transparent,
-      color: notifire.gettabwhitecolor,
-      margin: const EdgeInsets.only(bottom: 12.0),
-      child: ListTile(
-        leading: CircleAvatar(
-          backgroundColor: Colors.blue.withOpacity(0.1),
-          child: Icon(
-            transaction['icon'],
-            color: Colors.blue,
-          ),
-        ),
-        title: Text(
-          HelpersDataJson.product(transaction["product_meta"],"product_name"),
-          style: TextStyle(
-                fontFamily: "Gilroy Bold",
-                color: notifire.getdarkscolor,
-                fontSize: height / 50)
-        ),
-        subtitle:
-            Text(
-              DateFormat('dd MMM yyyy • HH:mm').format(updatedAt),
-              style: TextStyle(
-                fontFamily: "Gilroy Medium",
-                color: notifire.getdarkgreycolor.withOpacity(0.6),
-                fontSize: height / 65)
-            ),
-            
-        trailing: Text(
-          Helpers.currencyFormatter(transaction['price_fixed_view'].toDouble()),
-          style: TextStyle(
-            fontFamily: "Gilroy Bold",
-            fontSize: height / 55,
-            color: transaction['price_fixed_view'] > 0 ?
-             Colors.green : 
-             Colors.red,
-          ),
-        ),
-      ),
-    );
-  }
-
   Widget serarchtextField(
     textclr,
     hintclr,

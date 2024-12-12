@@ -5,7 +5,6 @@ import 'package:fluttertoast/fluttertoast.dart';
 import 'package:kumpulpay/data/shared_prefs.dart';
 import 'package:kumpulpay/repository/app_config.dart';
 import 'package:kumpulpay/repository/retrofit/api_client.dart';
-import 'package:kumpulpay/topup/topup_transfer_manual.dart';
 import 'package:kumpulpay/utils/helpers.dart';
 import 'package:kumpulpay/utils/loading.dart';
 import 'package:provider/provider.dart';
@@ -14,15 +13,15 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../../../utils/colornotifire.dart';
 import '../../../utils/media.dart';
 
-class Topup extends StatefulWidget {
-  static String routeName = '/topup';
-  const Topup({Key? key}) : super(key: key);
+class Transfer extends StatefulWidget {
+  static String routeName = '/transfer';
+  const Transfer({Key? key}) : super(key: key);
 
   @override
-  State<Topup> createState() => _TopupState();
+  State<Transfer> createState() => _TopupState();
 }
 
-class _TopupState extends State<Topup> {
+class _TopupState extends State<Transfer> {
   final _globalKey = GlobalKey<State>();
   late ColorNotifire notifire;
   int _selectedIndex = 1;
@@ -37,25 +36,6 @@ class _TopupState extends State<Topup> {
       notifire.setIsDark = previusstate;
     }
   }
-
-  List img = [
-    "images/citi.png",
-    "images/boa.png",
-    "images/usbank.png",
-    "images/barclays.png",
-    "images/hsbc.png",
-    "images/deutsche.jpg",
-    "images/dbs.png"
-  ];
-  List bankname = [
-    "Citibank",
-    "Bank of America",
-    "usbank",
-    "Barclays Bank",
-    "HSBC India",
-    "Deutsche Bank",
-    "DBS Bank"
-  ];
 
   List paymentMethod = [
     "Transfer Bank",
@@ -92,7 +72,7 @@ class _TopupState extends State<Topup> {
           ),
         ),
         title: Text(
-          "Topup Deposit",
+          "Tarik Deposit",
           style: TextStyle(
             color: notifire.getdarkscolor,
             fontFamily: 'Gilroy Bold',
@@ -143,7 +123,7 @@ class _TopupState extends State<Topup> {
                         Padding(
                           padding: EdgeInsets.symmetric(horizontal: width / 20),
                           child: Text(
-                            "Metode Pembayaran",
+                            "Kirim ke Bank",
                             style: TextStyle(
                               color: notifire.getdarkscolor,
                               fontFamily: 'Gilroy Bold',
@@ -238,7 +218,7 @@ class _TopupState extends State<Topup> {
                         Padding(
                           padding: EdgeInsets.symmetric(horizontal: width / 20),
                           child: Text(
-                            "Nominal Topup",
+                            "Nominal Transfer",
                             style: TextStyle(
                               color: notifire.getdarkscolor,
                               fontFamily: 'Gilroy Bold',
@@ -416,7 +396,7 @@ class _TopupState extends State<Topup> {
         Navigator.pop(context);
 
         if (response.success) {
-            Navigator.pushNamed(context, TopupTransferManual.routeName, arguments: TopupTransferManual(data: response.data));
+           
         } else {
             ScaffoldMessenger.of(context)
                 .showSnackBar(SnackBar(content: Text(response.message)));

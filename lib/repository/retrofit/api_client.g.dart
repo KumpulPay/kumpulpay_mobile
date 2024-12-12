@@ -22,19 +22,20 @@ class _ApiClient implements ApiClient {
   final ParseErrorLogger? errorLogger;
 
   @override
-  Future<dynamic> getTest() async {
+  Future<DefaultResponse<dynamic>> postAccountChecker(
+      {required dynamic body}) async {
     final _extra = <String, dynamic>{};
     final queryParameters = <String, dynamic>{};
     final _headers = <String, dynamic>{};
-    const Map<String, dynamic>? _data = null;
-    final _options = _setStreamType<dynamic>(Options(
-      method: 'GET',
+    final _data = body;
+    final _options = _setStreamType<DefaultResponse<dynamic>>(Options(
+      method: 'POST',
       headers: _headers,
       extra: _extra,
     )
         .compose(
           _dio.options,
-          '/api/v1/test',
+          '/api/v1/auth/checker',
           queryParameters: queryParameters,
           data: _data,
         )
@@ -43,13 +44,23 @@ class _ApiClient implements ApiClient {
           _dio.options.baseUrl,
           baseUrl,
         )));
-    final _result = await _dio.fetch(_options);
-    final _value = _result.data;
+    final _result = await _dio.fetch<Map<String, dynamic>>(_options);
+    late DefaultResponse<dynamic> _value;
+    try {
+      _value = DefaultResponse<dynamic>.fromJson(
+        _result.data!,
+        (json) => json as dynamic,
+      );
+    } on Object catch (e, s) {
+      errorLogger?.logError(e, s, _options);
+      rethrow;
+    }
     return _value;
   }
 
   @override
-  Future<DefaultResponse<dynamic>> postAuth(Map<String, dynamic> params) async {
+  Future<DefaultResponse<dynamic>> postAuth(
+      {required Map<String, dynamic> params}) async {
     final _extra = <String, dynamic>{};
     final queryParameters = <String, dynamic>{};
     final _headers = <String, dynamic>{};
@@ -86,13 +97,52 @@ class _ApiClient implements ApiClient {
   }
 
   @override
-  Future<AuthRes> postAuthWithGoogle(Map<String, dynamic> params) async {
+  Future<DefaultResponse<dynamic>> postRefreshToken(
+      {required String authorization}) async {
+    final _extra = <String, dynamic>{};
+    final queryParameters = <String, dynamic>{};
+    final _headers = <String, dynamic>{r'Authorization': authorization};
+    _headers.removeWhere((k, v) => v == null);
+    const Map<String, dynamic>? _data = null;
+    final _options = _setStreamType<DefaultResponse<dynamic>>(Options(
+      method: 'POST',
+      headers: _headers,
+      extra: _extra,
+    )
+        .compose(
+          _dio.options,
+          '/api/v1/auth/refresh-token',
+          queryParameters: queryParameters,
+          data: _data,
+        )
+        .copyWith(
+            baseUrl: _combineBaseUrls(
+          _dio.options.baseUrl,
+          baseUrl,
+        )));
+    final _result = await _dio.fetch<Map<String, dynamic>>(_options);
+    late DefaultResponse<dynamic> _value;
+    try {
+      _value = DefaultResponse<dynamic>.fromJson(
+        _result.data!,
+        (json) => json as dynamic,
+      );
+    } on Object catch (e, s) {
+      errorLogger?.logError(e, s, _options);
+      rethrow;
+    }
+    return _value;
+  }
+
+  @override
+  Future<DefaultResponse<dynamic>> postAuthWithGoogle(
+      {required Map<String, dynamic> params}) async {
     final _extra = <String, dynamic>{};
     final queryParameters = <String, dynamic>{};
     final _headers = <String, dynamic>{};
     final _data = <String, dynamic>{};
     _data.addAll(params);
-    final _options = _setStreamType<AuthRes>(Options(
+    final _options = _setStreamType<DefaultResponse<dynamic>>(Options(
       method: 'POST',
       headers: _headers,
       extra: _extra,
@@ -109,9 +159,12 @@ class _ApiClient implements ApiClient {
           baseUrl,
         )));
     final _result = await _dio.fetch<Map<String, dynamic>>(_options);
-    late AuthRes _value;
+    late DefaultResponse<dynamic> _value;
     try {
-      _value = AuthRes.fromJson(_result.data!);
+      _value = DefaultResponse<dynamic>.fromJson(
+        _result.data!,
+        (json) => json as dynamic,
+      );
     } on Object catch (e, s) {
       errorLogger?.logError(e, s, _options);
       rethrow;
@@ -120,8 +173,8 @@ class _ApiClient implements ApiClient {
   }
 
   @override
-  Future<dynamic> postRegister({
-    required String body,
+  Future<DefaultResponse<dynamic>> postRegister({
+    required dynamic body,
     Map<String, dynamic>? queries,
   }) async {
     final _extra = <String, dynamic>{};
@@ -130,7 +183,7 @@ class _ApiClient implements ApiClient {
     queryParameters.removeWhere((k, v) => v == null);
     final _headers = <String, dynamic>{};
     final _data = body;
-    final _options = _setStreamType<dynamic>(Options(
+    final _options = _setStreamType<DefaultResponse<dynamic>>(Options(
       method: 'POST',
       headers: _headers,
       extra: _extra,
@@ -146,8 +199,17 @@ class _ApiClient implements ApiClient {
           _dio.options.baseUrl,
           baseUrl,
         )));
-    final _result = await _dio.fetch(_options);
-    final _value = _result.data;
+    final _result = await _dio.fetch<Map<String, dynamic>>(_options);
+    late DefaultResponse<dynamic> _value;
+    try {
+      _value = DefaultResponse<dynamic>.fromJson(
+        _result.data!,
+        (json) => json as dynamic,
+      );
+    } on Object catch (e, s) {
+      errorLogger?.logError(e, s, _options);
+      rethrow;
+    }
     return _value;
   }
 
@@ -172,6 +234,49 @@ class _ApiClient implements ApiClient {
         .compose(
           _dio.options,
           '/api/v1/user/profile',
+          queryParameters: queryParameters,
+          data: _data,
+        )
+        .copyWith(
+            baseUrl: _combineBaseUrls(
+          _dio.options.baseUrl,
+          baseUrl,
+        )));
+    final _result = await _dio.fetch<Map<String, dynamic>>(_options);
+    late DefaultResponse<dynamic> _value;
+    try {
+      _value = DefaultResponse<dynamic>.fromJson(
+        _result.data!,
+        (json) => json as dynamic,
+      );
+    } on Object catch (e, s) {
+      errorLogger?.logError(e, s, _options);
+      rethrow;
+    }
+    return _value;
+  }
+
+  @override
+  Future<DefaultResponse<dynamic>> patchDataKyc({
+    required String authorization,
+    required dynamic body,
+    Map<String, dynamic>? queries,
+  }) async {
+    final _extra = <String, dynamic>{};
+    final queryParameters = <String, dynamic>{};
+    queryParameters.addAll(queries ?? <String, dynamic>{});
+    queryParameters.removeWhere((k, v) => v == null);
+    final _headers = <String, dynamic>{r'Authorization': authorization};
+    _headers.removeWhere((k, v) => v == null);
+    final _data = body;
+    final _options = _setStreamType<DefaultResponse<dynamic>>(Options(
+      method: 'PATCH',
+      headers: _headers,
+      extra: _extra,
+    )
+        .compose(
+          _dio.options,
+          '/api/v1/user/kyc',
           queryParameters: queryParameters,
           data: _data,
         )
@@ -401,7 +506,7 @@ class _ApiClient implements ApiClient {
   }
 
   @override
-  Future<dynamic> postPpobTransaction({
+  Future<DefaultResponse<dynamic>> postPpobTransaction({
     required String authorization,
     required dynamic body,
     Map<String, dynamic>? queries,
@@ -413,7 +518,7 @@ class _ApiClient implements ApiClient {
     final _headers = <String, dynamic>{r'Authorization': authorization};
     _headers.removeWhere((k, v) => v == null);
     final _data = body;
-    final _options = _setStreamType<dynamic>(Options(
+    final _options = _setStreamType<DefaultResponse<dynamic>>(Options(
       method: 'POST',
       headers: _headers,
       extra: _extra,
@@ -429,13 +534,22 @@ class _ApiClient implements ApiClient {
           _dio.options.baseUrl,
           baseUrl,
         )));
-    final _result = await _dio.fetch(_options);
-    final _value = _result.data;
+    final _result = await _dio.fetch<Map<String, dynamic>>(_options);
+    late DefaultResponse<dynamic> _value;
+    try {
+      _value = DefaultResponse<dynamic>.fromJson(
+        _result.data!,
+        (json) => json as dynamic,
+      );
+    } on Object catch (e, s) {
+      errorLogger?.logError(e, s, _options);
+      rethrow;
+    }
     return _value;
   }
 
   @override
-  Future<dynamic> postCheckBill({
+  Future<DefaultResponse<dynamic>> postCheckBill({
     required String authorization,
     required dynamic body,
     Map<String, dynamic>? queries,
@@ -447,7 +561,7 @@ class _ApiClient implements ApiClient {
     final _headers = <String, dynamic>{r'Authorization': authorization};
     _headers.removeWhere((k, v) => v == null);
     final _data = body;
-    final _options = _setStreamType<dynamic>(Options(
+    final _options = _setStreamType<DefaultResponse<dynamic>>(Options(
       method: 'POST',
       headers: _headers,
       extra: _extra,
@@ -463,8 +577,17 @@ class _ApiClient implements ApiClient {
           _dio.options.baseUrl,
           baseUrl,
         )));
-    final _result = await _dio.fetch(_options);
-    final _value = _result.data;
+    final _result = await _dio.fetch<Map<String, dynamic>>(_options);
+    late DefaultResponse<dynamic> _value;
+    try {
+      _value = DefaultResponse<dynamic>.fromJson(
+        _result.data!,
+        (json) => json as dynamic,
+      );
+    } on Object catch (e, s) {
+      errorLogger?.logError(e, s, _options);
+      rethrow;
+    }
     return _value;
   }
 
@@ -535,7 +658,7 @@ class _ApiClient implements ApiClient {
   }
 
   @override
-  Future<AuthRes> postPinCreate({
+  Future<DefaultResponse<dynamic>> postPinCreate({
     required String authorization,
     required String body,
     Map<String, dynamic>? queries,
@@ -547,7 +670,7 @@ class _ApiClient implements ApiClient {
     final _headers = <String, dynamic>{r'Authorization': authorization};
     _headers.removeWhere((k, v) => v == null);
     final _data = body;
-    final _options = _setStreamType<AuthRes>(Options(
+    final _options = _setStreamType<DefaultResponse<dynamic>>(Options(
       method: 'POST',
       headers: _headers,
       extra: _extra,
@@ -564,9 +687,12 @@ class _ApiClient implements ApiClient {
           baseUrl,
         )));
     final _result = await _dio.fetch<Map<String, dynamic>>(_options);
-    late AuthRes _value;
+    late DefaultResponse<dynamic> _value;
     try {
-      _value = AuthRes.fromJson(_result.data!);
+      _value = DefaultResponse<dynamic>.fromJson(
+        _result.data!,
+        (json) => json as dynamic,
+      );
     } on Object catch (e, s) {
       errorLogger?.logError(e, s, _options);
       rethrow;
@@ -637,6 +763,48 @@ class _ApiClient implements ApiClient {
         .compose(
           _dio.options,
           '/api/v1/company/bank',
+          queryParameters: queryParameters,
+          data: _data,
+        )
+        .copyWith(
+            baseUrl: _combineBaseUrls(
+          _dio.options.baseUrl,
+          baseUrl,
+        )));
+    final _result = await _dio.fetch<Map<String, dynamic>>(_options);
+    late DefaultResponse<dynamic> _value;
+    try {
+      _value = DefaultResponse<dynamic>.fromJson(
+        _result.data!,
+        (json) => json as dynamic,
+      );
+    } on Object catch (e, s) {
+      errorLogger?.logError(e, s, _options);
+      rethrow;
+    }
+    return _value;
+  }
+
+  @override
+  Future<DefaultResponse<dynamic>> getRegional({
+    required String authorization,
+    Map<String, dynamic>? queries,
+  }) async {
+    final _extra = <String, dynamic>{};
+    final queryParameters = <String, dynamic>{};
+    queryParameters.addAll(queries ?? <String, dynamic>{});
+    queryParameters.removeWhere((k, v) => v == null);
+    final _headers = <String, dynamic>{r'Authorization': authorization};
+    _headers.removeWhere((k, v) => v == null);
+    const Map<String, dynamic>? _data = null;
+    final _options = _setStreamType<DefaultResponse<dynamic>>(Options(
+      method: 'GET',
+      headers: _headers,
+      extra: _extra,
+    )
+        .compose(
+          _dio.options,
+          '/api/v1/regional',
           queryParameters: queryParameters,
           data: _data,
         )
@@ -789,7 +957,7 @@ class _ApiClient implements ApiClient {
   @override
   Future<DefaultResponse<dynamic>> postUpdateFcm({
     required String authorization,
-    required String body,
+    required dynamic body,
     Map<String, dynamic>? queries,
   }) async {
     final _extra = <String, dynamic>{};
